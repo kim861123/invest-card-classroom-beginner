@@ -1313,3 +1313,80 @@ dialog.asset-modal,dialog.draw-dialog{
   .easy-quiz-source .easy-quiz-news-link{font-size:14px}
   .easy-quiz-review-item{padding:12px}
 }
+
+
+/* EASY V2.2 · QUIZ RADIO WIDTH / iPhone Safari fix.
+ * Root cause: the global `input,select{display:block;width:100%}` rule
+ * made each radio fill the flex item and forced the answer text into a 1-character column.
+ * Keep normal inputs full width, but isolate quiz radio and answer text sizing. */
+.easy-quiz-options{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+}
+.easy-quiz-choice{
+  display:grid;
+  grid-template-columns:22px minmax(0,1fr);
+  column-gap:12px;
+  align-items:start;
+  min-width:0;
+  width:100%;
+  max-width:100%;
+  min-height:62px;
+  height:auto;
+  padding:14px;
+  text-align:left;
+  white-space:normal;
+  writing-mode:horizontal-tb;
+  overflow-wrap:break-word;
+  word-break:keep-all;
+  touch-action:manipulation;
+}
+.easy-quiz-choice input[type="radio"]{
+  appearance:auto;
+  -webkit-appearance:radio;
+  display:inline-block;
+  box-sizing:border-box;
+  width:20px !important;
+  min-width:20px !important;
+  max-width:20px !important;
+  height:20px !important;
+  min-height:20px;
+  margin:2px 0 0 !important;
+  padding:0 !important;
+  border:0;
+  border-radius:50%;
+  flex:none;
+  justify-self:start;
+  align-self:start;
+}
+.easy-quiz-choice>span{
+  display:block;
+  min-width:0;
+  width:auto;
+  max-width:100%;
+  margin:0;
+  padding:0;
+  line-height:1.6;
+  font-size:15px;
+  font-weight:600;
+  text-align:left;
+  white-space:normal;
+  word-break:keep-all;
+  overflow-wrap:break-word;
+  writing-mode:horizontal-tb;
+}
+.easy-quiz-choice:focus-within{
+  outline:2px solid #ffd37a;
+  outline-offset:2px;
+}
+@media (max-width:700px){
+  .easy-quiz-options{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:480px){
+  .easy-quiz-choice{padding:14px 13px;grid-template-columns:20px minmax(0,1fr);gap:12px}
+  .easy-quiz-choice>span{font-size:15px;line-height:1.65}
+}

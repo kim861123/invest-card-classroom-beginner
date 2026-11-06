@@ -700,7 +700,7 @@ const server=http.createServer((req,res)=>{
     const url=new URL(req.url,`http://${req.headers.host||"localhost"}`);
     const pathname=url.pathname;
     if (req.method==="GET" && staticFile(req,res,pathname)) return;
-    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-beginner-v2.1-mobile-quiz-review"});
+    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-beginner-v2.2-quiz-mobile-reveal"});
     if (pathname==="/api/state" && req.method==="GET") return send(res,200,view(req));
     if (pathname==="/api/events" && req.method==="GET") {
       const s=sessionFor(req);
