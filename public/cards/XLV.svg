@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 330" role="img" aria-label="헬스케어 산업 카드">
+ <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#162d51"/><stop offset=".6" stop-color="#101d39"/><stop offset="1" stop-color="#080f21"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#ff8fa5" stop-opacity=".29"/><stop offset="1" stop-color="#ff8fa5" stop-opacity="0"/></radialGradient>
+ <pattern id="grid" width="27" height="27" patternUnits="userSpaceOnUse"><path d="M27 0H0V27" fill="none" stroke="#789bd1" stroke-width=".7" opacity=".17"/></pattern></defs>
+ <rect width="560" height="330" rx="25" fill="url(#bg)"/><rect width="560" height="330" fill="url(#grid)"/>
+ <circle cx="287" cy="150" r="193" fill="url(#glow)"/><g transform="translate(0,-5)"><circle cx="291" cy="169" r="104" fill="#ff879c" opacity=".15"/><path d="M294 96v144M222 169h144" stroke="#ffacba" stroke-width="28" stroke-linecap="round"/><path d="M176 249h45l25-42 24 71 37-118 24 68h65" fill="none" stroke="#ff647f" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></g>
+ <path d="M0 280C110 236 188 319 302 285S470 251 560 279V330H0Z" fill="#ff8fa5" opacity=".08"/>
+ <text x="30" y="45" font-size="17" letter-spacing="4" font-family="Arial,sans-serif" font-weight="700" fill="#ff8fa5">XLV / INVEST PLAY</text>
+ </svg>

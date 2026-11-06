@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 330" role="img" aria-label="방어소비재 산업 카드">
+ <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#162d51"/><stop offset=".6" stop-color="#101d39"/><stop offset="1" stop-color="#080f21"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#bbe68f" stop-opacity=".29"/><stop offset="1" stop-color="#bbe68f" stop-opacity="0"/></radialGradient>
+ <pattern id="grid" width="27" height="27" patternUnits="userSpaceOnUse"><path d="M27 0H0V27" fill="none" stroke="#789bd1" stroke-width=".7" opacity=".17"/></pattern></defs>
+ <rect width="560" height="330" rx="25" fill="url(#bg)"/><rect width="560" height="330" fill="url(#grid)"/>
+ <circle cx="287" cy="150" r="193" fill="url(#glow)"/><g transform="translate(0,-5)"><g fill="none" stroke="#b6e18a" stroke-width="8"><path d="M205 230c2-81 48-137 92-142 44 5 89 61 91 142"/><path d="M198 232h196M227 252h140"/><path d="M281 123c-30 12-31 45-8 62M307 124c30 12 31 45 8 62"/></g><path d="M294 129v92" stroke="#7bcf9f" stroke-width="10"/></g>
+ <path d="M0 280C110 236 188 319 302 285S470 251 560 279V330H0Z" fill="#bbe68f" opacity=".08"/>
+ <text x="30" y="45" font-size="17" letter-spacing="4" font-family="Arial,sans-serif" font-weight="700" fill="#bbe68f">XLP / INVEST PLAY</text>
+ </svg>

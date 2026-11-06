@@ -1,0 +1,89 @@
+﻿year,sector_id,sector_name_ko,ticker,total_return_pct,period,period_end,source,source_url
+2019,1,에너지,XLE,10.66,FULL_CALENDAR_YEAR,2019-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2019,2,기초소재,XLB,24.13,FULL_CALENDAR_YEAR,2019-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2019,3,산업재,XLI,29.08,FULL_CALENDAR_YEAR,2019-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2019,4,금융,XLF,31.87,FULL_CALENDAR_YEAR,2019-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2019,5,순환소비재,XLY,28.39,FULL_CALENDAR_YEAR,2019-12-31,TotalRealReturns ETF adjusted annual total return,https://totalrealreturns.com/n/XLY
+2019,6,방어소비재,XLP,27.43,FULL_CALENDAR_YEAR,2019-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2019,7,헬스케어,XLV,20.45,FULL_CALENDAR_YEAR,2019-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2019,8,정보기술,XLK,49.86,FULL_CALENDAR_YEAR,2019-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2019,9,통신,XLC,31.05,FULL_CALENDAR_YEAR,2019-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2019,10,유틸리티,XLU,25.93,FULL_CALENDAR_YEAR,2019-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2019,11,부동산,XLRE,28.68,FULL_CALENDAR_YEAR,2019-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2020,1,에너지,XLE,-32.67,FULL_CALENDAR_YEAR,2020-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2020,2,기초소재,XLB,20.46,FULL_CALENDAR_YEAR,2020-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2020,3,산업재,XLI,10.91,FULL_CALENDAR_YEAR,2020-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2020,4,금융,XLF,-1.74,FULL_CALENDAR_YEAR,2020-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2020,5,순환소비재,XLY,29.63,FULL_CALENDAR_YEAR,2020-12-31,TotalRealReturns ETF adjusted annual total return,https://totalrealreturns.com/n/XLY
+2020,6,방어소비재,XLP,10.11,FULL_CALENDAR_YEAR,2020-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2020,7,헬스케어,XLV,13.3,FULL_CALENDAR_YEAR,2020-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2020,8,정보기술,XLK,43.62,FULL_CALENDAR_YEAR,2020-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2020,9,통신,XLC,26.9,FULL_CALENDAR_YEAR,2020-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2020,10,유틸리티,XLU,0.51,FULL_CALENDAR_YEAR,2020-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2020,11,부동산,XLRE,-2.19,FULL_CALENDAR_YEAR,2020-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2021,1,에너지,XLE,53.28,FULL_CALENDAR_YEAR,2021-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2021,2,기초소재,XLB,27.44,FULL_CALENDAR_YEAR,2021-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2021,3,산업재,XLI,21.08,FULL_CALENDAR_YEAR,2021-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2021,4,금융,XLF,34.8,FULL_CALENDAR_YEAR,2021-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2021,5,순환소비재,XLY,27.93,FULL_CALENDAR_YEAR,2021-12-31,TotalRealReturns ETF adjusted annual total return,https://totalrealreturns.com/n/XLY
+2021,6,방어소비재,XLP,17.21,FULL_CALENDAR_YEAR,2021-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2021,7,헬스케어,XLV,26.04,FULL_CALENDAR_YEAR,2021-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2021,8,정보기술,XLK,34.74,FULL_CALENDAR_YEAR,2021-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2021,9,통신,XLC,15.96,FULL_CALENDAR_YEAR,2021-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2021,10,유틸리티,XLU,17.7,FULL_CALENDAR_YEAR,2021-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2021,11,부동산,XLRE,46.1,FULL_CALENDAR_YEAR,2021-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2022,1,에너지,XLE,64.32,FULL_CALENDAR_YEAR,2022-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2022,2,기초소재,XLB,-12.3,FULL_CALENDAR_YEAR,2022-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2022,3,산업재,XLI,-5.57,FULL_CALENDAR_YEAR,2022-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2022,4,금융,XLF,-10.59,FULL_CALENDAR_YEAR,2022-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2022,5,순환소비재,XLY,-36.28,FULL_CALENDAR_YEAR,2022-12-31,TotalRealReturns ETF adjusted annual total return,https://totalrealreturns.com/n/XLY
+2022,6,방어소비재,XLP,-0.82,FULL_CALENDAR_YEAR,2022-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2022,7,헬스케어,XLV,-2.09,FULL_CALENDAR_YEAR,2022-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2022,8,정보기술,XLK,-27.73,FULL_CALENDAR_YEAR,2022-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2022,9,통신,XLC,-37.63,FULL_CALENDAR_YEAR,2022-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2022,10,유틸리티,XLU,1.43,FULL_CALENDAR_YEAR,2022-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2022,11,부동산,XLRE,-26.26,FULL_CALENDAR_YEAR,2022-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2023,1,에너지,XLE,-0.63,FULL_CALENDAR_YEAR,2023-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2023,2,기초소재,XLB,12.47,FULL_CALENDAR_YEAR,2023-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2023,3,산업재,XLI,18.13,FULL_CALENDAR_YEAR,2023-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2023,4,금융,XLF,12.03,FULL_CALENDAR_YEAR,2023-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2023,5,순환소비재,XLY,39.64,FULL_CALENDAR_YEAR,2023-12-31,TotalRealReturns ETF adjusted annual total return,https://totalrealreturns.com/n/XLY
+2023,6,방어소비재,XLP,-0.81,FULL_CALENDAR_YEAR,2023-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2023,7,헬스케어,XLV,2.07,FULL_CALENDAR_YEAR,2023-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2023,8,정보기술,XLK,56.02,FULL_CALENDAR_YEAR,2023-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2023,9,통신,XLC,52.82,FULL_CALENDAR_YEAR,2023-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2023,10,유틸리티,XLU,-7.16,FULL_CALENDAR_YEAR,2023-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2023,11,부동산,XLRE,12.38,FULL_CALENDAR_YEAR,2023-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2024,1,에너지,XLE,5.56,FULL_CALENDAR_YEAR,2024-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2024,2,기초소재,XLB,0.15,FULL_CALENDAR_YEAR,2024-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2024,3,산업재,XLI,17.31,FULL_CALENDAR_YEAR,2024-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2024,4,금융,XLF,30.56,FULL_CALENDAR_YEAR,2024-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2024,5,순환소비재,XLY,26.51,FULL_CALENDAR_YEAR,2024-12-31,TotalRealReturns ETF adjusted annual total return,https://totalrealreturns.com/n/XLY
+2024,6,방어소비재,XLP,12.2,FULL_CALENDAR_YEAR,2024-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2024,7,헬스케어,XLV,2.47,FULL_CALENDAR_YEAR,2024-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2024,8,정보기술,XLK,21.63,FULL_CALENDAR_YEAR,2024-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2024,9,통신,XLC,34.71,FULL_CALENDAR_YEAR,2024-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2024,10,유틸리티,XLU,23.31,FULL_CALENDAR_YEAR,2024-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2024,11,부동산,XLRE,5.09,FULL_CALENDAR_YEAR,2024-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2025,1,에너지,XLE,7.88,FULL_CALENDAR_YEAR,2025-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2025,2,기초소재,XLB,9.94,FULL_CALENDAR_YEAR,2025-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2025,3,산업재,XLI,19.35,FULL_CALENDAR_YEAR,2025-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2025,4,금융,XLF,14.9,FULL_CALENDAR_YEAR,2025-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2025,5,순환소비재,XLY,7.37,FULL_CALENDAR_YEAR,2025-12-31,TotalRealReturns ETF adjusted annual total return,https://totalrealreturns.com/n/XLY
+2025,6,방어소비재,XLP,1.52,FULL_CALENDAR_YEAR,2025-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2025,7,헬스케어,XLV,14.5,FULL_CALENDAR_YEAR,2025-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2025,8,정보기술,XLK,24.61,FULL_CALENDAR_YEAR,2025-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2025,9,통신,XLC,23.08,FULL_CALENDAR_YEAR,2025-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2025,10,유틸리티,XLU,16.02,FULL_CALENDAR_YEAR,2025-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2025,11,부동산,XLRE,2.63,FULL_CALENDAR_YEAR,2025-12-31,TotalRealReturns ETF adjusted annual total return,"https://totalrealreturns.com/n/XLP,XLV,XLU,XLC,XLE,XLF,XLI,XLB,XLRE,XLK"
+2026,1,에너지,XLE,44.9,YTD,2026-11-04,ChartRow ETF adjusted total return as of Nov 4 2026,https://chartrow.com/sp500/sector-performance
+2026,2,기초소재,XLB,20.4,YTD,2026-11-04,ChartRow ETF adjusted total return as of Nov 4 2026,https://chartrow.com/sp500/sector-performance
+2026,3,산업재,XLI,10.1,YTD,2026-11-04,ChartRow ETF adjusted total return as of Nov 4 2026,https://chartrow.com/sp500/sector-performance
+2026,4,금융,XLF,9.4,YTD,2026-11-04,ChartRow ETF adjusted total return as of Nov 4 2026,https://chartrow.com/sp500/sector-performance
+2026,5,순환소비재,XLY,3.1,YTD,2026-11-04,ChartRow ETF adjusted total return as of Nov 4 2026,https://chartrow.com/sp500/sector-performance
+2026,6,방어소비재,XLP,20.6,YTD,2026-11-04,ChartRow ETF adjusted total return as of Nov 4 2026,https://chartrow.com/sp500/sector-performance
+2026,7,헬스케어,XLV,24.0,YTD,2026-11-04,ChartRow ETF adjusted total return as of Nov 4 2026,https://chartrow.com/sp500/sector-performance
+2026,8,정보기술,XLK,23.0,YTD,2026-11-04,ChartRow ETF adjusted total return as of Nov 4 2026,https://chartrow.com/sp500/sector-performance
+2026,9,통신,XLC,-10.0,YTD,2026-11-04,ChartRow ETF adjusted total return as of Nov 4 2026,https://chartrow.com/sp500/sector-performance
+2026,10,유틸리티,XLU,4.3,YTD,2026-11-04,ChartRow ETF adjusted total return as of Nov 4 2026,https://chartrow.com/sp500/sector-performance
+2026,11,부동산,XLRE,14.5,YTD,2026-11-04,ChartRow ETF adjusted total return as of Nov 4 2026,https://chartrow.com/sp500/sector-performance

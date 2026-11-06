@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 330" role="img" aria-label="정보기술 산업 카드">
+ <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#162d51"/><stop offset=".6" stop-color="#101d39"/><stop offset="1" stop-color="#080f21"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#85bfff" stop-opacity=".29"/><stop offset="1" stop-color="#85bfff" stop-opacity="0"/></radialGradient>
+ <pattern id="grid" width="27" height="27" patternUnits="userSpaceOnUse"><path d="M27 0H0V27" fill="none" stroke="#789bd1" stroke-width=".7" opacity=".17"/></pattern></defs>
+ <rect width="560" height="330" rx="25" fill="url(#bg)"/><rect width="560" height="330" fill="url(#grid)"/>
+ <circle cx="287" cy="150" r="193" fill="url(#glow)"/><g transform="translate(0,-5)"><rect x="205" y="80" width="178" height="178" rx="27" fill="#80bbff" opacity=".18" stroke="#9ad1ff" stroke-width="9"/><rect x="244" y="118" width="101" height="101" rx="10" fill="none" stroke="#8ee3ed" stroke-width="10"/><g stroke="#96aaff" stroke-width="8"><path d="M229 63v22M285 63v22M340 63v22M229 256v26M285 256v26M340 256v26M187 112h22M187 170h22M187 223h22M382 112h22M382 170h22M382 223h22"/></g></g>
+ <path d="M0 280C110 236 188 319 302 285S470 251 560 279V330H0Z" fill="#85bfff" opacity=".08"/>
+ <text x="30" y="45" font-size="17" letter-spacing="4" font-family="Arial,sans-serif" font-weight="700" fill="#85bfff">XLK / INVEST PLAY</text>
+ </svg>

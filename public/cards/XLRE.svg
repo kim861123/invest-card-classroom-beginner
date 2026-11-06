@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 330" role="img" aria-label="부동산 산업 카드">
+ <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#162d51"/><stop offset=".6" stop-color="#101d39"/><stop offset="1" stop-color="#080f21"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#7dd5fc" stop-opacity=".29"/><stop offset="1" stop-color="#7dd5fc" stop-opacity="0"/></radialGradient>
+ <pattern id="grid" width="27" height="27" patternUnits="userSpaceOnUse"><path d="M27 0H0V27" fill="none" stroke="#789bd1" stroke-width=".7" opacity=".17"/></pattern></defs>
+ <rect width="560" height="330" rx="25" fill="url(#bg)"/><rect width="560" height="330" fill="url(#grid)"/>
+ <circle cx="287" cy="150" r="193" fill="url(#glow)"/><g transform="translate(0,-5)"><g fill="#85c7f8" opacity=".86"><path d="M170 123h71v137h-71Z"/><path d="M245 64h97v196h-97Z"/><path d="M348 149h65v111h-65Z"/></g><g fill="#153050"><path d="M188 144h18v18h-18zM188 182h18v18h-18zM270 96h17v17h-17zM307 96h17v17h-17zM270 137h17v17h-17zM307 137h17v17h-17zM270 178h17v17h-17zM307 178h17v17h-17zM369 173h18v18h-18z"/></g><path d="M146 270h292" stroke="#92f0ff" stroke-width="8"/></g>
+ <path d="M0 280C110 236 188 319 302 285S470 251 560 279V330H0Z" fill="#7dd5fc" opacity=".08"/>
+ <text x="30" y="45" font-size="17" letter-spacing="4" font-family="Arial,sans-serif" font-weight="700" fill="#7dd5fc">XLRE / INVEST PLAY</text>
+ </svg>

@@ -1,0 +1,12 @@
+services:
+  invest-play:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      DATA_DIR: /app/runtime
+    volumes:
+      - ./runtime:/app/runtime
+    restart: unless-stopped

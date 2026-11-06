@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 330" role="img" aria-label="금융 산업 카드">
+ <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#162d51"/><stop offset=".6" stop-color="#101d39"/><stop offset="1" stop-color="#080f21"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#72d2f3" stop-opacity=".29"/><stop offset="1" stop-color="#72d2f3" stop-opacity="0"/></radialGradient>
+ <pattern id="grid" width="27" height="27" patternUnits="userSpaceOnUse"><path d="M27 0H0V27" fill="none" stroke="#789bd1" stroke-width=".7" opacity=".17"/></pattern></defs>
+ <rect width="560" height="330" rx="25" fill="url(#bg)"/><rect width="560" height="330" fill="url(#grid)"/>
+ <circle cx="287" cy="150" r="193" fill="url(#glow)"/><g transform="translate(0,-5)"><g fill="none" stroke="#78dbff" stroke-width="7"><path d="M170 251V168h52v83M252 251V112h52v139M334 251V66h52v185"/><path d="M164 254h241"/></g><path d="m186 140 69-39 54 11 68-68" stroke="#71f5be" stroke-width="9" fill="none" stroke-linecap="round"/></g>
+ <path d="M0 280C110 236 188 319 302 285S470 251 560 279V330H0Z" fill="#72d2f3" opacity=".08"/>
+ <text x="30" y="45" font-size="17" letter-spacing="4" font-family="Arial,sans-serif" font-weight="700" fill="#72d2f3">XLF / INVEST PLAY</text>
+ </svg>

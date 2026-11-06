@@ -1,0 +1,32 @@
+# Render 무료 Web Service + Supabase Free 프로젝트
+# GitHub 저장소 루트에 이 파일을 둔 후 Render > New > Blueprint.
+services:
+  - type: web
+    name: invest-card-classroom-beginner
+    runtime: node
+    region: singapore
+    plan: free
+    buildCommand: node --version
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: off
+    envVars:
+      - key: NODE_VERSION
+        value: "22.16.0"
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: STORAGE_BACKEND
+        value: supabase
+      - key: SECURE_COOKIES
+        value: "true"
+      - key: TEACHER_PASSWORD
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+
+# 주의: disk 항목을 추가하면 Render 무료 플랜에서 배포할 수 없습니다.
+# 모든 게임 상태는 Supabase DB에 저장됩니다.

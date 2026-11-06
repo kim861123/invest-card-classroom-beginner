@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 330" role="img" aria-label="산업재 산업 카드">
+ <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#162d51"/><stop offset=".6" stop-color="#101d39"/><stop offset="1" stop-color="#080f21"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#a5aafd" stop-opacity=".29"/><stop offset="1" stop-color="#a5aafd" stop-opacity="0"/></radialGradient>
+ <pattern id="grid" width="27" height="27" patternUnits="userSpaceOnUse"><path d="M27 0H0V27" fill="none" stroke="#789bd1" stroke-width=".7" opacity=".17"/></pattern></defs>
+ <rect width="560" height="330" rx="25" fill="url(#bg)"/><rect width="560" height="330" fill="url(#grid)"/>
+ <circle cx="287" cy="150" r="193" fill="url(#glow)"/><g transform="translate(0,-5)"><g stroke="#b4b9ff" stroke-width="12" fill="none"><circle cx="287" cy="156" r="68"/><circle cx="287" cy="156" r="30"/><path d="M287 62v26M287 224v26M193 156h27M355 156h27M219 88l22 22M332 203l22 22M354 88l-22 22M241 203l-22 22"/></g><path d="M164 270h242" stroke="#93a5ff" stroke-width="8" opacity=".55"/></g>
+ <path d="M0 280C110 236 188 319 302 285S470 251 560 279V330H0Z" fill="#a5aafd" opacity=".08"/>
+ <text x="30" y="45" font-size="17" letter-spacing="4" font-family="Arial,sans-serif" font-weight="700" fill="#a5aafd">XLI / INVEST PLAY</text>
+ </svg>

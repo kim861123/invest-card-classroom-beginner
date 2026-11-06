@@ -1,0 +1,1147 @@
+{
+  "version": "2026-11-05-KO-UI2",
+  "data_cutoff": "2026-11-04",
+  "scope": "US S&P 500 sector ETFs; KRW-denominated fictional card prices",
+  "returns_kind": "calendar_year_total_return_dividends_reinvested_2019_2025_and_ytd_2026",
+  "event_stage_method": "EDUCATIONAL_MODEL_NOT_OBSERVED_EVENT_WINDOW_RETURNS",
+  "events": [
+    {
+      "id": "EVT-2019-01",
+      "year": 2019,
+      "date": "2019-05-10",
+      "title": "미국, 중국산 수입품 관세를 25%로 인상",
+      "fact": "미국 정부가 약 2,000억 달러 규모의 중국산 수입품에 부과하는 관세율을 10%에서 25%로 높였다.",
+      "analysis": "무역 비용과 공급망 불확실성이 커지면 교역·제조 관련 기업은 압박을 받을 수 있다. 다만 관세 대상과 기업별 노출도에 따라 차이가 난다.",
+      "discussion_question": "원가 상승을 고객에게 전가하기 어려운 업종은 무엇일까?",
+      "directional_signal": {
+        "1": -1,
+        "2": -2,
+        "3": -2,
+        "4": -1,
+        "5": -2,
+        "6": 0,
+        "7": 0,
+        "8": -2,
+        "9": -1,
+        "10": 1,
+        "11": -1
+      },
+      "source": {
+        "publisher": "USTR",
+        "url": "https://ustr.gov/about-us/policy-offices/press-office/press-releases/2019/may/statement-us-trade-representative"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2019-05-10 미국, 중국산 수입품 관세를 25%로 인상",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20190510070551009",
+        "note": "확인된 한국어 관련 기사"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2019-05+%EB%AF%B8%EA%B5%AD%2C+%EC%A4%91%EA%B5%AD%EC%82%B0+%EC%88%98%EC%9E%85%ED%92%88+%EA%B4%80%EC%84%B8%EB%A5%BC+25%25%EB%A1%9C+%EC%9D%B8%EC%83%81&hl=ko&gl=KR&ceid=KR%3Ako"
+    },
+    {
+      "id": "EVT-2019-02",
+      "year": 2019,
+      "date": "2019-07-31",
+      "title": "미 연준, 기준금리 목표 범위 0.25%p 인하",
+      "fact": "연준이 연방기금금리 목표 범위를 2.00~2.25%로 낮췄다.",
+      "analysis": "금리 하락은 자금조달 비용 부담을 줄일 수 있지만, 경기 둔화 신호로 해석되기도 한다.",
+      "discussion_question": "금리인하가 성장주와 부동산주에 항상 호재일까?",
+      "directional_signal": {
+        "1": 0,
+        "2": 1,
+        "3": 1,
+        "4": 0,
+        "5": 1,
+        "6": 0,
+        "7": 1,
+        "8": 2,
+        "9": 1,
+        "10": 1,
+        "11": 2
+      },
+      "source": {
+        "publisher": "Federal Reserve",
+        "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20190731a.htm"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2019-07-31 미 연준, 기준금리 목표 범위 0.25%p 인하",
+      "source_ko_search": "https://news.google.com/search?q=2019-07+%EB%AF%B8+%EC%97%B0%EC%A4%80%2C+%EA%B8%B0%EC%A4%80%EA%B8%88%EB%A6%AC+%EB%AA%A9%ED%91%9C+%EB%B2%94%EC%9C%84+0.25%25p+%EC%9D%B8%ED%95%98&hl=ko&gl=KR&ceid=KR%3Ako",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20190801003251072",
+        "note": "확인된 한국어 관련 기사"
+      }
+    },
+    {
+      "id": "EVT-2019-03",
+      "year": 2019,
+      "date": "2019-09-18",
+      "title": "연준, 경기 불확실성 속 추가 금리인하",
+      "fact": "미 연준이 기준금리를 한 차례 더 0.25%p 인하했다.",
+      "analysis": "완화적 통화정책은 위험자산 평가에 우호적일 수 있지만 정책 결정 당시 시장 기대가 주가에 이미 반영됐을 수 있다.",
+      "discussion_question": "금리가 내리는데도 주가가 떨어질 수 있는 이유는?",
+      "directional_signal": {
+        "1": 0,
+        "2": 1,
+        "3": 1,
+        "4": 0,
+        "5": 1,
+        "6": 1,
+        "7": 1,
+        "8": 2,
+        "9": 1,
+        "10": 1,
+        "11": 2
+      },
+      "source": {
+        "publisher": "Federal Reserve",
+        "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20190918a.htm"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2019-09-18 연준, 경기 불확실성 속 추가 금리인하",
+      "source_ko_search": "https://news.google.com/search?q=2019-09+%EC%97%B0%EC%A4%80%2C+%EA%B2%BD%EA%B8%B0+%EB%B6%88%ED%99%95%EC%8B%A4%EC%84%B1+%EC%86%8D+%EC%B6%94%EA%B0%80+%EA%B8%88%EB%A6%AC%EC%9D%B8%ED%95%98&hl=ko&gl=KR&ceid=KR%3Ako",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/amp/view/AKR20190919003800072",
+        "note": "확인된 한국어 관련 기사"
+      }
+    },
+    {
+      "id": "EVT-2019-04",
+      "year": 2019,
+      "date": "2019-12-13",
+      "title": "미·중, 1단계 무역합의 타결 발표",
+      "fact": "미·중 양국이 1단계 무역합의에 도달했다고 발표하고 일부 관세 조정을 예고했다.",
+      "analysis": "교역 불확실성 완화는 산업재·소재·기술주 심리에 유리할 수 있으나 기존 관세가 모두 사라진 것은 아니다.",
+      "discussion_question": "무역갈등 완화의 수혜와 남는 위험은 무엇인가?",
+      "directional_signal": {
+        "1": 1,
+        "2": 2,
+        "3": 2,
+        "4": 1,
+        "5": 2,
+        "6": 0,
+        "7": 0,
+        "8": 2,
+        "9": 2,
+        "10": 0,
+        "11": 1
+      },
+      "source": {
+        "publisher": "USTR",
+        "url": "https://ustr.gov/about-us/policy-offices/press-office/press-releases/2019/december/united-states-and-china-reach"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2019-12-13 미·중, 1단계 무역합의 타결 발표",
+      "source_ko_search": "https://news.google.com/search?q=2019-12+%EB%AF%B8%C2%B7%EC%A4%91%2C+1%EB%8B%A8%EA%B3%84+%EB%AC%B4%EC%97%AD%ED%95%A9%EC%9D%98+%ED%83%80%EA%B2%B0+%EB%B0%9C%ED%91%9C&hl=ko&gl=KR&ceid=KR%3Ako",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20191214003152072",
+        "note": "확인된 한국어 관련 기사"
+      }
+    },
+    {
+      "id": "EVT-2020-01",
+      "year": 2020,
+      "date": "2020-03-11",
+      "title": "WHO, 코로나19를 팬데믹으로 규정",
+      "fact": "WHO가 코로나19를 전 세계적 대유행(팬데믹)으로 규정했다.",
+      "analysis": "대면 소비·항공·에너지 수요 우려가 커졌다. 필수 소비와 의료 수요는 상대적으로 방어적일 수 있다.",
+      "discussion_question": "시장 급락기에 ‘안전자산’ 업종도 함께 하락할 수 있을까?",
+      "directional_signal": {
+        "1": -2,
+        "2": -2,
+        "3": -2,
+        "4": -2,
+        "5": -2,
+        "6": 1,
+        "7": 2,
+        "8": -1,
+        "9": -1,
+        "10": 1,
+        "11": -2
+      },
+      "source": {
+        "publisher": "WHO",
+        "url": "https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2020-03-11 WHO, 코로나19를 팬데믹으로 규정",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20200312141051002",
+        "note": "확인된 한국어 관련 기사"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2020-03+WHO%2C+%EC%BD%94%EB%A1%9C%EB%82%9819%EB%A5%BC+%ED%8C%AC%EB%8D%B0%EB%AF%B9%EC%9C%BC%EB%A1%9C+%EA%B7%9C%EC%A0%95&hl=ko&gl=KR&ceid=KR%3Ako",
+      "easy_summary": "감염병이 전 세계로 퍼져 사람들의 이동과 소비가 크게 달라졌어요.",
+      "easy_term": "팬데믹: 감염병이 전 세계 여러 지역에 퍼진 상황",
+      "easy_question": "여행을 줄이면 어떤 산업이 어려워질까요?"
+    },
+    {
+      "id": "EVT-2020-02",
+      "year": 2020,
+      "date": "2020-03-15",
+      "title": "미 연준, 긴급 금리인하로 제로금리 복귀",
+      "fact": "미 연준은 목표금리를 0~0.25%로 내리고 국채·주택저당증권 매입을 확대했다.",
+      "analysis": "유동성 공급은 금융 시스템 안정에 도움이 되지만, 경기 충격이 심하면 주가는 당장 회복하지 않을 수도 있다.",
+      "discussion_question": "정책의 발표와 실제 경제 회복 시점은 왜 다를까?",
+      "directional_signal": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 1,
+        "5": 1,
+        "6": 1,
+        "7": 1,
+        "8": 2,
+        "9": 1,
+        "10": 2,
+        "11": 2
+      },
+      "source": {
+        "publisher": "Federal Reserve / FRASER",
+        "url": "https://fraser.stlouisfed.org/timeline/monetary-policy-history"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2020-03-15 미 연준, 긴급 금리인하로 제로금리 복귀",
+      "source_ko_search": "https://news.google.com/search?q=2020-03+%EB%AF%B8+%EC%97%B0%EC%A4%80%2C+%EA%B8%B4%EA%B8%89+%EA%B8%88%EB%A6%AC%EC%9D%B8%ED%95%98%EB%A1%9C+%EC%A0%9C%EB%A1%9C%EA%B8%88%EB%A6%AC+%EB%B3%B5%EA%B7%80&hl=ko&gl=KR&ceid=KR%3Ako",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20200316055551008",
+        "note": "확인된 한국어 관련 기사"
+      },
+      "easy_summary": "미국 중앙은행이 경기를 돕기 위해 돈을 빌리는 비용을 낮췄어요.",
+      "easy_term": "기준금리: 은행 대출·예금 금리에 영향을 주는 기본 금리",
+      "easy_question": "돈을 빌리기 쉬워지면 기업들은 무엇을 할 수 있을까요?"
+    },
+    {
+      "id": "EVT-2020-03",
+      "year": 2020,
+      "date": "2020-04-20",
+      "title": "WTI 5월물 선물, 사상 첫 마이너스 가격",
+      "fact": "서부텍사스산원유(WTI) 5월물 선물 가격이 만기를 앞두고 0달러 밑으로 떨어졌다.",
+      "analysis": "이 현상은 만기·저장 능력·계약 구조가 결합한 선물시장 사건으로, 현물 원유가 항상 마이너스였다는 뜻은 아니다.",
+      "discussion_question": "원유 가격 하락은 에너지 기업과 항공사에 같은 영향을 줄까?",
+      "directional_signal": {
+        "1": -2,
+        "2": -1,
+        "3": 0,
+        "4": 0,
+        "5": 1,
+        "6": 1,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": -1
+      },
+      "source": {
+        "publisher": "US EIA",
+        "url": "https://www.eia.gov/TodayinEnergy/detail.php?id=46336"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2020-04-20 WTI 5월물 선물, 사상 첫 마이너스 가격",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20200421003551072",
+        "type": "관련 보도"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2020-04+WTI+5%EC%9B%94%EB%AC%BC+%EC%84%A0%EB%AC%BC%2C+%EC%82%AC%EC%83%81+%EC%B2%AB+%EB%A7%88%EC%9D%B4%EB%84%88%EC%8A%A4+%EA%B0%80%EA%B2%A9&hl=ko&gl=KR&ceid=KR%3Ako",
+      "easy_summary": "석유를 사려는 사람이 줄자 원유 선물 가격이 크게 흔들렸어요.",
+      "easy_term": "원유 선물: 미래 시점에 석유를 거래하기로 한 계약",
+      "easy_question": "차를 덜 타고 비행기가 적게 뜨면 에너지 산업은 어떨까요?"
+    },
+    {
+      "id": "EVT-2020-04",
+      "year": 2020,
+      "date": "2020-11-09",
+      "title": "화이자·바이오엔텍, 백신 후보 초기 효능 발표",
+      "fact": "화이자와 바이오엔텍이 코로나19 백신 후보의 첫 중간분석에서 예방 효능 90% 초과를 발표했다.",
+      "analysis": "경제 재개 기대가 커지면서 이동·소비 관련 산업에 대한 전망이 달라졌다. 모든 의료기업이 똑같이 움직이진 않는다.",
+      "discussion_question": "백신 소식이 플랫폼·온라인 기업에는 어떤 의미일까?",
+      "directional_signal": {
+        "1": 2,
+        "2": 1,
+        "3": 2,
+        "4": 1,
+        "5": 2,
+        "6": 0,
+        "7": 1,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 2
+      },
+      "source": {
+        "publisher": "Pfizer",
+        "url": "https://www.pfizer.com/news/press-release/press-release-detail/pfizer-and-biontech-announce-vaccine-candidate-against"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2020-11-09 화이자·바이오엔텍, 백신 후보 초기 효능 발표",
+      "source_ko_search": "https://news.google.com/search?q=2020-11+%ED%99%94%EC%9D%B4%EC%9E%90%C2%B7%EB%B0%94%EC%9D%B4%EC%98%A4%EC%97%94%ED%85%8D%2C+%EB%B0%B1%EC%8B%A0+%ED%9B%84%EB%B3%B4+%EC%B4%88%EA%B8%B0+%ED%9A%A8%EB%8A%A5+%EB%B0%9C%ED%91%9C&hl=ko&gl=KR&ceid=KR%3Ako",
+      "source_ko": {
+        "publisher": "뉴스핌",
+        "url": "https://www.newspim.com/news/view/20201109001266",
+        "note": "확인된 한국어 관련 기사"
+      },
+      "easy_summary": "백신 개발에 긍정적인 소식이 나오며 경제 회복 기대가 커졌어요.",
+      "easy_term": "백신: 질병을 예방하도록 돕는 의약품",
+      "easy_question": "외출이 다시 늘면 어떤 산업이 먼저 좋아질까요?"
+    },
+    {
+      "id": "EVT-2021-01",
+      "year": 2021,
+      "date": "2021-03-11",
+      "title": "미국, 대규모 경기부양 법안 제정",
+      "fact": "미국에서 American Rescue Plan Act가 법률로 성립했다.",
+      "analysis": "재정지원은 가계소득과 소비 회복에 기여할 수 있으나 공급이 부족하면 물가 압력도 키울 수 있다.",
+      "discussion_question": "소비 부양이 어떤 산업으로 먼저 전달될까?",
+      "directional_signal": {
+        "1": 1,
+        "2": 1,
+        "3": 2,
+        "4": 1,
+        "5": 2,
+        "6": 1,
+        "7": 1,
+        "8": 1,
+        "9": 1,
+        "10": 0,
+        "11": 1
+      },
+      "source": {
+        "publisher": "GovInfo (US Government)",
+        "url": "https://www.govinfo.gov/app/details/PLAW-117publ2"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2021-03-11 미국, 대규모 경기부양 법안 제정",
+      "source_ko_search": "https://news.google.com/search?q=2021-03+%EB%AF%B8%EA%B5%AD%2C+%EB%8C%80%EA%B7%9C%EB%AA%A8+%EA%B2%BD%EA%B8%B0%EB%B6%80%EC%96%91+%EB%B2%95%EC%95%88+%EC%A0%9C%EC%A0%95&hl=ko&gl=KR&ceid=KR%3Ako",
+      "easy_summary": "미국 정부가 가계와 기업을 돕기 위해 큰 규모의 지원금을 마련했어요.",
+      "easy_term": "경기부양: 정부가 소비와 투자를 늘리기 위해 경제를 돕는 정책",
+      "easy_question": "사람들이 돈을 더 쓸 수 있다면 누가 혜택을 받을까요?"
+    },
+    {
+      "id": "EVT-2021-02",
+      "year": 2021,
+      "date": "2021-07-13",
+      "title": "미국 6월 소비자물가, 전년 대비 5.4% 상승 발표",
+      "fact": "미국 노동통계국(BLS)은 2021년 6월 소비자물가가 전년 대비 5.4% 올랐다고 발표했다.",
+      "analysis": "인플레이션은 원가 상승과 금리 전망에 영향을 준다. 기업별 가격 결정력에 따라 이익 충격은 달라진다.",
+      "discussion_question": "원자재 가격 상승분을 가격에 전가할 수 있는 기업은?",
+      "directional_signal": {
+        "1": 2,
+        "2": 2,
+        "3": 1,
+        "4": 1,
+        "5": 0,
+        "6": 1,
+        "7": 0,
+        "8": -1,
+        "9": -1,
+        "10": -1,
+        "11": -1
+      },
+      "source": {
+        "publisher": "BLS",
+        "url": "https://www.bls.gov/news.release/archives/cpi_07132021.htm"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2021-07-13 미국 6월 소비자물가, 전년 대비 5.4% 상승 발표",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20210713176051072",
+        "type": "관련 보도"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2021-07+%EB%AF%B8%EA%B5%AD+6%EC%9B%94+%EC%86%8C%EB%B9%84%EC%9E%90%EB%AC%BC%EA%B0%80%2C+%EC%A0%84%EB%85%84+%EB%8C%80%EB%B9%84+5.4%25+%EC%83%81%EC%8A%B9+%EB%B0%9C%ED%91%9C&hl=ko&gl=KR&ceid=KR%3Ako",
+      "easy_summary": "물가가 예상보다 빠르게 오르면서 상품 가격 부담이 커졌어요.",
+      "easy_term": "물가: 여러 상품과 서비스의 전반적인 가격 수준",
+      "easy_question": "원재료 가격이 오르면 어떤 기업이 부담을 느낄까요?"
+    },
+    {
+      "id": "EVT-2021-03",
+      "year": 2021,
+      "date": "2021-11-03",
+      "title": "미 연준, 자산매입 축소(테이퍼링) 시작 발표",
+      "fact": "연준은 국채·MBS 월간 순매입 규모를 11월부터 점진적으로 축소하기로 했다.",
+      "analysis": "정책 지원 강도가 감소하면 금리에 민감한 자산과 높은 성장 기대를 반영한 기업의 평가가 바뀔 수 있다.",
+      "discussion_question": "테이퍼링과 즉시 금리인상은 같은 뜻일까?",
+      "directional_signal": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 1,
+        "5": -1,
+        "6": 0,
+        "7": 0,
+        "8": -2,
+        "9": -1,
+        "10": -1,
+        "11": -1
+      },
+      "source": {
+        "publisher": "Federal Reserve",
+        "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20211103a.htm"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2021-11-03 미 연준, 자산매입 축소(테이퍼링) 시작 발표",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20211104065500002",
+        "type": "관련 보도"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2021-11+%EB%AF%B8+%EC%97%B0%EC%A4%80%2C+%EC%9E%90%EC%82%B0%EB%A7%A4%EC%9E%85+%EC%B6%95%EC%86%8C%28%ED%85%8C%EC%9D%B4%ED%8D%BC%EB%A7%81%29+%EC%8B%9C%EC%9E%91+%EB%B0%9C%ED%91%9C&hl=ko&gl=KR&ceid=KR%3Ako",
+      "easy_summary": "미국 중앙은행이 시중에 풀던 돈의 규모를 조금씩 줄이겠다고 했어요.",
+      "easy_term": "테이퍼링: 중앙은행이 자산매입 규모를 단계적으로 줄이는 것",
+      "easy_question": "시장에서 돈이 덜 풀리면 성장기업에는 어떤 영향이 있을까요?"
+    },
+    {
+      "id": "EVT-2021-04",
+      "year": 2021,
+      "date": "2021-12-15",
+      "title": "연준, 자산매입 축소 속도 확대",
+      "fact": "연준은 12월 회의 이후 국채·MBS 매입 축소 규모를 확대했다.",
+      "analysis": "시장 참여자들은 이후 금리인상 가능성과 성장주 할인율 변화에 주목했다.",
+      "discussion_question": "미래 이익이 중요한 기업일수록 왜 금리에 민감할까?",
+      "directional_signal": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 1,
+        "5": -1,
+        "6": 0,
+        "7": 0,
+        "8": -2,
+        "9": -1,
+        "10": -1,
+        "11": -2
+      },
+      "source": {
+        "publisher": "Federal Reserve Bank of New York",
+        "url": "https://www.newyorkfed.org/markets/opolicy/operating_policy_211215"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2021-12-15 연준, 자산매입 축소 속도 확대",
+      "source_ko_search": "https://news.google.com/search?q=2021-12+%EC%97%B0%EC%A4%80%2C+%EC%9E%90%EC%82%B0%EB%A7%A4%EC%9E%85+%EC%B6%95%EC%86%8C+%EC%86%8D%EB%8F%84+%ED%99%95%EB%8C%80&hl=ko&gl=KR&ceid=KR%3Ako",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20211216012100071",
+        "note": "확인된 한국어 관련 기사"
+      },
+      "easy_summary": "물가 상승을 걱정해 중앙은행이 돈 풀기를 더 빨리 줄이기로 했어요.",
+      "easy_term": "자산매입: 중앙은행이 채권 등을 사면서 시중에 자금을 공급하는 정책",
+      "easy_question": "금융 환경이 바뀌면 어떤 산업이 더 민감하게 반응할까요?"
+    },
+    {
+      "id": "EVT-2022-01",
+      "year": 2022,
+      "date": "2022-02-24",
+      "title": "러시아, 우크라이나 전면 침공",
+      "fact": "러시아군이 우크라이나에 대한 전면 침공을 시작했다.",
+      "analysis": "에너지·곡물 등 공급 차질 우려로 원자재 가격이 급등했고, 산업별 비용과 수요 전망이 엇갈렸다.",
+      "discussion_question": "에너지기업 수익률과 소비·산업재 수익률이 다른 이유는?",
+      "directional_signal": {
+        "1": 2,
+        "2": 2,
+        "3": -2,
+        "4": -1,
+        "5": -2,
+        "6": 1,
+        "7": 0,
+        "8": -1,
+        "9": -1,
+        "10": -1,
+        "11": -2
+      },
+      "source": {
+        "publisher": "Federal Reserve Bank of St. Louis",
+        "url": "https://www.stlouisfed.org/on-the-economy/2022/jun/russia-invasion-ukraine-impact-stock-prices"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2022-02-24 러시아, 우크라이나 전면 침공",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/amp/view/AKR20220224185500009",
+        "note": "확인된 한국어 관련 기사"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2022-02+%EB%9F%AC%EC%8B%9C%EC%95%84%2C+%EC%9A%B0%ED%81%AC%EB%9D%BC%EC%9D%B4%EB%82%98+%EC%A0%84%EB%A9%B4+%EC%B9%A8%EA%B3%B5&hl=ko&gl=KR&ceid=KR%3Ako",
+      "easy_summary": "전쟁으로 세계 에너지와 원자재 공급에 차질이 생길 수 있게 됐어요.",
+      "easy_term": "공급망: 원료에서 제품 판매까지 물건이 이동하는 과정",
+      "easy_question": "석유나 밀 같은 원료를 구하기 어려워지면 어디가 영향을 받을까요?"
+    },
+    {
+      "id": "EVT-2022-02",
+      "year": 2022,
+      "date": "2022-03-16",
+      "title": "미 연준, 기준금리 인상 사이클 시작",
+      "fact": "미 연준은 기준금리 목표 범위를 0.25~0.50%로 인상했다.",
+      "analysis": "차입비용 증가 및 할인율 상승은 특히 성장 기대와 차입 의존도가 높은 산업에 부담이 될 수 있다.",
+      "discussion_question": "금리 상승이 은행주와 부동산에 서로 다르게 작용하는 이유는?",
+      "directional_signal": {
+        "1": 1,
+        "2": 0,
+        "3": 0,
+        "4": 1,
+        "5": -2,
+        "6": 0,
+        "7": 0,
+        "8": -2,
+        "9": -2,
+        "10": -1,
+        "11": -2
+      },
+      "source": {
+        "publisher": "Federal Reserve",
+        "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20220316a.htm"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2022-03-16 미 연준, 기준금리 인상 사이클 시작",
+      "source_ko_search": "https://news.google.com/search?q=2022-03+%EB%AF%B8+%EC%97%B0%EC%A4%80%2C+%EA%B8%B0%EC%A4%80%EA%B8%88%EB%A6%AC+%EC%9D%B8%EC%83%81+%EC%82%AC%EC%9D%B4%ED%81%B4+%EC%8B%9C%EC%9E%91&hl=ko&gl=KR&ceid=KR%3Ako",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20220317076000002",
+        "note": "확인된 한국어 관련 기사"
+      },
+      "easy_summary": "미국 중앙은행이 높은 물가를 잡기 위해 금리를 올리기 시작했어요.",
+      "easy_term": "금리 인상: 돈을 빌리는 비용이 올라가는 것",
+      "easy_question": "대출이 많은 기업과 가계에는 어떤 변화가 생길까요?"
+    },
+    {
+      "id": "EVT-2022-03",
+      "year": 2022,
+      "date": "2022-07-13",
+      "title": "미국 6월 소비자물가, 9.1% 급등 발표",
+      "fact": "미국 노동통계국은 2022년 6월 CPI가 전년 대비 9.1% 상승했다고 발표했다.",
+      "analysis": "높은 물가는 긴축 기조 강화를 자극했고, 기업의 원가·수요·주식 할인율에 동시에 부담을 줄 수 있다.",
+      "discussion_question": "물가 상승을 이익으로 연결하는 업종이 있을까?",
+      "directional_signal": {
+        "1": 2,
+        "2": 1,
+        "3": -1,
+        "4": 1,
+        "5": -2,
+        "6": 1,
+        "7": 0,
+        "8": -2,
+        "9": -1,
+        "10": -2,
+        "11": -2
+      },
+      "source": {
+        "publisher": "BLS",
+        "url": "https://www.bls.gov/news.release/archives/cpi_07132022.htm"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2022-07-13 미국 6월 소비자물가, 9.1% 급등 발표",
+      "source_ko": {
+        "publisher": "서울신문",
+        "url": "https://www.seoul.co.kr/news/economy/finance/2022/07/14/20220714001025",
+        "type": "관련 보도"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2022-07+%EB%AF%B8%EA%B5%AD+6%EC%9B%94+%EC%86%8C%EB%B9%84%EC%9E%90%EB%AC%BC%EA%B0%80%2C+9.1%25+%EA%B8%89%EB%93%B1+%EB%B0%9C%ED%91%9C&hl=ko&gl=KR&ceid=KR%3Ako",
+      "easy_summary": "미국 물가 상승률이 9.1%까지 높아졌다는 발표가 나왔어요.",
+      "easy_term": "인플레이션: 상품과 서비스 가격이 전반적으로 오르는 현상",
+      "easy_question": "생활비가 크게 오르면 소비 방식은 어떻게 달라질까요?"
+    },
+    {
+      "id": "EVT-2022-04",
+      "year": 2022,
+      "date": "2022-11-10",
+      "title": "미국 10월 CPI 둔화 발표",
+      "fact": "미국 10월 소비자물가의 전년 동월 대비 상승률은 7.7%로 발표되며 이전보다 둔화했다.",
+      "analysis": "인플레이션 둔화는 추가 금리인상 속도에 대한 기대를 바꾸지만, 일회성 지표로 정책 전환을 단정할 수는 없다.",
+      "discussion_question": "물가가 여전히 높아도 상승률 둔화가 호재인 이유는?",
+      "directional_signal": {
+        "1": -1,
+        "2": 0,
+        "3": 1,
+        "4": 0,
+        "5": 2,
+        "6": 0,
+        "7": 0,
+        "8": 2,
+        "9": 2,
+        "10": 1,
+        "11": 2
+      },
+      "source": {
+        "publisher": "BLS",
+        "url": "https://www.bls.gov/news.release/archives/cpi_11102022.htm"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2022-11-10 미국 10월 CPI 둔화 발표",
+      "source_ko_search": "https://news.google.com/search?q=2022-11+%EB%AF%B8%EA%B5%AD+10%EC%9B%94+CPI+%EB%91%94%ED%99%94+%EB%B0%9C%ED%91%9C&hl=ko&gl=KR&ceid=KR%3Ako",
+      "easy_summary": "물가 상승 속도가 예상보다 느려졌다는 소식이 나왔어요.",
+      "easy_term": "물가 상승률 둔화: 가격은 오를 수 있어도 오르는 속도가 느려진 것",
+      "easy_question": "금리 전망이 바뀌면 어떤 산업을 다시 살펴봐야 할까요?"
+    },
+    {
+      "id": "EVT-2023-01",
+      "year": 2023,
+      "date": "2023-03-10",
+      "title": "미 실리콘밸리은행(SVB) 폐쇄",
+      "fact": "미 캘리포니아주 당국이 SVB를 폐쇄했고, FDIC가 관리인으로 지정됐다.",
+      "analysis": "금리 급등과 자산·부채 만기 불일치가 은행 유동성 위험을 드러냈다. 은행마다 위험구조는 다르다.",
+      "discussion_question": "자산 가격이 하락하면 예금이 동시에 빠져나갈 때 어떤 문제가 생길까?",
+      "directional_signal": {
+        "1": -1,
+        "2": 0,
+        "3": -1,
+        "4": -2,
+        "5": -1,
+        "6": 0,
+        "7": 0,
+        "8": -1,
+        "9": -1,
+        "10": 1,
+        "11": -1
+      },
+      "source": {
+        "publisher": "FDIC",
+        "url": "https://www.fdic.gov/news/press-releases/2023/pr23016.html"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2023-03-10 미 실리콘밸리은행(SVB) 폐쇄",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20230311005800091",
+        "note": "확인된 한국어 관련 기사"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2023-03+%EB%AF%B8+%EC%8B%A4%EB%A6%AC%EC%BD%98%EB%B0%B8%EB%A6%AC%EC%9D%80%ED%96%89%28SVB%29+%ED%8F%90%EC%87%84&hl=ko&gl=KR&ceid=KR%3Ako",
+      "easy_summary": "미국의 한 은행이 문을 닫으면서 금융 시스템에 대한 불안이 커졌어요.",
+      "easy_term": "은행 유동성: 고객이 돈을 찾을 때 지급할 수 있는 여유 자금",
+      "easy_question": "은행에 대한 신뢰가 낮아지면 금융주에는 어떤 영향이 있을까요?"
+    },
+    {
+      "id": "EVT-2023-02",
+      "year": 2023,
+      "date": "2023-05-05",
+      "title": "WHO, 코로나19 국제공중보건 비상사태 종료",
+      "fact": "WHO는 코로나19가 더 이상 국제공중보건 비상사태(PHEIC)에 해당하지 않는다고 밝혔다.",
+      "analysis": "이는 감염병 자체의 소멸 선언이 아니다. 경제활동 정상화 기대와 소비 패턴 전환을 점검해 볼 수 있다.",
+      "discussion_question": "비대면 소비가 감소하면 온라인 기업 실적도 반드시 나빠질까?",
+      "directional_signal": {
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 2,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 1
+      },
+      "source": {
+        "publisher": "WHO",
+        "url": "https://www.who.int/europe/emergencies/situations/covid-19"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2023-05-05 WHO, 코로나19 국제공중보건 비상사태 종료",
+      "source_ko_search": "https://news.google.com/search?q=2023-05+WHO%2C+%EC%BD%94%EB%A1%9C%EB%82%9819+%EA%B5%AD%EC%A0%9C%EA%B3%B5%EC%A4%91%EB%B3%B4%EA%B1%B4+%EB%B9%84%EC%83%81%EC%82%AC%ED%83%9C+%EC%A2%85%EB%A3%8C&hl=ko&gl=KR&ceid=KR%3Ako",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20230505062252085",
+        "note": "확인된 한국어 관련 기사"
+      },
+      "easy_summary": "세계보건기구가 코로나19의 국제적 비상사태 종료를 발표했어요.",
+      "easy_term": "보건 비상사태: 국가들이 특별한 방역 대응을 하는 상황",
+      "easy_question": "사람들이 여행과 모임을 더 자유롭게 하면 어떤 산업이 움직일까요?"
+    },
+    {
+      "id": "EVT-2023-03",
+      "year": 2023,
+      "date": "2023-05-24",
+      "title": "엔비디아, 생성형 AI 수요 급증 반영한 실적 전망",
+      "fact": "엔비디아는 회계연도 2024년 1분기 실적 발표에서 데이터센터 매출 42.8억 달러와 다음 분기 매출 전망 110억 달러를 제시했다.",
+      "analysis": "AI 투자 기대가 반도체·클라우드·전력 인프라에 미치는 영향은 서로 다르며, 높은 기대가 높은 변동성을 낳을 수 있다.",
+      "discussion_question": "AI 확산이 통신·산업재·전력 기업에도 기회가 되는 경로는?",
+      "directional_signal": {
+        "1": 0,
+        "2": 1,
+        "3": 1,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 1,
+        "8": 2,
+        "9": 2,
+        "10": 1,
+        "11": 0
+      },
+      "source": {
+        "publisher": "NVIDIA Investor Relations",
+        "url": "https://investor.nvidia.com/news/press-release-details/2023/NVIDIA-Announces-Financial-Results-for-First-Quarter-Fiscal-2024/"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2023-05-24 엔비디아, 생성형 AI 수요 급증 반영한 실적 전망",
+      "source_ko_search": "https://news.google.com/search?q=2023-05+%EC%97%94%EB%B9%84%EB%94%94%EC%95%84%2C+%EC%83%9D%EC%84%B1%ED%98%95+AI+%EC%88%98%EC%9A%94+%EA%B8%89%EC%A6%9D+%EB%B0%98%EC%98%81%ED%95%9C+%EC%8B%A4%EC%A0%81+%EC%A0%84%EB%A7%9D&hl=ko&gl=KR&ceid=KR%3Ako",
+      "easy_summary": "AI에 필요한 반도체 수요가 빠르게 늘 수 있다는 기업 전망이 나왔어요.",
+      "easy_term": "AI 반도체: 인공지능 계산을 빠르게 처리하도록 설계된 반도체",
+      "easy_question": "AI 서비스가 늘면 어떤 산업이 함께 성장할까요?"
+    },
+    {
+      "id": "EVT-2023-04",
+      "year": 2023,
+      "date": "2023-07-26",
+      "title": "미 연준, 기준금리 5.25~5.50%로 인상",
+      "fact": "미 연준은 기준금리 목표 범위를 5.25~5.50%로 상향했다.",
+      "analysis": "높은 금리는 금융기관의 이자 수익뿐 아니라 조달비용·신용위험도 함께 바꾼다.",
+      "discussion_question": "금리상승이 모든 금융사에 수혜일까?",
+      "directional_signal": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": -1,
+        "6": 0,
+        "7": 0,
+        "8": -1,
+        "9": -1,
+        "10": -1,
+        "11": -2
+      },
+      "source": {
+        "publisher": "Federal Reserve",
+        "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20230726a.htm"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2023-07-26 미 연준, 기준금리 5.25~5.50%로 인상",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20230727013000002",
+        "type": "관련 보도"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2023-07+%EB%AF%B8+%EC%97%B0%EC%A4%80%2C+%EA%B8%B0%EC%A4%80%EA%B8%88%EB%A6%AC+5.25~5.50%25%EB%A1%9C+%EC%9D%B8%EC%83%81&hl=ko&gl=KR&ceid=KR%3Ako",
+      "easy_summary": "미국 기준금리가 높은 수준까지 올라 기업과 가계의 부담이 커졌어요.",
+      "easy_term": "고금리: 돈을 빌릴 때 지불할 이자가 상대적으로 높은 상태",
+      "easy_question": "부동산이나 금융회사에는 각각 어떤 위험과 기회가 있을까요?"
+    },
+    {
+      "id": "EVT-2024-01",
+      "year": 2024,
+      "date": "2024-02-21",
+      "title": "엔비디아, 데이터센터 매출 전년 대비 409% 증가",
+      "fact": "엔비디아는 2024년 회계연도 4분기 데이터센터 매출이 184억 달러로 전년 대비 409% 증가했다고 발표했다.",
+      "analysis": "AI 설비투자가 크게 증가하는 국면에서는 반도체 외에도 전력·데이터센터·산업재가 연관되지만 가격에는 기대가 선반영될 수 있다.",
+      "discussion_question": "성장하는 산업의 주가가 언제 하락할 수 있을까?",
+      "directional_signal": {
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 2,
+        "9": 2,
+        "10": 2,
+        "11": 1
+      },
+      "source": {
+        "publisher": "NVIDIA Investor Relations",
+        "url": "https://investor.nvidia.com/news/press-release-details/2024/NVIDIA-Announces-Financial-Results-for-Fourth-Quarter-and-Fiscal-2024/"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2024-02-21 엔비디아, 데이터센터 매출 전년 대비 409% 증가",
+      "source_ko_search": "https://news.google.com/search?q=2024-02+%EC%97%94%EB%B9%84%EB%94%94%EC%95%84%2C+%EB%8D%B0%EC%9D%B4%ED%84%B0%EC%84%BC%ED%84%B0+%EB%A7%A4%EC%B6%9C+%EC%A0%84%EB%85%84+%EB%8C%80%EB%B9%84+409%25+%EC%A6%9D%EA%B0%80&hl=ko&gl=KR&ceid=KR%3Ako"
+    },
+    {
+      "id": "EVT-2024-02",
+      "year": 2024,
+      "date": "2024-07-31",
+      "title": "일본은행, 단기금리를 약 0.25%로 인상",
+      "fact": "일본은행은 무담보 익일물 콜금리를 약 0.25%로 유도하기로 결정했다.",
+      "analysis": "금리 차이 축소와 환율 변동은 차입 투자·글로벌 자금 흐름에 변화를 줄 수 있다.",
+      "discussion_question": "엔화 차입투자(캐리 트레이드)는 왜 청산 압력을 받을까?",
+      "directional_signal": {
+        "1": -1,
+        "2": -1,
+        "3": -1,
+        "4": -1,
+        "5": -1,
+        "6": 0,
+        "7": 0,
+        "8": -2,
+        "9": -1,
+        "10": -1,
+        "11": -1
+      },
+      "source": {
+        "publisher": "Bank of Japan",
+        "url": "https://www.boj.or.jp/en/mopo/mpmsche_minu/minu_2024/g240731.htm"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2024-07-31 일본은행, 단기금리를 약 0.25%로 인상",
+      "source_ko": {
+        "publisher": "서울신문",
+        "url": "https://www.seoul.co.kr/news/international/2024/07/31/20240731500099",
+        "type": "관련 보도"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2024-07+%EC%9D%BC%EB%B3%B8%EC%9D%80%ED%96%89%2C+%EB%8B%A8%EA%B8%B0%EA%B8%88%EB%A6%AC%EB%A5%BC+%EC%95%BD+0.25%25%EB%A1%9C+%EC%9D%B8%EC%83%81&hl=ko&gl=KR&ceid=KR%3Ako"
+    },
+    {
+      "id": "EVT-2024-03",
+      "year": 2024,
+      "date": "2024-08-05",
+      "title": "글로벌 시장, 엔 캐리 거래 청산과 함께 급격한 변동",
+      "fact": "국제결제은행(BIS)은 2024년 8월 초의 자산가격 급변과 차입 투자 축소가 변동성을 증폭시켰다고 분석했다.",
+      "analysis": "레버리지 포지션이 한꺼번에 줄면 기업의 기초체력이 급변하지 않아도 가격은 크게 움직일 수 있다.",
+      "discussion_question": "단기 가격 변동과 장기 기업가치를 어떻게 구분할까?",
+      "directional_signal": {
+        "1": -2,
+        "2": -2,
+        "3": -2,
+        "4": -2,
+        "5": -2,
+        "6": 1,
+        "7": 1,
+        "8": -2,
+        "9": -2,
+        "10": 1,
+        "11": -2
+      },
+      "source": {
+        "publisher": "BIS (2024-08-27 분석)",
+        "url": "https://www.bis.org/publications/bulletin-90-market-turbulence-and-carry-trade-unwind-august-2024"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2024-08-05 글로벌 시장, 엔 캐리 거래 청산과 함께 급격한 변동",
+      "source_ko": {
+        "publisher": "매일경제",
+        "url": "https://www.mk.co.kr/news/economy/11085592",
+        "type": "관련 보도"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2024-08+%EA%B8%80%EB%A1%9C%EB%B2%8C+%EC%8B%9C%EC%9E%A5%2C+%EC%97%94+%EC%BA%90%EB%A6%AC+%EA%B1%B0%EB%9E%98+%EC%B2%AD%EC%82%B0%EA%B3%BC+%ED%95%A8%EA%BB%98+%EA%B8%89%EA%B2%A9%ED%95%9C+%EB%B3%80%EB%8F%99&hl=ko&gl=KR&ceid=KR%3Ako"
+    },
+    {
+      "id": "EVT-2024-04",
+      "year": 2024,
+      "date": "2024-09-18",
+      "title": "미 연준, 기준금리 0.50%p 인하",
+      "fact": "미 연준은 목표금리를 4.75~5.00%로 인하했다.",
+      "analysis": "인플레이션 둔화와 고용 위험의 균형 변화가 정책 완화 배경이었다. 부동산·유틸리티처럼 금리에 민감한 업종을 살펴볼 수 있다.",
+      "discussion_question": "금리인하가 경기 악화를 의미하는 경우에도 투자를 늘려야 할까?",
+      "directional_signal": {
+        "1": 0,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 2,
+        "6": 1,
+        "7": 1,
+        "8": 2,
+        "9": 2,
+        "10": 2,
+        "11": 2
+      },
+      "source": {
+        "publisher": "Federal Reserve",
+        "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20240918a.htm"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2024-09-18 미 연준, 기준금리 0.50%p 인하",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20240919126000008",
+        "note": "확인된 한국어 관련 기사"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2024-09+%EB%AF%B8+%EC%97%B0%EC%A4%80%2C+%EA%B8%B0%EC%A4%80%EA%B8%88%EB%A6%AC+0.50%25p+%EC%9D%B8%ED%95%98&hl=ko&gl=KR&ceid=KR%3Ako"
+    },
+    {
+      "id": "EVT-2025-01",
+      "year": 2025,
+      "date": "2025-01-27",
+      "title": "저비용 AI 모델 충격, 미국 반도체주 급락",
+      "fact": "중국 딥시크 AI 모델의 저비용 가능성이 부각되자 엔비디아가 하루 약 17% 하락하는 등 반도체주가 급락했다.",
+      "analysis": "기술 혁신은 기존 선도 기업의 이익 기대를 재평가하게 한다. 기술주 안에서도 투자 수익은 갈릴 수 있다.",
+      "discussion_question": "AI를 더 저렴하게 쓰게 되면 누가 이익을 보고 누가 압박받을까?",
+      "directional_signal": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": -1,
+        "5": 1,
+        "6": 0,
+        "7": 0,
+        "8": -2,
+        "9": -1,
+        "10": -1,
+        "11": 0
+      },
+      "source": {
+        "publisher": "Reuters",
+        "url": "https://www.reuters.com/technology/chinas-deepseek-sets-off-ai-market-rout-2025-01-27/"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2025-01-27 저비용 AI 모델 충격, 미국 반도체주 급락",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20250128007252072",
+        "type": "관련 보도"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2025-01+%EC%A0%80%EB%B9%84%EC%9A%A9+AI+%EB%AA%A8%EB%8D%B8+%EC%B6%A9%EA%B2%A9%2C+%EB%AF%B8%EA%B5%AD+%EB%B0%98%EB%8F%84%EC%B2%B4%EC%A3%BC+%EA%B8%89%EB%9D%BD&hl=ko&gl=KR&ceid=KR%3Ako"
+    },
+    {
+      "id": "EVT-2025-02",
+      "year": 2025,
+      "date": "2025-04-02",
+      "title": "미국, 광범위한 상호관세 조치 발표",
+      "fact": "미국은 광범위한 수입품에 대한 추가 관세 조치와 국가별 차등 관세 계획을 발표했다.",
+      "analysis": "관세는 수입 비용과 공급망을 바꾸어 산업재·소비재·기술기업 실적의 불확실성을 키울 수 있다.",
+      "discussion_question": "관세가 가격인상·기업마진·소비 감소 중 어디로 전달될까?",
+      "directional_signal": {
+        "1": -1,
+        "2": -2,
+        "3": -2,
+        "4": -1,
+        "5": -2,
+        "6": 0,
+        "7": 0,
+        "8": -2,
+        "9": -1,
+        "10": 0,
+        "11": -1
+      },
+      "source": {
+        "publisher": "The White House",
+        "url": "https://www.whitehouse.gov/presidential-actions/2025/04/regulating-imports-with-a-reciprocal-tariff-to-rectify-trade-practices-that-contribute-to-large-and-persistent-annual-united-states-goods-trade-deficits/"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2025-04-02 미국, 광범위한 상호관세 조치 발표",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20250403011200071",
+        "note": "확인된 한국어 관련 기사"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2025-04+%EB%AF%B8%EA%B5%AD%2C+%EA%B4%91%EB%B2%94%EC%9C%84%ED%95%9C+%EC%83%81%ED%98%B8%EA%B4%80%EC%84%B8+%EC%A1%B0%EC%B9%98+%EB%B0%9C%ED%91%9C&hl=ko&gl=KR&ceid=KR%3Ako"
+    },
+    {
+      "id": "EVT-2025-03",
+      "year": 2025,
+      "date": "2025-04-09",
+      "title": "미국, 중국 제외 일부 상호관세 90일 유예 발표",
+      "fact": "미 정부는 중국을 제외한 여러 교역상대국에 대한 국가별 추가관세 적용을 90일간 일시 중단하기로 했다.",
+      "analysis": "예상보다 유연한 정책 변화는 투자심리 반등을 만들 수 있지만, 불확실성 자체가 사라지는 것은 아니다.",
+      "discussion_question": "관세의 '유예'와 '폐지'는 투자 판단에서 어떻게 다를까?",
+      "directional_signal": {
+        "1": 1,
+        "2": 2,
+        "3": 2,
+        "4": 1,
+        "5": 2,
+        "6": 0,
+        "7": 0,
+        "8": 2,
+        "9": 1,
+        "10": 0,
+        "11": 1
+      },
+      "source": {
+        "publisher": "The White House",
+        "url": "https://www.whitehouse.gov/presidential-actions/2025/04/modifying-reciprocal-tariff-rates-to-reflect-trading-partner-retaliation-and-alignment/"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2025-04-09 미국, 중국 제외 일부 상호관세 90일 유예 발표",
+      "source_ko_search": "https://news.google.com/search?q=2025-04+%EB%AF%B8%EA%B5%AD%2C+%EC%A4%91%EA%B5%AD+%EC%A0%9C%EC%99%B8+%EC%9D%BC%EB%B6%80+%EC%83%81%ED%98%B8%EA%B4%80%EC%84%B8+90%EC%9D%BC+%EC%9C%A0%EC%98%88+%EB%B0%9C%ED%91%9C&hl=ko&gl=KR&ceid=KR%3Ako",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20250410007200071",
+        "note": "확인된 한국어 관련 기사"
+      }
+    },
+    {
+      "id": "EVT-2025-04",
+      "year": 2025,
+      "date": "2025-09-17",
+      "title": "미 연준, 기준금리 0.25%p 인하",
+      "fact": "미 연준은 목표금리 범위를 4.00~4.25%로 낮췄다.",
+      "analysis": "금리인하는 이자부담을 줄일 수 있으나 고용 둔화 우려와 동반될 수도 있다.",
+      "discussion_question": "소비·부동산·금융 등 업종별 영향은 왜 다른가?",
+      "directional_signal": {
+        "1": 0,
+        "2": 1,
+        "3": 1,
+        "4": 0,
+        "5": 1,
+        "6": 1,
+        "7": 1,
+        "8": 2,
+        "9": 1,
+        "10": 1,
+        "11": 2
+      },
+      "source": {
+        "publisher": "Federal Reserve",
+        "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2025-09-17 미 연준, 기준금리 0.25%p 인하",
+      "source_ko_search": "https://news.google.com/search?q=2025-09+%EB%AF%B8+%EC%97%B0%EC%A4%80%2C+%EA%B8%B0%EC%A4%80%EA%B8%88%EB%A6%AC+0.25%25p+%EC%9D%B8%ED%95%98&hl=ko&gl=KR&ceid=KR%3Ako"
+    },
+    {
+      "id": "EVT-2026-01",
+      "year": 2026,
+      "date": "2026-03-12",
+      "title": "중동 전쟁에 호르무즈 해협 원유 흐름 급감",
+      "fact": "IEA는 2026년 3월 보고서에서 중동 전쟁으로 호르무즈 해협을 통과하는 원유·제품 흐름이 크게 감소했다고 평가했다.",
+      "analysis": "공급 충격은 에너지 가격에 상승 압력을 주고 제조·운송·소비재 기업에 비용 부담을 줄 수 있다.",
+      "discussion_question": "원유 생산 기업과 원유를 많이 쓰는 기업의 실적은 왜 다르게 움직일까?",
+      "directional_signal": {
+        "1": 2,
+        "2": 2,
+        "3": -2,
+        "4": -1,
+        "5": -2,
+        "6": 0,
+        "7": 0,
+        "8": -1,
+        "9": -1,
+        "10": 0,
+        "11": -2
+      },
+      "source": {
+        "publisher": "IEA",
+        "url": "https://www.iea.org/reports/oil-market-report-march-2026"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2026-03-12 중동 전쟁에 호르무즈 해협 원유 흐름 급감",
+      "source_ko_search": "https://news.google.com/search?q=2026-03+%EC%A4%91%EB%8F%99+%EC%A0%84%EC%9F%81%EC%97%90+%ED%98%B8%EB%A5%B4%EB%AC%B4%EC%A6%88+%ED%95%B4%ED%98%91+%EC%9B%90%EC%9C%A0+%ED%9D%90%EB%A6%84+%EA%B8%89%EA%B0%90&hl=ko&gl=KR&ceid=KR%3Ako"
+    },
+    {
+      "id": "EVT-2026-02",
+      "year": 2026,
+      "date": "2026-09-16",
+      "title": "미 연준, 기준금리 0.25%p 인상",
+      "fact": "미 연준은 높은 물가에 대응하며 기준금리 목표 범위를 3.75~4.00%로 높였다.",
+      "analysis": "금리상승은 할인율과 차입 비용에 영향을 주고, 가격 결정력이 높은 기업과 차입 의존 기업 사이의 차이를 키울 수 있다.",
+      "discussion_question": "금리상승기에도 오르는 기술주는 어떤 조건을 갖춰야 할까?",
+      "directional_signal": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 1,
+        "5": -1,
+        "6": 0,
+        "7": 0,
+        "8": -2,
+        "9": -1,
+        "10": -1,
+        "11": -2
+      },
+      "source": {
+        "publisher": "Federal Reserve",
+        "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2026-09-16 미 연준, 기준금리 0.25%p 인상",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20260917002400071",
+        "type": "관련 보도"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2026-09+%EB%AF%B8+%EC%97%B0%EC%A4%80%2C+%EA%B8%B0%EC%A4%80%EA%B8%88%EB%A6%AC+0.25%25p+%EC%9D%B8%EC%83%81&hl=ko&gl=KR&ceid=KR%3Ako"
+    },
+    {
+      "id": "EVT-2026-03",
+      "year": 2026,
+      "date": "2026-10-28",
+      "title": "미 연준, 금리 3.75~4.00% 유지",
+      "fact": "미 연준은 강한 경제 활동과 높은 물가를 언급하며 기준금리를 동결했다.",
+      "analysis": "시장에서는 금리 자체보다 앞으로의 정책 경로와 기업 실적 전망을 함께 해석한다.",
+      "discussion_question": "‘동결’이 항상 금융시장에 중립적인 결과를 낳을까?",
+      "directional_signal": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": -1,
+        "9": -1,
+        "10": -1,
+        "11": -1
+      },
+      "source": {
+        "publisher": "Federal Reserve",
+        "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2026-10-28 미 연준, 금리 3.75~4.00% 유지",
+      "source_ko": {
+        "publisher": "연합뉴스",
+        "url": "https://www.yna.co.kr/view/AKR20261029002951071",
+        "type": "관련 보도"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2026-10+%EB%AF%B8+%EC%97%B0%EC%A4%80%2C+%EA%B8%88%EB%A6%AC+3.75~4.00%25+%EC%9C%A0%EC%A7%80&hl=ko&gl=KR&ceid=KR%3Ako"
+    },
+    {
+      "id": "EVT-2026-04",
+      "year": 2026,
+      "date": "2026-11-04",
+      "title": "미 중간선거 이후 미국 증시 반등",
+      "fact": "AP통신은 11월 4일 미국 증시가 반등해 S&P 500 지수가 1.6% 올랐다고 보도했다.",
+      "analysis": "선거 이후 정책 기대와 포지션 재조정이 시장에 영향을 줄 수 있지만 단일 거래일의 반응을 연간 성과의 원인으로 단정할 수 없다.",
+      "discussion_question": "단기 선거 랠리와 실물경제 펀더멘털을 구분하는 방법은?",
+      "directional_signal": {
+        "1": -1,
+        "2": 1,
+        "3": 1,
+        "4": 2,
+        "5": 2,
+        "6": 0,
+        "7": 1,
+        "8": 1,
+        "9": 2,
+        "10": 0,
+        "11": 1
+      },
+      "source": {
+        "publisher": "Associated Press",
+        "url": "https://apnews.com/article/c0be7ca45b5875abe758e0570cb9a265"
+      },
+      "evidence_type": "verified_historical_event",
+      "analysis_type": "educational_interpretation_not_causality_proof",
+      "korean_search_query": "2026-11-04 미 중간선거 이후 미국 증시 반등",
+      "source_ko": {
+        "publisher": "뉴스핌 (선거 후 시장 동향)",
+        "url": "https://web3.newspim.com/news/view/20261104000844",
+        "type": "관련 보도"
+      },
+      "source_ko_search": "https://news.google.com/search?q=2026-11+%EB%AF%B8+%EC%A4%91%EA%B0%84%EC%84%A0%EA%B1%B0+%EC%9D%B4%ED%9B%84+%EB%AF%B8%EA%B5%AD+%EC%A6%9D%EC%8B%9C+%EB%B0%98%EB%93%B1&hl=ko&gl=KR&ceid=KR%3Ako"
+    }
+  ]
+}
