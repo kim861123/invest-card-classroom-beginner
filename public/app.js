@@ -316,7 +316,7 @@ function newsList(g){
   const current=g.news.filter(x=>x.year===r.year&&Number(x.id.split("-").at(-1))>=lower&&Number(x.id.split("-").at(-1))<=upper);
   const older=g.news.filter(x=>!current.some(y=>y.id===x.id));
   const phaseMessage=r.phase==="result"?"이번 발표에 사용된 뉴스":r.phase==="lobby"?"게임 시작 전 미리보기":r.phase==="finished"?"최종 뉴스":"지금 분석할 뉴스";
-  const renderNews=(x,i,isPast=false)=>`<article class="news-card ${isPast?"news-past":"news-current"}" ${isPast?"":'data-current-news="true"'}>
+  const renderNews=(x,i,isPast=false)=>`<article id="news-${h(x.id)}" class="news-card ${isPast?"news-past":"news-current"}" ${isPast?"":'data-current-news="true"'}>
     <div class="news-meta">
       <span class="news-index">${isPast?ico("history",14):ico("newspaper",14)} ${isPast?"지난 뉴스":`현재 뉴스 ${i+1} / ${current.length}`}</span>
       <span class="news-date">${h(x.date)}</span>
@@ -369,21 +369,49 @@ function beginnerQuiz(g){
   const l=g.beginnerLesson;
   if(!l||!["news","trade","result","paused"].includes(g.room.phase))return "";
   const sub=l.submission;
+  const solved=l.quiz.solution;
+  const source=l.quiz.sourceNews;
   const canSubmit=["news","trade"].includes(g.room.phase)&&g.team?.drawMode;
   return `<section class="panel section easy-quiz" id="easy-quiz" aria-label="이번 뉴스 이해 퀴즈">
     <div class="easy-lesson-head"><span class="easy-lesson-symbol">${ico("target",22)}</span>
-      <div><span class="eyebrow">ONE QUESTION · ${l.year}-${l.stage}</span><h2>이번 턴 뉴스 퀴즈</h2>
-      <p>정답 한 개를 선택해 보세요. 카드 보유량과 수익률에는 영향을 주지 않습니다.</p></div></div>
+      <div><span class="eyebrow">ONE QUESTION · ${l.year}-${l.stage}</span><h2>${l.year}년 ${l.stage}차 뉴스 퀴즈</h2>
+      <p>지금 공개된 뉴스에 관한 문제입니다. 수익률과 카드 수량에는 영향을 주지 않습니다.</p></div></div>
+    ${source?`<div class="easy-quiz-source">
+      <span>${ico("newspaper",15)} 퀴즈와 연결된 실제 뉴스 · ${h(source.date)}</span>
+      <a href="#news-${h(source.id)}" class="easy-quiz-news-link">${h(source.title)} ${ico("arrow",14)}</a>
+      <p>${h(source.summary)}</p></div>`:""}
     <p class="easy-quiz-question">${h(l.quiz.question)}</p>
     ${sub?`<div class="easy-quiz-answer ${sub.correct?"is-correct":"is-wrong"}">
       <strong>${sub.correct?"정답입니다!":"좋은 시도예요!"}</strong>
       <p>정답: ${h(l.quiz.options.find(x=>x.value===sub.correctOption)?.label||"")}</p>
       <p>${h(sub.explanation)}</p></div>`:
+      solved?`<div class="easy-quiz-answer is-unanswered" role="status">
+        <strong>${ico("book",18)} 가격 발표 완료 · 미응답자도 정답 확인</strong>
+        <p>정답: ${h(solved.correctLabel)}</p>
+        <p>${h(solved.explanation)}</p>
+        <p class="small-note">퀴즈를 제출하지 않아도 결과 발표 후에는 해설을 볼 수 있습니다.</p>
+      </div>`:
       canSubmit?`<form id="beginner-quiz-form"><div class="easy-quiz-options">
         ${l.quiz.options.map(x=>`<label class="easy-quiz-choice"><input type="radio" name="answer" value="${h(x.value)}" ${quizDraftByStage[`${l.year}-${l.stage}`]===x.value?"checked":""} required><span>${h(x.label)}</span></label>`).join("")}
         </div><button type="submit" class="btn gold wide">정답 제출하고 배우기</button></form>`:
-      `<p class="small-note">이 뉴스 단계의 퀴즈 응답 시간이 종료되었습니다.</p>`}
+      `<p class="small-note">현재는 퀴즈 응답이 잠시 멈춰 있습니다. 가격 발표 후 정답과 해설이 공개됩니다.</p>`}
   </section>`;
+}
+function beginnerQuizReview(g){
+  const all=g.quizReviews||[];
+  const past=all.filter(x=>!(g.room.phase==="result"&&x.year===g.room.year&&x.stage===g.room.stage));
+  if(!past.length)return "";
+  return `<details class="panel section easy-quiz-review" id="quiz-review-history">
+    <summary>${ico("book",18)} ${g.room.phase==="finished"?"전체 8단계":"지난"} 뉴스 퀴즈 정답 복습 · ${past.length}개</summary>
+    <div class="easy-quiz-review-list">${past.map(x=>`<div class="easy-quiz-review-item">
+      <strong>${x.year}년 ${x.stage}차 · ${h(x.topic)}</strong>
+      <p class="small-note">관련 뉴스: ${h(x.sourceNews.title)}</p>
+      <p>${h(x.question)}</p>
+      <p class="easy-quiz-review-correct">정답: ${h(x.solution.correctLabel)}</p>
+      <p>${h(x.solution.explanation)}</p>
+      <span class="easy-quiz-review-status">${x.answered?(x.correct?"정답 제출":"오답 제출"):"미응답 · 정답 자동 공개"}</span>
+    </div>`).join("")}</div>
+  </details>`;
 }
 function beginnerResult(g){
   const l=g.beginnerLesson,r=g.lastResult;
@@ -847,7 +875,7 @@ function studentView(g){
     ${g.room.phase==="lobby"?`<div class="info">${ico("check",17)} 참가 완료! <b>우리 팀은 카드 110장을 단 한 번 뽑습니다.</b> 강사의 게임 시작을 기다려 주세요.</div>${teamLobbyPanel(g)}${beginnerPractice(g)}`:""}
     ${g.room.phase==="finished"?'<div class="result-banner"><h3>${ico("trophy",20)} 게임 종료</h3><p>투자 판단과 산업별 시장 결과를 복기해 보세요.</p></div>':""}
     <div class="two-col-main"><div>
-      ${newsList(g)}${beginnerCoach(g)}${beginnerQuiz(g)}${beginnerResult(g)}${listingBoard(g)}${market(g,true)}
+      ${newsList(g)}${beginnerCoach(g)}${beginnerQuiz(g)}${beginnerQuizReview(g)}${beginnerResult(g)}${listingBoard(g)}${market(g,true)}
       ${results(g)}
     </div><div><div class="panel section"><h3>${ico("target",19)} 초보 투자 체크리스트</h3><p class="panel-sub">① 오늘 뉴스는 무슨 소식인가요?<br>② 어떤 산업 카드에 영향이 있을까요?<br>③ 카드를 바꿀까요, 그대로 둘까요?<br>④ 가격 발표 뒤 우리 예상이 맞았는지 이야기해 봐요.</p></div>
     </div></div>

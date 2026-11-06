@@ -306,18 +306,55 @@ function publicResult(result) {
   const {year,stageIndex,changes,at,scores,endingYear,returnKind}=result;
   return {year,stageIndex,changes,at,scores,endingYear,returnKind};
 }
+// 각 퀴즈가 참조하는 기사는 현재 뉴스 단계에서 실제 공개된 기사여야 합니다.
+function quizSourceNews(lesson) {
+  const event=newsSource.events.find(ev=>ev.id===lesson.quiz.newsId);
+  const articleNumber=Number(event?.id.split("-").at(-1));
+  if(!event || event.year!==lesson.year ||
+      !((lesson.stage===1 && articleNumber>=1 && articleNumber<=2) ||
+        (lesson.stage===2 && articleNumber>=3 && articleNumber<=4))) {
+    throw new Error(`초급 퀴즈와 뉴스 연결 오류: ${lesson.year}-${lesson.stage}`);
+  }
+  return {id:event.id,title:event.title,date:event.date,
+    summary:event.easy_summary||event.fact};
+}
+for(const lesson of beginnerLessons)quizSourceNews(lesson);
+
+function quizAnswerView(lesson) {
+  const correctOption=lesson.quiz.correct;
+  return {correctOption,
+    correctLabel:lesson.quiz.options.find(x=>x.value===correctOption)?.label||"",
+    explanation:lesson.quiz.explanation};
+}
 function lessonView(role,team) {
   if (state.phase==="lobby") return null;
   const lesson=currentLesson();
   if(!lesson) return null;
-  const showReveal=["result","finished"].includes(state.phase);
+  const showReveal=["result","finished"].includes(state.phase) || (state.phase==="paused" && state.pausedFrom==="result");
   return {
     year:lesson.year,stage:lesson.stage,topic:lesson.topic,
     coach:lesson.coach,
-    quiz:{question:lesson.quiz.question,options:lesson.quiz.options},
+    quiz:{question:lesson.quiz.question,options:lesson.quiz.options,
+      sourceNews:quizSourceNews(lesson),
+      // 미응답자도 가격 발표 시 정답을 볼 수 있지만, 발표 이전에는 비공개입니다.
+      ...(showReveal||role==="teacher"?{solution:quizAnswerView(lesson)}:{})},
     ...(showReveal||role==="teacher"?{reveal:lesson.reveal}:{}),
     ...(team?{submission:team.quizAnswers?.[lessonKey()]||null}:{})
   };
+}
+// 완료된 뉴스 단계만 제공하여 미응답 학생도 나중에 정답을 복습할 수 있습니다.
+function quizReviewHistory(team) {
+  return state.results.map(result=>{
+    const year=result.year,stage=result.stageIndex+1;
+    const lesson=lessonMap.get(`${year}:${stage}`);
+    if(!lesson)return null;
+    const response=team.quizAnswers?.[`${year}-${stage}`]||null;
+    return {year,stage,topic:lesson.topic,
+      question:lesson.quiz.question,sourceNews:quizSourceNews(lesson),
+      solution:quizAnswerView(lesson),
+      answered:Boolean(response),correct:response?.correct??null,
+      selectedLabel:response?lesson.quiz.options.find(x=>x.value===response.answer)?.label||"":""};
+  }).filter(Boolean).reverse();
 }
 function quizStats(){
   const key=lessonKey();
@@ -353,6 +390,7 @@ function view(req) {
     }]))}:{}),
     scores:scores(), news:currentlyVisibleNews(role),
     ...(role!=="guest"?{beginnerLesson:lessonView(role,team)}:{}),
+    ...(team?{quizReviews:quizReviewHistory(team)}:{}),
     ...(team && state.phase==="finished"?{tradeReport:finalTradeReport(team)}:{}),
     ...(team?{
       stageTradeHistory:state.results.map(result=>({
@@ -662,7 +700,7 @@ const server=http.createServer((req,res)=>{
     const url=new URL(req.url,`http://${req.headers.host||"localhost"}`);
     const pathname=url.pathname;
     if (req.method==="GET" && staticFile(req,res,pathname)) return;
-    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-beginner-v2-lesson-news-focus"});
+    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-beginner-v2.1-mobile-quiz-review"});
     if (pathname==="/api/state" && req.method==="GET") return send(res,200,view(req));
     if (pathname==="/api/events" && req.method==="GET") {
       const s=sessionFor(req);

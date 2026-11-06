@@ -1209,3 +1209,107 @@ body{
  .easy-coach-checks,.easy-quiz-options,.easy-practice-steps{grid-template-columns:1fr}
  .easy-lesson-head h2{font-size:19px}
 }
+
+
+/* 2026-11 · MOBILE VIEWPORT GUARD / 양 버전 공통: 세로 스크롤 유지, 페이지 좌우 이탈 방지 */
+html{
+  width:100%;max-width:100%;overflow-x:hidden;
+  overscroll-behavior-x:none;
+  -webkit-text-size-adjust:100%;
+}
+body{
+  width:100%;max-width:100%;overflow-x:clip;
+  overscroll-behavior-x:none;
+}
+.shell,main,#app{min-width:0;max-width:100%}
+.shell > *,main > *,#app > *,
+.two-col-main > *,.instructor-command-layout > *,
+.newsroom,.news-card,.news-card .news-meta,.stat,.panel,.section{min-width:0}
+.newsroom,.news-card,.panel,.stat,.easy-quiz,.easy-coach{max-width:100%}
+.news-card h3,.news-card p,.news-card summary,
+.news-card .news-fact,.news-sources a{overflow-wrap:anywhere;word-break:normal}
+img,video{max-width:100%}
+.table-wrap{
+  display:block;width:100%;max-width:100%;overflow-x:auto;
+  overscroll-behavior-inline:contain;
+  -webkit-overflow-scrolling:touch;
+}
+dialog.asset-modal,dialog.draw-dialog{
+  max-width:calc(100vw - 20px);
+  max-height:calc(100dvh - 20px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+@media(max-width:767px){
+  .shell{width:100%;max-width:100%;padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+  .topbar,.brand,.top-status{min-width:0}
+  .brand{max-width:65%}
+  .brand strong,.brand small,.top-status{overflow:hidden;text-overflow:ellipsis}
+  .newsroom .news-focus-head,.newsroom .current-news-stack{min-width:0}
+  input,textarea,select{font-size:16px}
+}
+
+/* 현재 뉴스의 '실제 뉴스 자세히 읽기' · 밝은 기사 안의 어두운 배경/글씨 충돌 해결 */
+.newsroom .current-news-stack .news-card.news-current .beginner-source{
+  background:#eaf2f8 !important;
+  color:#1d364d !important;
+  border:1.5px solid #9cb8cb !important;
+  box-shadow:inset 0 1px 0 #fff,0 3px 12px #15324e12 !important;
+  border-radius:12px;
+  padding:13px 15px !important;
+}
+.newsroom .current-news-stack .news-card.news-current .beginner-source summary{
+  color:#134c76 !important;font-size:14px !important;font-weight:850 !important;
+  line-height:1.55;cursor:pointer;
+}
+.newsroom .current-news-stack .news-card.news-current .beginner-source[open]{
+  background:#f0f7fd !important;
+  border-color:#6f9dbd !important;
+}
+.newsroom .current-news-stack .news-card.news-current .beginner-source .news-fact{
+  color:#1b344d !important;background:transparent !important;
+  font-size:14px !important;line-height:1.85 !important;
+  margin:14px 0 4px !important;
+}
+.newsroom .current-news-stack .news-card.news-current .beginner-source summary:focus-visible{
+  outline:3px solid #256da1;outline-offset:4px;
+}
+
+
+/* EASY V2.1 · 현재 공개 기사와 퀴즈의 연결 / 미응답 정답 공개 / 지난 뉴스 복습 */
+.news-card[id^="news-"]{scroll-margin-top:22px}
+.easy-quiz-source{
+  padding:15px 16px;border-radius:14px;
+  border:1.5px solid #abc6d6;background:linear-gradient(135deg,#f6fbfd,#e6f1f6);
+  color:#1b344b;margin:0 0 18px;
+}
+.easy-quiz-source>span{display:flex;align-items:center;gap:7px;font-size:12px;color:#306082;font-weight:850}
+.easy-quiz-source .easy-quiz-news-link{
+  display:block;margin:8px 0 7px;font-size:15px;font-weight:850;
+  line-height:1.55;color:#124e7a;text-decoration:underline;text-underline-offset:3px;
+  overflow-wrap:anywhere;
+}
+.easy-quiz-source p{margin:0;color:#355268;font-size:13px;line-height:1.7;overflow-wrap:anywhere}
+.easy-quiz-answer.is-unanswered{
+  background:#1c3b50;border-color:#7fb5cd;color:#eaf5fb;
+}
+.easy-quiz-answer.is-unanswered strong{display:flex;align-items:center;gap:8px;color:#b5eafa}
+.easy-quiz-answer.is-unanswered p{color:#ebf6ff}
+.easy-quiz-answer.is-unanswered .small-note{font-size:12px;color:#d0e5f2}
+.easy-quiz-review{border-left:5px solid #80b4d8}
+.easy-quiz-review>summary{display:flex;gap:9px;align-items:center;cursor:pointer;
+  color:#f3dfad;font-size:15px;font-weight:850;line-height:1.5}
+.easy-quiz-review-list{display:grid;gap:12px;margin-top:16px}
+.easy-quiz-review-item{background:#1b2d44;border:1px solid #3b5b7a;border-radius:13px;padding:15px}
+.easy-quiz-review-item>strong{color:#f1d69b;display:block;margin-bottom:8px}
+.easy-quiz-review-item p{margin:6px 0;line-height:1.65;overflow-wrap:anywhere}
+.easy-quiz-review-item .small-note{color:#b4cce2}
+.easy-quiz-review-correct{color:#83e7c7;font-weight:850}
+.easy-quiz-review-status{display:inline-flex;margin-top:8px;color:#f9deb1;
+  font-weight:700;font-size:12px;background:#354051;border:1px solid #65758b;
+  padding:4px 9px;border-radius:999px}
+@media(max-width:600px){
+  .easy-quiz-source{padding:13px}
+  .easy-quiz-source .easy-quiz-news-link{font-size:14px}
+  .easy-quiz-review-item{padding:12px}
+}

@@ -10,6 +10,12 @@ test("현재 뉴스만 밝은 기사 카드로 강조하고 지난 뉴스는 기
   assert.match(css,/\.newsroom \.current-news-stack \.news-card\.news-current/);
   assert.match(css,/\.archive-news \.news-card\.news-past/);
   assert.match(css,/#fffdf8/);
+  assert.match(css,/MOBILE VIEWPORT GUARD/);
+  assert.match(css,/overflow-x:hidden/);
+  assert.match(css,/overflow-x:clip/);
+  assert.match(css,/\.news-card\.news-current \.beginner-source/);
+  assert.match(css,/background:#eaf2f8 !important/);
+  assert.match(css,/\.beginner-source \.news-fact/);
   assert.match(js,/news-current/);
   assert.match(js,/archive-news/);
 });

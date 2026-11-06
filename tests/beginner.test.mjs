@@ -62,7 +62,7 @@ test("왕초보 코스: 4개 연도·8단계, 안전한 시작 카드·쉬운 �
     await start();
     const visitor=client(),teacher=client(),alpha=client(),beta=client();
     const health=await visitor("/api/health");
-    assert.equal(health.data.build,"classroom-beginner-v2-lesson-news-focus");
+    assert.equal(health.data.build,"classroom-beginner-v2.1-mobile-quiz-review");
     const init=(await visitor("/api/state")).data;
     assert.equal(init.room.year,2020);
     assert.equal(init.room.totalRounds,4);
@@ -96,6 +96,11 @@ test("왕초보 코스: 4개 연도·8단계, 안전한 시작 카드·쉬운 �
     assert.equal(stage.news[0].analysis,undefined);
     assert.ok(stage.beginnerLesson?.quiz?.question.length>10);
     assert.equal(stage.beginnerLesson.quiz.correct,undefined);
+    // 현재 뉴스의 기사와 퀴즈를 동일한 뉴스 ID로 연결합니다.
+    assert.equal(stage.beginnerLesson.quiz.sourceNews.id,"EVT-2020-02");
+    assert.ok(stage.news.some(x=>x.id===stage.beginnerLesson.quiz.sourceNews.id));
+    assert.equal(stage.beginnerLesson.quiz.solution,undefined);
+    assert.equal(stage.quizReviews.length,0);
     assert.equal(stage.beginnerLesson.reveal,undefined);
     assert.ok(stage.beginnerLesson.coach.checks.length>=2);
     assert.equal((await alpha("/api/quiz",{answer:"B"})).status,200);
@@ -117,6 +122,14 @@ test("왕초보 코스: 4개 연도·8단계, 안전한 시작 카드·쉬운 �
     stage=(await alpha("/api/state")).data;
     assert.equal(stage.room.phase,"result");
     assert.equal(stage.lastResult.changes.length,11);
+    // 미응답 팀도 가격 발표 후에는 정답과 쉬운 해설을 확인할 수 있습니다.
+    const unanswered=(await beta("/api/state")).data;
+    assert.equal(unanswered.beginnerLesson.submission,null);
+    assert.equal(unanswered.beginnerLesson.quiz.solution.correctOption,"B");
+    assert.ok(unanswered.beginnerLesson.quiz.solution.explanation.length>10);
+    assert.equal(unanswered.quizReviews.length,1);
+    assert.equal(unanswered.quizReviews[0].answered,false);
+    assert.equal(unanswered.quizReviews[0].solution.correctOption,"B");
     assert.ok(stage.beginnerLesson?.reveal?.summary.length>15);
     assert.equal((await beta("/api/quiz",{answer:"A"})).status,400);
     assert.equal(stage.news[0].analysis,undefined);
@@ -128,6 +141,9 @@ test("왕초보 코스: 4개 연도·8단계, 안전한 시작 카드·쉬운 �
       assert.equal((await teacher("/api/teacher",{action:"next"})).status,200);
       stage=(await alpha("/api/state")).data;
       assert.equal(stage.room.phase,"news");
+      assert.ok(stage.news.some(x=>x.id===stage.beginnerLesson.quiz.sourceNews.id));
+      assert.equal(stage.beginnerLesson.quiz.solution,undefined);
+      assert.ok(stage.quizReviews.every(x=>x.solution.correctLabel.length>3));
       assert.ok([2020,2021,2022,2023].includes(stage.room.year));
       assert.ok(stage.news.every(x=>x.year>=2020&&x.year<=2023));
       assert.ok(stage.news.every(x=>!Object.hasOwn(x,"analysis")));
@@ -141,6 +157,8 @@ test("왕초보 코스: 4개 연도·8단계, 안전한 시작 카드·쉬운 �
     assert.equal(stage.room.phase,"finished");
     assert.equal(stage.stageTradeHistory.length,8);
     assert.equal(stage.tradeReport.ready,true);
+    assert.equal(stage.quizReviews.length,8);
+    assert.ok(stage.quizReviews.some(x=>x.answered===false));
     assert.equal(stage.news.length,16);
     assert.equal(stage.news.some(x=>x.year===2019),false);
     // teacher reset does not erase login, but does erase participant state
@@ -162,7 +180,7 @@ test("초급 UI 및 데이터 파일 확인",()=>{
   assert.match(app,/function beginnerGuide/);
   assert.match(app,/초보자를 위한 한 줄 뉴스/);
   assert.match(app,/산업 카드/);
-  assert.match(index,/BEGINNER V1/);
+  assert.match(index,/BEGINNER V2\.1/);
   assert.match(app,/function beginnerCoach/);
   assert.match(app,/function beginnerQuiz/);
   assert.match(app,/function beginnerPractice/);
