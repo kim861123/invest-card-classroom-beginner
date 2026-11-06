@@ -2,6 +2,7 @@ const root=document.querySelector("#app");
 const statusTop=document.querySelector("#top-status");
 let game=null, source=null, busy=false, lastToastTimer=null, drawChoiceBusy=false;
 let timerSoundEnabled=false, timerAlertKey="", timerAlerted=new Set(), audioContext=null;
+const quizDraftByStage=Object.create(null);
 // 통일된 벡터 아이콘 — 이모지 대신 단정한 금융 대시보드 스타일
 const iconPaths={
   chart:'<path d="m3 17 6-6 4 4 8-9"/><path d="M15 6h6v6"/>',
@@ -263,6 +264,37 @@ function market(g,team=false){
        </article>`;
     }).join("")}</div></section>`;
 }
+function beginnerPractice(g){
+  const t=g.team;
+  if(!t?.drawMode)return `<section class="panel section easy-practice"><h2>거래 연습하기</h2><p>먼저 카드 배분을 완료하세요.</p></section>`;
+  const receipt=t.practiceReceipt;
+  return `<section class="panel section easy-practice" id="practice">
+    <div class="easy-lesson-head"><span class="easy-lesson-symbol">${ico("exchange",23)}</span>
+      <div><span class="eyebrow">PRACTICE MODE · 1 CARD</span>
+      <h2>진짜 거래 전에 1장만 연습해요</h2>
+      <p>연습 상대와 카드 1장을 교환하는 체험입니다. 실제 카드 수량과 평가자산은 변하지 않습니다.</p></div></div>
+    ${t.practiceDone?`<div class="easy-practice-done">${ico("check",19)} 연습 완료!
+      ${receipt?`<span>${h(sector(receipt.offerId).name)} 1장 → ${h(sector(receipt.wantId).name)} 1장 (연습 기록)</span>`:""}</div>`:
+      `<button type="button" class="btn gold wide" data-action="open-practice">1장 교환 연습 시작</button>`}
+  </section>`;
+}
+function practiceDialog(g){
+  const options=g.sectors.map(x=>`<option value="${x.id}">${h(x.name)} (${h(x.ticker)})</option>`).join("");
+  return `<div class="modal-head"><div><span class="eyebrow">TRAINING / NO REAL TRADE</span>
+    <h2>카드 1장 교환 연습</h2></div>
+    <button class="modal-close" type="button" data-action="close-practice" aria-label="닫기">${ico("close",20)}</button></div>
+    <div class="easy-practice-steps">
+       <div><b>① 내가 줄 산업 카드</b><p>우리 팀에 있는 카드 중 한 장을 고릅니다.</p></div>
+       <div><b>② 연습 상대에게 받을 카드</b><p>서로 다른 카드 1장을 골라요.</p></div>
+       <div><b>③ 교환 완료!</b><p>다시 실제 카드 구성으로 돌아옵니다.</p></div>
+    </div>
+    <form id="beginner-practice-form">
+      <label class="field">내가 줄 카드<select name="offerId" required>${options}</select></label>
+      <label class="field">연습 상대에게 받을 카드<select name="wantId" required>${options}</select></label>
+      <div class="easy-practice-warning">연습용 가상 거래입니다. 실제 팀의 110장 카드 수량과 순위는 바뀌지 않습니다.</div>
+      <button class="btn gold wide" type="submit">1장 교환 연습 완료하기</button>
+    </form>`;
+}
 function teamLobbyPanel(g){
  const done=Boolean(g.team.drawMode);
  return `<section class="panel section strategy-panel">
@@ -316,6 +348,62 @@ function newsList(g){
     ${current.length?`<div class="current-news-stack">${current.map((x,i)=>renderNews(x,i)).join("")}</div>`:
      `<div class="empty">${ico("time",18)} ${r.phase==="lobby"?"강사가 게임을 시작하면 현재 뉴스가 이곳에 표시됩니다.":"아직 공개된 뉴스가 없습니다."}</div>`}
     ${older.length?`<details class="archive-news"><summary>${ico("history",18)} 이전 뉴스 ${older.length}건 다시 보기 ${ico("arrow",15)}</summary><div class="archive-list">${older.slice().reverse().map((x,i)=>renderNews(x,i,true)).join("")}</div></details>`:""}
+  </section>`;
+}
+// EASY V2: 현재 공개된 뉴스만으로 생각하도록 돕는 투자 선택 도우미(미래 가격 공개 없음).
+function beginnerCoach(g){
+  const l=g.beginnerLesson;
+  if(!l || !["news","trade","paused"].includes(g.room.phase))return "";
+  return `<section class="panel section easy-coach" aria-label="투자 선택 도우미">
+    <div class="easy-lesson-head"><span class="easy-lesson-symbol">${ico("sparkles",22)}</span>
+      <div><span class="eyebrow">THINK FIRST · INVESTMENT COACH</span>
+        <h2>어떤 산업이 영향을 받을까요?</h2><p>${h(l.year)}년 ${l.stage}차 · ${h(l.topic)}</p></div></div>
+    <p class="easy-coach-prompt">${h(l.coach.prompt)}</p>
+    <div class="easy-coach-checks">${l.coach.checks.map(x=>{
+      const parts=x.split(":");return `<div class="easy-coach-chip"><strong>${h(parts[0])}</strong><span>${h(parts.slice(1).join(":").trim())}</span></div>`;
+    }).join("")}</div>
+    <p class="small-note">🔎 ${h(l.coach.disclaimer)} 교환 여부는 팀이 직접 결정하세요.</p>
+  </section>`;
+}
+function beginnerQuiz(g){
+  const l=g.beginnerLesson;
+  if(!l||!["news","trade","result","paused"].includes(g.room.phase))return "";
+  const sub=l.submission;
+  const canSubmit=["news","trade"].includes(g.room.phase)&&g.team?.drawMode;
+  return `<section class="panel section easy-quiz" id="easy-quiz" aria-label="이번 뉴스 이해 퀴즈">
+    <div class="easy-lesson-head"><span class="easy-lesson-symbol">${ico("target",22)}</span>
+      <div><span class="eyebrow">ONE QUESTION · ${l.year}-${l.stage}</span><h2>이번 턴 뉴스 퀴즈</h2>
+      <p>정답 한 개를 선택해 보세요. 카드 보유량과 수익률에는 영향을 주지 않습니다.</p></div></div>
+    <p class="easy-quiz-question">${h(l.quiz.question)}</p>
+    ${sub?`<div class="easy-quiz-answer ${sub.correct?"is-correct":"is-wrong"}">
+      <strong>${sub.correct?"정답입니다!":"좋은 시도예요!"}</strong>
+      <p>정답: ${h(l.quiz.options.find(x=>x.value===sub.correctOption)?.label||"")}</p>
+      <p>${h(sub.explanation)}</p></div>`:
+      canSubmit?`<form id="beginner-quiz-form"><div class="easy-quiz-options">
+        ${l.quiz.options.map(x=>`<label class="easy-quiz-choice"><input type="radio" name="answer" value="${h(x.value)}" ${quizDraftByStage[`${l.year}-${l.stage}`]===x.value?"checked":""} required><span>${h(x.label)}</span></label>`).join("")}
+        </div><button type="submit" class="btn gold wide">정답 제출하고 배우기</button></form>`:
+      `<p class="small-note">이 뉴스 단계의 퀴즈 응답 시간이 종료되었습니다.</p>`}
+  </section>`;
+}
+function beginnerResult(g){
+  const l=g.beginnerLesson,r=g.lastResult;
+  if(g.room.phase!=="result"||!r||!l?.reveal)return "";
+  const change=[...r.changes].sort((a,b)=>b.gameModelPct-a.gameModelPct);
+  const top=change[0],low=change[change.length-1];
+  if(!top||!low)return "";
+  const max=Math.max(1,...change.map(x=>Math.abs(x.gameModelPct)));
+  const makeRow=(x)=>`<div class="easy-result-row"><span>${h(x.name)}</span>
+    <div class="easy-result-bar"><i style="width:${Math.min(100,Math.abs(x.gameModelPct)/max*100).toFixed(1)}%"
+      class="${x.gameModelPct>=0?"up":"down"}"></i></div>
+    <strong class="${buyClass(x.gameModelPct)}">${pct(x.gameModelPct)}</strong></div>`;
+  return `<section class="panel section easy-explain" id="easy-result-explain">
+    <div class="easy-lesson-head"><span class="easy-lesson-symbol">${ico("chart",24)}</span>
+    <div><span class="eyebrow">RESULT · EASY EXPLAINER</span><h2>그림으로 보는 이번 가격 발표</h2>
+    <p>${r.year}년 ${r.stageIndex+1}차 · 쉬운 결과 해설</p></div></div>
+    <div class="easy-explain-feature"><strong>이런 일이 있었어요</strong><p>${h(l.reveal.summary)}</p></div>
+    <div class="easy-result-bars"><p>이번 발표의 상승·하락 변동폭 비교</p>
+      ${makeRow(top)}${makeRow(low)}</div>
+    <p class="small-note">※ 숫자는 역사적 연간 섹터 성과를 나눈 교육용 모델입니다. 위 뉴스 하나가 가격 변동을 일으켰다고 단정할 수 없습니다.</p>
   </section>`;
 }
 function leaderboard(g){
@@ -738,7 +826,10 @@ function teacherView(g){
   statusTop.textContent=`강사 모드 · ${g.room.year}년 · ${phaseText[g.room.phase]}`;
   return `${headLine(g,"실시간 강사 대시보드","뉴스 공개 · 거래 시간 · 시장 가격 반영을 서버에서 통제합니다.")}
     ${illustratedStage(g)}${statusStats(g)}
-    <div class="beginner-teacher-banner"><strong>초급 코스 · 2020~2023 · 총 8단계</strong><span>학생용 뉴스는 쉬운 요약과 용어 풀이를 제공합니다. 강사용 해설은 학생 API에 포함되지 않습니다.</span></div>
+    <div class="beginner-teacher-banner"><strong>초급 코스 · 2020~2023 · 총 8단계</strong>
+       <span>거래 연습 ${g.practiceStats?.completed||0}/${g.practiceStats?.total||0}팀 ·
+       현재 퀴즈 참여 ${g.quizStats?.answered||0}/${g.quizStats?.total||0}팀</span>
+       <span>힌트는 미래 가격을 공개하지 않으며, 강사용 해설은 학생 API에서 제외됩니다.</span></div>
     ${quickPanels(g)}${teacherTradeReports(g)}
     <div class="instructor-command-layout"><div class="instructor-primary">${teacherReveal(g)}</div>
       <aside class="instructor-sidebar">${teacherActions(g)}${qrTeacher(g)}</aside></div>
@@ -753,10 +844,10 @@ function studentView(g){
   return `${headLine(g,`${h(g.team.name)}의 투자 전략실`,"경제를 몰라도 괜찮아요! 쉬운 뉴스 요약을 읽고 카드 교환을 연습해 보세요.")}
     ${illustratedStage(g)}${statusStats(g)}${beginnerGuide(g)}${quickPanels(g)}${impactLaunch(g)}
     ${g.room.phase==="paused"?'<div class="alert">${ico("pause",17)} 강사가 게임을 일시정지했습니다. 거래는 잠겨 있습니다.</div>':""}
-    ${g.room.phase==="lobby"?`<div class="info">${ico("check",17)} 참가 완료! <b>우리 팀은 카드 110장을 단 한 번 뽑습니다.</b> 강사의 게임 시작을 기다려 주세요.</div>${teamLobbyPanel(g)}`:""}
+    ${g.room.phase==="lobby"?`<div class="info">${ico("check",17)} 참가 완료! <b>우리 팀은 카드 110장을 단 한 번 뽑습니다.</b> 강사의 게임 시작을 기다려 주세요.</div>${teamLobbyPanel(g)}${beginnerPractice(g)}`:""}
     ${g.room.phase==="finished"?'<div class="result-banner"><h3>${ico("trophy",20)} 게임 종료</h3><p>투자 판단과 산업별 시장 결과를 복기해 보세요.</p></div>':""}
     <div class="two-col-main"><div>
-      ${newsList(g)}${listingBoard(g)}${market(g,true)}
+      ${newsList(g)}${beginnerCoach(g)}${beginnerQuiz(g)}${beginnerResult(g)}${listingBoard(g)}${market(g,true)}
       ${results(g)}
     </div><div><div class="panel section"><h3>${ico("target",19)} 초보 투자 체크리스트</h3><p class="panel-sub">① 오늘 뉴스는 무슨 소식인가요?<br>② 어떤 산업 카드에 영향이 있을까요?<br>③ 카드를 바꿀까요, 그대로 둘까요?<br>④ 가격 발표 뒤 우리 예상이 맞았는지 이야기해 봐요.</p></div>
     </div></div>
@@ -843,6 +934,20 @@ document.addEventListener("submit",async e=>{
     return mutate("/api/teacher",{action:"reset",confirm:word},
       "새 게임으로 초기화했습니다. 기존 학생팀은 다시 참가해야 합니다.");
   }
+  if(form.id==="beginner-quiz-form"){
+    const answer=String(d.get("answer")||"");
+    if(!answer){toast("먼저 답을 선택하세요.");return;}
+    const done=await mutate("/api/quiz",{answer},"퀴즈 답안을 제출했습니다. 해설을 확인하세요.");
+    if(done)delete quizDraftByStage[`${game.room.year}-${game.room.stage}`];
+    return;
+  }
+  if(form.id==="beginner-practice-form"){
+    const offerId=Number(d.get("offerId")),wantId=Number(d.get("wantId"));
+    if(offerId===wantId){toast("서로 다른 산업을 선택하세요.");return;}
+    const done=await mutate("/api/team",{action:"practice",offerId,wantId},"연습 완료! 실제 카드 수량은 바뀌지 않았습니다.");
+    if(done)document.querySelector("#practice-modal")?.close();
+    return;
+  }
   if(form.id==="config-form")return mutate("/api/teacher",{
     action:"config",newsSeconds:Number(d.get("newsSeconds")),tradeSeconds:Number(d.get("tradeSeconds"))
   },"진행 시간을 저장했습니다.");
@@ -868,11 +973,26 @@ document.addEventListener("input",e=>{
 document.addEventListener("change",e=>{
   const form=e.target.closest?.("#trade-card-form");
   if(form)syncTradePreview(form);
+  if(e.target.matches?.('#beginner-quiz-form input[name="answer"]')&&game){
+    quizDraftByStage[`${game.room.year}-${game.room.stage}`]=e.target.value;
+  }
 });
 document.addEventListener("click",async e=>{
   const target=e.target.closest("[data-action]");
   if(!target)return;
   const action=target.dataset.action,id=target.dataset.id;
+  if(action==="open-practice"){
+    if(game?.role!=="team"||game.room.phase!=="lobby"||!game.team.drawMode||game.team.practiceDone)return;
+    document.querySelector("#practice-modal")?.remove();
+    const modal=document.createElement("dialog");
+    modal.id="practice-modal";modal.className="asset-modal easy-practice-modal";
+    modal.innerHTML=practiceDialog(game);
+    document.body.append(modal);
+    modal.addEventListener("click",event=>{if(event.target===modal)modal.close();});
+    modal.addEventListener("close",()=>modal.remove(),{once:true});
+    modal.showModal();return;
+  }
+  if(action==="close-practice"){document.querySelector("#practice-modal")?.close();return;}
   if(action==="view-rankings"){
     showInfoModal("실시간 팀 순위","LIVE RANKING",leaderboard(game));
     return;

@@ -41,6 +41,11 @@ const HOST = process.env.HOST || "0.0.0.0";
 const DATA_DIR = path.resolve(__dirname, process.env.DATA_DIR || "runtime");
 const storage = makeStorage({backend: process.env.STORAGE_BACKEND || "local",directory:DATA_DIR});
 const newsSource = JSON.parse(fs.readFileSync(path.join(__dirname, "data/historical_news_2019_2026.json"), "utf8"));
+// EASY V2 lesson content is server-only: quiz answer and reveal are never sent before allowed.
+const beginnerLessons = JSON.parse(fs.readFileSync(path.join(__dirname, "data/beginner_lessons.json"), "utf8")).lessons;
+const lessonMap = new Map(beginnerLessons.map(x=>[`${x.year}:${x.stage}`,x]));
+function currentLesson() { return lessonMap.get(`${currentYear()}:${state.stageIndex+1}`) || null; }
+function lessonKey() { return `${currentYear()}-${state.stageIndex+1}`; }
 const actualSource = JSON.parse(fs.readFileSync(path.join(__dirname, "data/sector_returns_2019_2026.json"), "utf8"));
 const stagesSource = JSON.parse(fs.readFileSync(path.join(__dirname, "data/sector_game_stage_returns_2019_2026.json"), "utf8")).records;
 // 초급 모드는 경제 흐름이 뚜렷한 4개 연도만 사용합니다.
@@ -301,6 +306,25 @@ function publicResult(result) {
   const {year,stageIndex,changes,at,scores,endingYear,returnKind}=result;
   return {year,stageIndex,changes,at,scores,endingYear,returnKind};
 }
+function lessonView(role,team) {
+  if (state.phase==="lobby") return null;
+  const lesson=currentLesson();
+  if(!lesson) return null;
+  const showReveal=["result","finished"].includes(state.phase);
+  return {
+    year:lesson.year,stage:lesson.stage,topic:lesson.topic,
+    coach:lesson.coach,
+    quiz:{question:lesson.quiz.question,options:lesson.quiz.options},
+    ...(showReveal||role==="teacher"?{reveal:lesson.reveal}:{}),
+    ...(team?{submission:team.quizAnswers?.[lessonKey()]||null}:{})
+  };
+}
+function quizStats(){
+  const key=lessonKey();
+  return {total:state.participants.length,
+    answered:state.participants.filter(p=>Boolean(p.quizAnswers?.[key])).length,
+    correct:state.participants.filter(p=>p.quizAnswers?.[key]?.correct).length};
+}
 function view(req) {
   const s=sessionFor(req), role = s?.role || "guest";
   const team = role==="team" ? state.participants.find(p=>p.id===s.teamId) : null;
@@ -313,7 +337,9 @@ function view(req) {
     team:team ? {id:team.id,name:team.name,members:team.members,drawMode:team.drawMode||null,
       drawComplete: Boolean(team.drawMode)||state.phase!=="lobby",
       holdings:team.holdings,cash:0,cardCount:holdingCount(team),initialAsset:initialAsset(team),
-      total:valuation(team),returnPct:(valuation(team)/initialAsset(team)-1)*100} : null,
+      total:valuation(team),returnPct:(valuation(team)/initialAsset(team)-1)*100,
+      practiceDone:Boolean(team.practiceDone),
+      practiceReceipt:team.practiceReceipt||null} : null,
     room: {phase:state.phase,pausedFrom:state.pausedFrom,
       year:currentYear(),stage:state.stageIndex+1,round:state.yearIndex+1,totalRounds:YEARS.length,
       deadline:state.deadline,secondsRemaining:state.secondsRemaining,
@@ -326,6 +352,7 @@ function view(req) {
       maxOtherAvailable:maxCounterpartyAvailable(team.id,x.id)
     }]))}:{}),
     scores:scores(), news:currentlyVisibleNews(role),
+    ...(role!=="guest"?{beginnerLesson:lessonView(role,team)}:{}),
     ...(team && state.phase==="finished"?{tradeReport:finalTradeReport(team)}:{}),
     ...(team?{
       stageTradeHistory:state.results.map(result=>({
@@ -343,6 +370,8 @@ function view(req) {
     })):[],
     lastResult:latestResult && (state.phase === "result" || state.phase === "finished") ? publicResult(latestResult) : null,
     ...(role==="teacher"?{
+      quizStats:quizStats(),
+      practiceStats:{total:state.participants.length,completed:state.participants.filter(p=>p.practiceDone).length},
       resultHistory:state.results.slice().reverse(),
       lastResetAt:state.lastResetAt||null,
       ...(state.phase==="result"?{stageTeamReports:latestResult?.teamTradeReports||[]}:{}),
@@ -633,7 +662,7 @@ const server=http.createServer((req,res)=>{
     const url=new URL(req.url,`http://${req.headers.host||"localhost"}`);
     const pathname=url.pathname;
     if (req.method==="GET" && staticFile(req,res,pathname)) return;
-    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-beginner-v1-2020-2023"});
+    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-beginner-v2-lesson-news-focus"});
     if (pathname==="/api/state" && req.method==="GET") return send(res,200,view(req));
     if (pathname==="/api/events" && req.method==="GET") {
       const s=sessionFor(req);
@@ -721,9 +750,38 @@ const server=http.createServer((req,res)=>{
         team.initialAsset=INITIAL_ASSET;
         bad(holdingCount(team)!==TOTAL_START_CARDS,"카드 배분 합계가 110장이 아닙니다.");
         bad(Object.values(team.holdings).some(v=>v<1),"모든 산업을 최소 한 장 보유해야 합니다.");
+      } else if(body.action==="practice") {
+        bad(!team.drawMode,"카드를 먼저 배분받은 다음 연습할 수 있습니다.");
+        bad(Boolean(team.practiceDone),"연습 교환은 팀당 한 번 완료할 수 있습니다.");
+        const offerId=Number(body.offerId),wantId=Number(body.wantId);
+        bad(!Number.isSafeInteger(offerId)||!Number.isSafeInteger(wantId)||
+          !sectors.some(x=>x.id===offerId)||!sectors.some(x=>x.id===wantId)||
+          offerId===wantId,"서로 다른 산업 카드 2종을 선택하세요.");
+        bad(Number(team.holdings[offerId]||0)<1,"연습에 사용할 카드가 없습니다.");
+        // 이 동작은 샌드박스 예시이며 실제 카드/거래/평가금액은 변경하지 않습니다.
+        team.practiceDone=true;
+        team.practiceReceipt={offerId,wantId,qty:1,at:new Date().toISOString(),simulated:true};
       } else if(body.action==="strategy") {
         bad(true,"기존 투자 성향 선택은 종료되었습니다. 카드 뽑기 팝업에서 선택하세요.");
       } else bad(true,"알 수 없는 팀 관리 명령입니다.");
+      await commit();
+      return send(res,200,view(req));
+    }
+    if (pathname==="/api/quiz") {
+      restricted(sess?.role!=="team","학생팀만 퀴즈에 응답할 수 있습니다.");
+      bad(!["news","trade"].includes(state.phase),"퀴즈 응답은 현재 뉴스 분석·거래 단계에서만 가능합니다.");
+      const team=state.participants.find(p=>p.id===sess.teamId);
+      restricted(!team,"참가팀 정보가 없습니다.");
+      bad(!team.drawMode,"카드 배분을 완료한 뒤 응답하세요.");
+      const lesson=currentLesson(),key=lessonKey();
+      bad(!lesson,"현재 뉴스의 퀴즈를 찾을 수 없습니다.");
+      bad(Boolean(team.quizAnswers?.[key]),"이 뉴스 단계의 퀴즈는 이미 제출했습니다.");
+      const answer=safeStr(body.answer,1);
+      bad(!lesson.quiz.options.some(x=>x.value===answer),"제시된 답안 중 하나를 선택하세요.");
+      const correct=answer===lesson.quiz.correct;
+      team.quizAnswers??={};
+      team.quizAnswers[key]={answer,correct,correctOption:lesson.quiz.correct,
+        explanation:lesson.quiz.explanation,submittedAt:new Date().toISOString()};
       await commit();
       return send(res,200,view(req));
     }

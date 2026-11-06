@@ -1075,3 +1075,137 @@ body{
 @media(prefers-reduced-motion:reduce){
  .draw-mini-card,.draw-option,.draw-reveal-card{animation:none!important;transition:none!important}
 }
+
+
+/* V2/V8 NEWS FOCUS · 공통 적용: 읽기 쉬운 라이트 에디토리얼 기사 카드 */
+.newsroom .current-news-stack{position:relative;padding:8px 2px 4px}
+.newsroom .current-news-stack .news-card.news-current{
+  position:relative;isolation:isolate;
+  background:linear-gradient(140deg,#fffdf8 0%,#f5eee1 100%) !important;
+  color:#15283c !important;
+  border:2px solid #efd29a !important;
+  border-left:7px solid #d69a3d !important;
+  border-radius:22px !important;
+  padding:24px 25px !important;
+  box-shadow:0 14px 32px rgba(0,0,0,.25),inset 0 1px 0 #fff !important;
+  margin:14px 0 !important;
+}
+.newsroom .news-card.news-current::before{
+  content:"TODAY'S MARKET STORY / 지금 읽는 기사";
+  display:block;font-size:10px;font-weight:900;letter-spacing:.08em;
+  color:#8a5926;padding-bottom:11px;margin-bottom:15px;
+  border-bottom:1px solid #dccfb8;
+}
+.newsroom .news-card.news-current h3{
+  color:#172940 !important;font-size:clamp(20px,2vw,25px) !important;
+  line-height:1.48 !important;letter-spacing:-.025em;
+  padding:0;margin:12px 0 15px !important;overflow-wrap:anywhere;
+}
+.newsroom .news-card.news-current .news-meta{color:#34495f}
+.newsroom .news-card.news-current .news-index{
+  background:#224967 !important;color:#fff6df !important;border:1px solid #365f78 !important;
+}
+.newsroom .news-card.news-current .news-date{color:#6b5233 !important;font-weight:750}
+.newsroom .news-card.news-current p,
+.newsroom .news-card.news-current .news-fact{color:#304359 !important;line-height:1.8}
+.newsroom .news-card.news-current .beginner-summary{
+  background:linear-gradient(120deg,#e8f1f5,#f2f5ef) !important;
+  border:1px solid #b1c7cf !important;box-shadow:inset 0 1px 0 #fff;
+}
+.newsroom .news-card.news-current .beginner-summary span{color:#285479 !important}
+.newsroom .news-card.news-current .beginner-summary strong{color:#122e48 !important}
+.newsroom .news-card.news-current .beginner-term{
+  background:#e7f3ec !important;color:#1d493b !important;
+  border-color:#a8d4c5 !important;
+}
+.newsroom .news-card.news-current .beginner-term b{color:#12604c !important}
+.newsroom .news-card.news-current .news-question{
+  background:#eaf1fa !important;border-color:#bad0e5 !important;color:#194d71 !important;
+}
+.newsroom .news-card.news-current .news-question b{color:#16517e !important}
+.newsroom .news-card.news-current .news-question p{color:#30516b !important}
+.newsroom .news-card.news-current .beginner-source{color:#234e71 !important}
+.newsroom .news-card.news-current .beginner-source summary{
+  color:#1f5c82 !important;font-weight:800;cursor:pointer;
+}
+.newsroom .news-card.news-current .news-explain{
+  color:#f5e5c7 !important;background:#26445a !important;border-color:#7b9dac !important;
+}
+.newsroom .news-card.news-current .news-explain p,
+.newsroom .news-card.news-current .news-explain b{color:#fff1d7 !important}
+.newsroom .news-card.news-current .news-sources{
+  border-top:1px solid #dacdb8 !important;
+}
+.newsroom .news-card.news-current .news-sources a{
+  display:inline-flex;align-items:center;gap:6px;border-radius:10px;
+  background:#234f70 !important;color:#fff !important;border:1px solid #234f70 !important;
+  font-weight:750;text-decoration:none;
+}
+.newsroom .news-card.news-current .news-sources a.secondary-link{
+  color:#244664 !important;border:1px solid #a9bed0 !important;background:#e7eef2 !important;
+}
+.newsroom .news-card.news-current .news-sources a:hover{filter:brightness(1.1)}
+.newsroom .archive-news .news-card.news-past{
+  background:#111f32 !important;border-left-color:#556d87 !important;opacity:.88;
+}
+@media (max-width:640px){
+  .newsroom .current-news-stack .news-card.news-current{padding:18px 16px !important}
+  .newsroom .news-card.news-current h3{font-size:20px !important}
+}
+
+
+/* EASY V2 · 초보자 안내/퀴즈/연습/결과 스토리 */
+.easy-coach,.easy-quiz,.easy-practice,.easy-explain{
+  border:1px solid #4b677d;background:linear-gradient(155deg,#142a43,#112039);
+  box-shadow:0 15px 32px rgba(0,0,0,.13);padding:23px;margin:18px 0;border-radius:20px;
+}
+.easy-coach{border-left:5px solid #69d9c0}
+.easy-quiz{border-left:5px solid #e1ba76}
+.easy-practice{border-left:5px solid #98a8eb}
+.easy-explain{border:2px solid #e1bc76}
+.easy-lesson-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:17px}
+.easy-lesson-head h2{font-size:21px;margin:4px 0 5px;letter-spacing:-.03em}
+.easy-lesson-head p{margin:0;color:#b8c9dd;font-size:13px;line-height:1.65}
+.easy-lesson-symbol{width:48px;height:48px;flex:0 0 48px;display:grid;place-items:center;
+  border-radius:15px;background:#254765;border:1px solid #527d91;color:#c5f1e8}
+.easy-coach-prompt,.easy-quiz-question{font-size:16px;font-weight:750;line-height:1.65;color:#f6f1e7}
+.easy-coach-checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:17px 0}
+.easy-coach-chip{min-width:0;display:grid;gap:8px;background:#203a51;border:1px solid #4c7382;
+  border-radius:12px;padding:14px}
+.easy-coach-chip strong{color:#86ead3;font-size:14px}
+.easy-coach-chip span{font-size:13px;line-height:1.55;color:#e1eaf1}
+.easy-quiz-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
+.easy-quiz-choice{display:flex;gap:11px;align-items:flex-start;padding:14px;
+  border:1px solid #456681;border-radius:12px;background:#20354b;cursor:pointer;
+  font-size:14px;line-height:1.6}
+.easy-quiz-choice:has(input:checked){border-color:#e5bd77;background:#374152}
+.easy-quiz-choice input{accent-color:#e5bd77;margin-top:5px;flex-shrink:0}
+.easy-quiz-answer{border:1px solid #80af93;background:#193c35;padding:15px;border-radius:12px;line-height:1.7}
+.easy-quiz-answer.is-wrong{border-color:#b59b67;background:#3a3129}
+.easy-quiz-answer p{margin:6px 0;color:#f2efe8}
+.easy-practice-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:16px 0}
+.easy-practice-steps>div{padding:13px;border-radius:12px;background:#1b334b;border:1px solid #4b6074}
+.easy-practice-steps p{font-size:12px;color:#c2d2e3;line-height:1.6}
+.easy-practice-modal{width:min(670px,95vw)}
+.easy-practice-warning{padding:13px;border-radius:10px;border:1px solid #986c41;color:#ffe2a1;
+  background:#403328;margin:12px 0;line-height:1.5}
+.easy-practice-done{padding:16px;background:#224439;color:#e0faed;border:1px solid #5e997f;
+  border-radius:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.easy-practice-done span{font-size:13px;opacity:.9}
+.easy-explain-feature{padding:18px;background:#ecead9;color:#1d3248;border-radius:14px}
+.easy-explain-feature strong{font-size:13px;color:#3f644d}
+.easy-explain-feature p{margin:8px 0 0;color:#1d3248;line-height:1.75;font-weight:650}
+.easy-result-bars{background:#1a3149;padding:16px;border:1px solid #426078;border-radius:14px;margin-top:13px}
+.easy-result-bars>p{margin:0 0 15px;color:#cbd7e7;font-size:13px}
+.easy-result-row{display:grid;grid-template-columns:minmax(76px,1fr) 2fr 68px;
+  gap:10px;align-items:center;font-size:13px;margin:12px 0}
+.easy-result-row>span{font-weight:750}
+.easy-result-row strong{text-align:right;font-variant-numeric:tabular-nums}
+.easy-result-bar{height:12px;border-radius:99px;background:#395069;overflow:hidden}
+.easy-result-bar>i{display:block;height:100%;border-radius:99px;background:#70dac6}
+.easy-result-bar>i.down{background:#e98c88}
+@media(max-width:700px){
+ .easy-coach,.easy-quiz,.easy-practice,.easy-explain{padding:17px 15px}
+ .easy-coach-checks,.easy-quiz-options,.easy-practice-steps{grid-template-columns:1fr}
+ .easy-lesson-head h2{font-size:19px}
+}

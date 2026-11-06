@@ -62,7 +62,7 @@ test("왕초보 코스: 4개 연도·8단계, 안전한 시작 카드·쉬운 �
     await start();
     const visitor=client(),teacher=client(),alpha=client(),beta=client();
     const health=await visitor("/api/health");
-    assert.equal(health.data.build,"classroom-beginner-v1-2020-2023");
+    assert.equal(health.data.build,"classroom-beginner-v2-lesson-news-focus");
     const init=(await visitor("/api/state")).data;
     assert.equal(init.room.year,2020);
     assert.equal(init.room.totalRounds,4);
@@ -76,6 +76,13 @@ test("왕초보 코스: 4개 연도·8단계, 안전한 시작 카드·쉬운 �
     assert.equal((await teacher("/api/teacher",{action:"start"})).status,400);
     assert.equal((await alpha("/api/team",{action:"draw",mode:"even"})).status,200);
     assert.equal((await beta("/api/team",{action:"draw",mode:"even"})).status,200);
+    const beforePractice=(await alpha("/api/state")).data;
+    const practice=await alpha("/api/team",{action:"practice",offerId:1,wantId:8});
+    assert.equal(practice.status,200);
+    assert.equal(practice.data.team.practiceDone,true);
+    assert.deepEqual(practice.data.team.holdings,beforePractice.team.holdings);
+    assert.equal((await alpha("/api/team",{action:"practice",offerId:1,wantId:8})).status,400);
+    assert.equal((await teacher("/api/state")).data.practiceStats.completed,1);
     const a=(await alpha("/api/state")).data;
     assert.equal(a.team.cardCount,110);
     assert.equal(a.team.initialAsset,1_100_000);
@@ -87,6 +94,16 @@ test("왕초보 코스: 4개 연도·8단계, 안전한 시작 카드·쉬운 �
     assert.ok(stage.news[0].easy_term.length>12);
     assert.ok(stage.news[0].easy_question.length>12);
     assert.equal(stage.news[0].analysis,undefined);
+    assert.ok(stage.beginnerLesson?.quiz?.question.length>10);
+    assert.equal(stage.beginnerLesson.quiz.correct,undefined);
+    assert.equal(stage.beginnerLesson.reveal,undefined);
+    assert.ok(stage.beginnerLesson.coach.checks.length>=2);
+    assert.equal((await alpha("/api/quiz",{answer:"B"})).status,200);
+    assert.equal((await alpha("/api/quiz",{answer:"B"})).status,400);
+    const quizzed=(await alpha("/api/state")).data.beginnerLesson.submission;
+    assert.equal(quizzed.correct,true);
+    assert.ok(quizzed.explanation.length>10);
+    assert.equal((await teacher("/api/state")).data.quizStats.answered,1);
     assert.equal((await alpha("/api/list",{offerId:1,offerQty:1,wantId:8,wantQty:1})).status,403);
     await advance(); // news -> trade
     assert.equal((await alpha("/api/state")).data.room.phase,"trade");
@@ -100,6 +117,8 @@ test("왕초보 코스: 4개 연도·8단계, 안전한 시작 카드·쉬운 �
     stage=(await alpha("/api/state")).data;
     assert.equal(stage.room.phase,"result");
     assert.equal(stage.lastResult.changes.length,11);
+    assert.ok(stage.beginnerLesson?.reveal?.summary.length>15);
+    assert.equal((await beta("/api/quiz",{answer:"A"})).status,400);
     assert.equal(stage.news[0].analysis,undefined);
     assert.equal((await teacher("/api/state")).data.news[0].analysis.length>5,true);
     assert.equal(stage.stageTradeReport.ready,true);
@@ -144,6 +163,15 @@ test("초급 UI 및 데이터 파일 확인",()=>{
   assert.match(app,/초보자를 위한 한 줄 뉴스/);
   assert.match(app,/산업 카드/);
   assert.match(index,/BEGINNER V1/);
+  assert.match(app,/function beginnerCoach/);
+  assert.match(app,/function beginnerQuiz/);
+  assert.match(app,/function beginnerPractice/);
+  assert.match(app,/function beginnerResult/);
+  const style=fs.readFileSync(path.join(dir,"public/style.css"),"utf8");
+  assert.match(style,/V2\/V8 NEWS FOCUS/);
+  assert.match(style,/easy-quiz-options/);
+  const lessons=JSON.parse(fs.readFileSync(path.join(dir,"data/beginner_lessons.json"),"utf8")).lessons;
+  assert.equal(lessons.length,8);
   assert.match(sql,/classroom_beginner_state/);
   assert.match(store,/classroom_beginner_state/);
   assert.match(store,/beginner-main/);
