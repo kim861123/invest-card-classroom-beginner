@@ -744,10 +744,19 @@ function staticFile(req,res,pathname) {
     "/present.js":["present.js","text/javascript; charset=utf-8"],
     "/report.js":["report.js","text/javascript; charset=utf-8"],
     "/editorial.css":["editorial.css","text/css; charset=utf-8"],
+    "/mobile-v32.css":["mobile-v32.css","text/css; charset=utf-8"],
+    "/art/article-rates.webp":["art/article-rates.webp","image/webp"],
+    "/art/article-energy.svg":["art/article-energy.svg","image/svg+xml"],
+    "/art/article-trade.svg":["art/article-trade.svg","image/svg+xml"],
+    "/art/article-health.svg":["art/article-health.svg","image/svg+xml"],
+    "/art/article-tech.svg":["art/article-tech.svg","image/svg+xml"],
+    "/art/article-banks.svg":["art/article-banks.svg","image/svg+xml"],
     "/app.js":["app.js","text/javascript; charset=utf-8"],
     "/style.css":["style.css","text/css; charset=utf-8"],
     "/manifest.webmanifest":["manifest.webmanifest","application/manifest+json"],
     "/sw.js":["sw.js","text/javascript; charset=utf-8"],
+    "/audio/notify.wav":["audio/notify.wav","audio/wav"],
+    "/audio/ambient.wav":["audio/ambient.wav","audio/wav"],
     "/icon-192.png":["icon-192.png","image/png"],
     "/icon-512.png":["icon-512.png","image/png"],
     "/art/market-horizon.webp":["art/market-horizon.webp","image/webp"],
@@ -770,7 +779,7 @@ const server=http.createServer((req,res)=>{
     const url=new URL(req.url,`http://${req.headers.host||"localhost"}`);
     const pathname=url.pathname;
     if (req.method==="GET" && staticFile(req,res,pathname)) return;
-    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-beginner-v3.1-lesson-presentation"});
+    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-beginner-v3.2-ui-mobile"});
     if (pathname==="/api/state" && req.method==="GET") return send(res,200,view(req));
     if(pathname==="/api/presentation" && req.method==="GET"){
       restricted(sessionFor(req)?.role!=="teacher","발표 화면은 강사 로그인 후 이용하세요.");

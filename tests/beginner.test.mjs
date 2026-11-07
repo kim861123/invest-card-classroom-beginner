@@ -62,7 +62,7 @@ test("왕초보 코스: 4개 연도·8단계, 안전한 시작 카드·쉬운 �
     await start();
     const visitor=client(),teacher=client(),alpha=client(),beta=client();
     const health=await visitor("/api/health");
-    assert.equal(health.data.build,"classroom-beginner-v3.1-lesson-presentation");
+    assert.equal(health.data.build,"classroom-beginner-v3.2-ui-mobile");
     const init=(await visitor("/api/state")).data;
     assert.equal(init.room.year,2020);
     assert.equal(init.room.totalRounds,4);

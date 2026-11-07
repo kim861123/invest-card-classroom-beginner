@@ -1390,3 +1390,7 @@ dialog.asset-modal,dialog.draw-dialog{
   .easy-quiz-choice{padding:14px 13px;grid-template-columns:20px minmax(0,1fr);gap:12px}
   .easy-quiz-choice>span{font-size:15px;line-height:1.65}
 }
+
+/* Smartphone/tablet sound onboarding; keeps the hint legible on narrow screens. */
+.timer-tools .audio-mobile-hint{display:block;flex-basis:100%;width:100%;color:#cad7e8;font-size:12px;line-height:1.5;margin-top:3px}
+.timer-tools [data-action="test-audio"]{border-color:#d6b771;color:#ffe0a1}

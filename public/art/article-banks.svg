@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#253e6a"/><stop offset="1" stop-color="#677da2"/></linearGradient>
+<linearGradient id="glow" x2="0" y2="1"><stop stop-color="#f9c875" stop-opacity=".42"/><stop offset="1" stop-color="#f9c875" stop-opacity="0"/></linearGradient></defs>
+<rect width="1200" height="675" fill="url(#bg)"/>
+<circle cx="950" cy="110" r="280" fill="url(#glow)" opacity=".75"/>
+<path d="M0 564 Q240 510 480 560T960 554T1200 555V675H0Z" fill="#081a35" opacity=".42"/>
+<g fill="#d8e6f2" stroke="#6883a1" stroke-width="8">
+<path d="M170 230L600 82l430 148v52H170z" fill="#dbe7ee"/>
+<rect x="195" y="278" width="810" height="285" fill="#e9f1f1"/>
+<path d="M180 567h845v42H180z" fill="#c0d6e3"/>
+</g><g fill="#6486ac"><rect x="255" y="305" width="75" height="237" rx="14"/><rect x="390" y="305" width="75" height="237" rx="14"/><rect x="525" y="305" width="75" height="237" rx="14"/><rect x="660" y="305" width="75" height="237" rx="14"/><rect x="795" y="305" width="75" height="237" rx="14"/><rect x="930" y="305" width="45" height="237" rx="14"/></g>
+<g fill="#f3c56e" stroke="#bd8b4a" stroke-width="6"><ellipse cx="905" cy="525" rx="75" ry="26"/><path d="M830 460v65q0 26 75 26t75-26v-65z"/><ellipse cx="905" cy="460" rx="75" ry="26"/><path d="M815 580v-54q0-24-65-24t-65 24v54z"/><ellipse cx="750" cy="580" rx="65" ry="26"/></g>
+</svg>

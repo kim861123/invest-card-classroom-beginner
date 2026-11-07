@@ -92,69 +92,166 @@ function countdown(g){
 function remainingSeconds(g){
   return g?.room?.deadline ? Math.max(0,Math.ceil((g.room.deadline-Date.now())/1000)) : null;
 }
-function playTimerSound(){
-  if(!timerSoundEnabled)return;
+
+// Mobile Safari/Android require media playback to begin in a direct user tap.
+// A real, locally generated WAV plays on that tap; the same element is reused
+// for later time/phase notifications. Web Audio remains a best-effort fallback.
+let notificationAudio=null, ambientAudio=null;
+function startWebAudioOnGesture(){
   try{
     const Ctx=window.AudioContext||window.webkitAudioContext;
     if(!Ctx)return;
-    if(!audioContext)audioContext=new Ctx();
-    if(audioContext.state==="suspended")audioContext.resume();
-    const osc=audioContext.createOscillator(),gain=audioContext.createGain();
-    osc.type="sine";osc.frequency.value=850;
-    gain.gain.setValueAtTime(.0001,audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(.055,audioContext.currentTime+.025);
-    gain.gain.exponentialRampToValueAtTime(.0001,audioContext.currentTime+.2);
-    osc.connect(gain);gain.connect(audioContext.destination);
-    osc.start();osc.stop(audioContext.currentTime+.21);
-  }catch{ /* 오디오가 차단된 브라우저에서도 게임은 계속 진행됩니다. */ }
+    if(!audioContext||audioContext.state==="closed")audioContext=new Ctx();
+    if(audioContext.state!=="running"){
+      const pending=audioContext.resume();
+      pending?.catch?.(()=>{});
+      // Some WebKit versions require a node started during the user gesture.
+      const oscillator=audioContext.createOscillator(),gain=audioContext.createGain();
+      gain.gain.value=0;
+      oscillator.connect(gain);gain.connect(audioContext.destination);
+      oscillator.start();oscillator.stop(audioContext.currentTime+.025);
+    }
+  }catch{ /* A separate HTML audio fallback is available. */ }
 }
-// Only original, synthesized notification tones; no copyrighted recordings.
+function soundTrack(kind){
+  try{
+    if(kind==="ambient"){
+      if(!ambientAudio){
+        ambientAudio=new Audio("/audio/ambient.wav");
+        ambientAudio.preload="auto";ambientAudio.loop=true;ambientAudio.volume=.65;
+      }
+      return ambientAudio;
+    }
+    if(!notificationAudio){
+      notificationAudio=new Audio("/audio/notify.wav");
+      notificationAudio.preload="auto";notificationAudio.volume=.9;
+    }
+    return notificationAudio;
+  }catch{return null;}
+}
+function playSynthCue(frequencies=[850]){
+  try{
+    if(!audioContext||audioContext.state!=="running")return false;
+    frequencies.forEach((frequency,index)=>{
+      const t=audioContext.currentTime+index*.16;
+      const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+      osc.type="sine";osc.frequency.setValueAtTime(frequency,t);
+      gain.gain.setValueAtTime(.0001,t);
+      gain.gain.exponentialRampToValueAtTime(.052,t+.024);
+      gain.gain.exponentialRampToValueAtTime(.0001,t+.21);
+      osc.connect(gain);gain.connect(audioContext.destination);
+      osc.start(t);osc.stop(t+.23);
+    });
+    return true;
+  }catch{return false;}
+}
+function playNotificationSound(fallback=[850]){
+  if(document.hidden)return false;
+  const track=soundTrack("notification");
+  if(!track)return playSynthCue(fallback);
+  try{
+    track.pause();
+    track.currentTime=0;
+    const played=track.play();
+    played?.catch?.(()=>{playSynthCue(fallback);});
+    return true;
+  }catch{return playSynthCue(fallback);}
+}
+function playTimerSound(){
+  if(timerSoundEnabled)playNotificationSound([850,850]);
+}
 function playSceneCue(kind="trade"){
   if(!timerSoundEnabled)return;
-  try{
-    const Ctx=window.AudioContext||window.webkitAudioContext;
-    if(!Ctx)return;
-    if(!audioContext)audioContext=new Ctx();
-    audioContext.resume?.();
-    const sequences={
-      trade:[520,659],reveal:[392,523,659],phase:[440,523]
-    };
-    (sequences[kind]||sequences.trade).forEach((hz,i)=>{
-      const at=audioContext.currentTime+i*.16;
-      const osc=audioContext.createOscillator(),v=audioContext.createGain();
-      osc.type="sine";osc.frequency.setValueAtTime(hz,at);
-      v.gain.setValueAtTime(.0001,at);
-      v.gain.exponentialRampToValueAtTime(.042,at+.024);
-      v.gain.exponentialRampToValueAtTime(.0001,at+.21);
-      osc.connect(v);v.connect(audioContext.destination);
-      osc.start(at);osc.stop(at+.24);
-    });
-  }catch{ /* Silent fallback where audio is unavailable. */ }
+  const notes={trade:[520,659],reveal:[392,523,659],phase:[440,523]};
+  playNotificationSound(notes[kind]||notes.trade);
 }
 function playAmbient(){
   if(!ambientEnabled||document.hidden)return;
+  // Synthesized sound is used only if HTML audio playback is unavailable.
   try{
-    const Ctx=window.AudioContext||window.webkitAudioContext;
-    if(!Ctx)return;
-    if(!audioContext)audioContext=new Ctx();
-    audioContext.resume?.();
-    const start=audioContext.currentTime;
-    [164.81,196,246.94].forEach((hz,i)=>{
-      const osc=audioContext.createOscillator(),v=audioContext.createGain();
-      osc.type="sine";osc.frequency.setValueAtTime(hz,start);
-      v.gain.setValueAtTime(.0001,start);
-      v.gain.linearRampToValueAtTime(.008,start+.8);
-      v.gain.linearRampToValueAtTime(.0001,start+3.6);
-      osc.connect(v);v.connect(audioContext.destination);
-      osc.start(start);osc.stop(start+3.7);
+    if(!audioContext||audioContext.state!=="running")return;
+    const t=audioContext.currentTime;
+    [164.81,196,246.94].forEach(freq=>{
+      const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+      osc.type="sine";osc.frequency.setValueAtTime(freq,t);
+      gain.gain.setValueAtTime(.0001,t);
+      gain.gain.linearRampToValueAtTime(.008,t+.7);
+      gain.gain.linearRampToValueAtTime(.0001,t+3.65);
+      osc.connect(gain);gain.connect(audioContext.destination);
+      osc.start(t);osc.stop(t+3.7);
     });
   }catch{}
 }
-function setAmbient(enabled){
-  ambientEnabled=enabled;
-  if(ambientTimer){clearInterval(ambientTimer);ambientTimer=null;}
-  if(enabled){playAmbient();ambientTimer=setInterval(playAmbient,4500);}
+function syncSoundControlText(){
+  const s=document.querySelector('[data-action="toggle-timer-sound"]');
+  if(s){
+    s.setAttribute("aria-pressed",String(timerSoundEnabled));
+    s.innerHTML=`${ico("time",15)} 효과음 ${timerSoundEnabled?"켜짐":"꺼짐"}`;
+  }
+  const b=document.querySelector('[data-action="toggle-ambient"]');
+  if(b){
+    b.setAttribute("aria-pressed",String(ambientEnabled));
+    b.innerHTML=`${ico("play",15)} 배경 음악 ${ambientEnabled?"켜짐":"꺼짐"}`;
+  }
 }
+function setAmbient(enabled){
+  ambientEnabled=Boolean(enabled);
+  if(ambientTimer){clearInterval(ambientTimer);ambientTimer=null;}
+  if(!ambientEnabled){ambientAudio?.pause();syncSoundControlText();return;}
+  startWebAudioOnGesture(); // Must run synchronously in the button's click handler.
+  const track=soundTrack("ambient");
+  if(!track){
+    playAmbient();ambientTimer=setInterval(playAmbient,4500);return;
+  }
+  try{
+    const result=track.play();
+    result?.catch?.(()=>{
+      if(audioContext?.state==="running"){
+        playAmbient();ambientTimer=setInterval(playAmbient,4500);
+        toast("이 기기에서는 대체 배경음을 재생합니다.");
+      }else{
+        ambientEnabled=false;syncSoundControlText();
+        toast("배경음이 차단됐습니다. 소리 테스트 버튼을 터치하고 다시 시도하세요.");
+      }
+    });
+  }catch{
+    ambientEnabled=false;syncSoundControlText();
+    toast("배경음을 시작하지 못했습니다. 소리 테스트를 이용해 주세요.");
+  }
+}
+function testAudioByTap(){
+  // The first play() must happen synchronously in the user's actual tap.
+  startWebAudioOnGesture();
+  const track=soundTrack("notification");
+  if(!track){
+    const fallback=playSynthCue([650,850]);
+    toast(fallback?"대체 시험 소리를 재생했습니다. 실제로 들리는지 확인하세요.":"오디오를 시작하지 못했습니다. 음량·무음 모드·블루투스를 확인하세요.");
+    return;
+  }
+  try{
+    track.pause();track.currentTime=0;
+    const result=track.play();
+    Promise.resolve(result).then(()=>{
+      toast("시험 효과음 재생 요청이 수락됐습니다. 소리가 들리는지 확인하세요.");
+    }).catch(()=>{
+      const fallback=playSynthCue([650,850]);
+      toast(fallback?"기본 효과음이 차단돼 대체 소리로 재생했습니다. 들리는지 확인하세요.":"이 브라우저에서 소리 재생이 차단됐습니다. 기기 음량 및 브라우저 설정을 확인하세요.");
+    });
+  }catch{
+    const fallback=playSynthCue([650,850]);
+    toast(fallback?"대체 시험 소리를 재생했습니다. 들리는지 확인하세요.":"효과음 재생에 실패했습니다. 기기 음량 및 무음 설정을 확인하세요.");
+  }
+  if(ambientEnabled && ambientAudio?.paused){
+    try{ambientAudio.play()?.catch?.(()=>{});}catch{}
+  }
+}
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){
+    ambientAudio?.pause();
+  }
+  // Do not resume audible playback without an explicit gesture.
+});
+
 function tickCountdown(){
   if(!game)return;
   const r=game.room;
@@ -358,59 +455,71 @@ function teamLobbyPanel(g){
  </section>`;
 }
 
+function articleTopic(x){
+  const title=String(x.title||"");
+  const theme=String(x.learning_concept?.theme||"").toLowerCase();
+  if(/원유|유가|석유|에너지|energy/.test(title+" "+theme))return "energy";
+  if(/무역|관세|공급망|컨테이너|물류|trade/.test(title+" "+theme))return "trade";
+  if(/병원|바이오|제약|의료|health/.test(title+" "+theme))return "health";
+  if(/은행|금융위기|bank/.test(title+" "+theme))return "banks";
+  if(/반도체|인공지능|인공 지능|인공지능|AI|기술주|빅테크|tech/.test(title+" "+theme))return "tech";
+  if(/연준|금리|긴축|통화|테이퍼링|자산매입|rates|금융/.test(title+" "+theme))return "rates";
+  return "trade";
+}
+let activeArticleIndex=0, previousArticleKey="";
 function newsList(g){
   const r=g.room;
   const lower=r.stage===1?1:3,upper=r.stage===1?2:4;
-  const current=g.news.filter(x=>x.year===r.year&&Number(x.id.split("-").at(-1))>=lower&&Number(x.id.split("-").at(-1))<=upper);
-  const older=g.news.filter(x=>!current.some(y=>y.id===x.id));
-  const phaseMessage=r.phase==="result"?"이번 발표에 사용된 뉴스":r.phase==="lobby"?"게임 시작 전 미리보기":r.phase==="finished"?"최종 뉴스":"지금 분석할 뉴스";
-  const renderNews=(x,i,isPast=false)=>`<article id="news-${h(x.id)}" class="news-card ${isPast?"news-past":"news-current"} news-theme-${x.learning_concept?.theme||"trade"}" ${isPast?"":'data-current-news="true"'}>
-    <div class="newspaper-folio"><span>INVEST PLAY · EDUCATIONAL NEWSPAPER</span>
-      <span>ISSUE ${h(x.id)} · ${h(x.date)}</span></div>
-    <div class="newspaper-masthead"><span>THE INVEST TIMES</span><small>REAL ECONOMIC EVENTS · CLASSROOM EDITION</small></div>
-    <div class="newspaper-section-strip"><b>MARKET BREAKING</b><span>${h(x.learning_concept?.concept||"경제 동향")}</span><em>경제 · 산업 · 투자</em></div>
-    <div class="newspaper-feature">
-      <div class="newspaper-feature-copy">
-        <div class="news-meta">
-          <span class="news-index">${isPast?ico("history",14):ico("newspaper",14)} ${isPast?"지난 뉴스":`현재 뉴스 ${i+1} / ${current.length}`}</span>
-          <span class="news-date">${h(x.date)}</span>
+  const current=(g.news||[]).filter(x=>x.year===r.year&&Number(x.id.split("-").at(-1))>=lower&&Number(x.id.split("-").at(-1))<=upper);
+  const older=(g.news||[]).filter(x=>!current.some(y=>y.id===x.id));
+  const articleKey=`${r.year}:${r.stage}`;
+  if(articleKey!==previousArticleKey){previousArticleKey=articleKey;activeArticleIndex=0;}
+  activeArticleIndex=Math.min(activeArticleIndex,Math.max(0,current.length-1));
+  const renderNews=(x,i,isPast=false)=>{
+    const concept=x.learning_concept;
+    const topic=articleTopic(x), image=topic==="rates"?"/art/article-rates.webp":`/art/article-${topic}.svg`;
+    const question=x.easy_question||concept?.question||x.discussion_question;
+    const summary=x.easy_summary||x.fact;
+    const detail=x.fact||"";
+    const sourceK=x.source_ko?.url||x.source_ko_search;
+    const sourceO=/^https:\/\//.test(x.source?.url||"")?x.source.url:null;
+    return `<article id="news-${h(x.id)}" class="news-card news-readable ${isPast?"news-past":"news-current"}" ${isPast?"":'data-current-news="true"'}>
+      <div class="news-readable-meta"><span>${ico("newspaper",16)} ${isPast?"지난 기사":`기사 ${i+1} / ${current.length}`}</span><time>${h(x.date)}</time></div>
+      <h3 class="news-readable-title">${h(x.title)}</h3>
+      <figure class="news-readable-image">
+        <img src="${image}" loading="${isPast?"lazy":"eager"}" decoding="async" alt="${h(x.title)} 주제와 관련된 ${topic==="rates"?"중앙은행 건물 이미지":"경제 설명 그림"}"/>
+      </figure>
+      <div class="news-readable-summary"><b>한 줄 요약</b><p>${h(summary)}</p></div>
+      ${detail&&detail!==summary?`<div class="news-readable-body"><h4>무슨 일이 있었나요?</h4><p>${h(detail)}</p></div>`:""}
+      ${x.easy_term?`<div class="news-readable-term"><strong>어려운 말 풀이</strong><span>${h(x.easy_term)}</span></div>`:""}
+      <div class="news-readable-source">
+        ${sourceK?`<a href="${h(sourceK)}" target="_blank" rel="noopener noreferrer">관련 기사 보기 ${ico("arrow",15)}</a>`:""}
+        ${sourceO?`<a href="${h(sourceO)}" target="_blank" rel="noopener noreferrer">공식 원문 보기 ${ico("arrow",15)}</a>`:""}
+      </div>
+      ${concept?`<details class="news-learn">
+        <summary>${ico("book",19)} 이번 뉴스로 배우는 경제개념 <span class="learn-chevron">⌄</span></summary>
+        <div class="news-learn-content">
+          <div><small>핵심 개념</small><strong>${h(concept.concept||"경제 변화")}</strong></div>
+          <div><small>살펴볼 산업</small><strong>${h(concept.watch||"관련 산업")}</strong></div>
+          ${question?`<p>${ico("target",17)} ${h(question)}</p>`:""}
         </div>
-        <h3 class="newspaper-headline">${h(x.title)}</h3>
-        <div class="newspaper-byline">INVEST TIMES 경제교육팀 · ${h(x.date)} · 실제 사건 교육용 재구성</div>
-        <p class="newspaper-feature-intro">${h(x.easy_summary||x.fact)}</p>
-      </div>
-      <div class="newspaper-editorial-banner" role="img" aria-label="${h(x.learning_concept?.concept||"시장 뉴스")} 관련 경제 일러스트">
-        <span>MARKET / ${h(x.year)}</span><strong>사건을 읽고, 산업을 생각하다</strong>
-      </div>
+      </details>`:question?`<div class="news-readable-question">${ico("target",17)} ${h(question)}</div>`:""}
+      ${g.role==="teacher"&&x.analysis?`<details class="news-teacher-note"><summary>${ico("lock",16)} 강사 해설</summary><p>${h(x.analysis)}</p></details>`:""}
+    </article>`;
+  };
+  return `<section class="section newsroom readable-newsroom" id="newsroom">
+    <div class="readable-news-heading">
+      <div><small>${r.year}년 · ${r.stage}차 뉴스</small><h2>${ico("newspaper",23)} 오늘의 경제 뉴스</h2></div>
+      <span>${r.round} / ${r.totalRounds}회차</span>
     </div>
-    <div class="beginner-summary"><span>${ico("sparkles",16)} 초보자를 위한 한 줄 뉴스</span>
-      <strong>${h(x.easy_summary||x.fact)}</strong></div>
-    ${x.easy_term?`<div class="beginner-term"><b>어려운 말 풀이</b> · ${h(x.easy_term)}</div>`:""}
-    <div class="news-question">${ico("target",16)} <div><b>우리 팀 생각해보기</b><p>${h(x.easy_question||x.discussion_question)}</p></div></div>
-    <details class="beginner-source"><summary>실제 뉴스 자세히 읽기</summary><p class="news-fact">${h(x.fact)}</p></details>
-    ${g.role==="teacher"&&x.analysis?`<div class="news-explain">${ico("lock",16)} <div><b>강사용 비공개 해설</b><p>${h(x.analysis)}</p></div></div>`:""}
-    <div class="news-sources">
-      ${x.source_ko?.url?`<a href="${h(x.source_ko.url)}" target="_blank" rel="noopener noreferrer">한국어 기사 · ${h(x.source_ko.publisher)} ${ico("arrow",13)}</a>`:
-       x.source_ko_search?`<a href="${h(x.source_ko_search)}" target="_blank" rel="noopener noreferrer">한국어 관련기사 검색 ${ico("arrow",13)}</a>`:""}
-      ${x.source?.url&&/^https:\/\//.test(x.source.url)?`<a class="secondary-link" href="${h(x.source.url)}" target="_blank" rel="noopener noreferrer">공식 원문 · ${h(x.source.publisher)} ${ico("arrow",13)}</a>`:""}
-    </div>
-  </article>`;
-  return `<section class="section newsroom" id="newsroom">
-    <div class="news-focus-head" aria-label="현재 뉴스 단계">
-      <div class="news-focus-mark">${ico("newspaper",25)}</div>
-      <div class="news-focus-title">
-        <span class="eyebrow">LIVE MARKET BRIEFING</span>
-        <h2>${r.year}년 <strong>${r.stage}차</strong> 뉴스 <span class="news-focus-sub">/ ${phaseMessage}</span></h2>
-        <p>${r.stage===1?"1·2번 기사": "3·4번 기사"} · 현재 연도 ${r.round} / ${r.totalRounds} · ${h(phaseText[r.phase]||r.phase)}</p>
-      </div>
-      <span class="news-stage-badge">${r.stage} / 2</span>
-    </div>
-    <div class="news-stage-progress" aria-hidden="true"><span class="${r.stage>=1?"done":""}">1차 뉴스</span><i></i><span class="${r.stage===2?"done":""}">2차 뉴스</span></div>
-    ${current.length?`<div class="current-news-stack">${current.map((x,i)=>renderNews(x,i)).join("")}</div>`:
-     `<div class="empty">${ico("time",18)} ${r.phase==="lobby"?"강사가 게임을 시작하면 현재 뉴스가 이곳에 표시됩니다.":"아직 공개된 뉴스가 없습니다."}</div>`}
-    ${older.length?`<details class="archive-news"><summary>${ico("history",18)} 이전 뉴스 ${older.length}건 다시 보기 ${ico("arrow",15)}</summary><div class="archive-list">${older.slice().reverse().map((x,i)=>renderNews(x,i,true)).join("")}</div></details>`:""}
+    ${current.length?`<div class="article-tabs" role="tablist" aria-label="기사 선택">${current.map((x,i)=>`
+      <button type="button" role="tab" data-action="article-tab" data-id="${i}" aria-selected="${i===activeArticleIndex}" aria-controls="article-panel-${i}" class="${i===activeArticleIndex?"active":""}">기사 ${i+1}</button>`).join("")}</div>
+      <div class="current-news-stack">${current.map((x,i)=>`<div id="article-panel-${i}" class="article-panel" role="tabpanel" ${i===activeArticleIndex?"":"hidden"}>${renderNews(x,i)}</div>`).join("")}</div>`:
+      `<div class="empty">${ico("time",18)} ${r.phase==="lobby"?"게임을 시작하면 경제 뉴스가 표시됩니다.":"현재 공개된 뉴스가 없습니다."}</div>`}
+    ${older.length?`<details class="archive-news"><summary>${ico("history",18)} 지난 기사 ${older.length}건 다시 보기</summary><div class="archive-list">${older.slice().reverse().map((x,i)=>renderNews(x,i,true)).join("")}</div></details>`:""}
   </section>`;
 }
+
 // EASY V2: 현재 공개된 뉴스만으로 생각하도록 돕는 투자 선택 도우미(미래 가격 공개 없음).
 function beginnerCoach(g){
   const l=g.beginnerLesson;
@@ -887,6 +996,8 @@ function statusStats(g){
     </button>
     <button type="button" class="timer-sound-btn ambient-toggle" data-action="toggle-ambient"
       aria-pressed="${ambientEnabled}">${ico("play",15)} 배경 음악 ${ambientEnabled?"켜짐":"꺼짐"}</button>
+    <button type="button" class="timer-sound-btn" data-action="test-audio">${ico("play",15)} 소리 테스트 · 재연결</button>
+    <small class="audio-mobile-hint">스마트폰·태블릿에서는 소리 켜기 후 시험 재생이 필요합니다. 안 들리면 기기 무음·음량을 확인하세요.</small>
   </div>`;
 }
 function resetConfirmDialog(){
@@ -1042,7 +1153,7 @@ function studentView(g){
     ${g.room.phase==="lobby"?`<div class="info">${ico("check",17)} 참가 완료! <b>우리 팀은 카드 110장을 단 한 번 뽑습니다.</b> 강사의 게임 시작을 기다려 주세요.</div>${teamLobbyPanel(g)}${beginnerPractice(g)}`:""}
     ${g.room.phase==="finished"?'<div class="result-banner"><h3>${ico("trophy",20)} 게임 종료</h3><p>투자 판단과 산업별 시장 결과를 복기해 보세요.</p></div>':""}
     ${classroomStageTab(g)}
-    ${classroomPane("news",`${newsList(g)}${relationMap(g)}${predictionPanel(g)}${beginnerCoach(g)}${beginnerQuiz(g)}${beginnerQuizReview(g)}`)}
+    ${classroomPane("news",`${newsList(g)}${predictionPanel(g)}${beginnerCoach(g)}${beginnerQuiz(g)}${beginnerQuizReview(g)}`)}
     ${classroomPane("trade",`${listingBoard(g)}
      <details class="collection-dropdown" id="my-cards-dropdown">
        <summary>${ico("cards",22)} <span><b>나의 산업 카드 컬렉션</b><small>보유한 카드를 확인하고 교환 제안을 작성하세요</small></span>
@@ -1110,6 +1221,36 @@ function render(){
   syncDrawDialog();
   if(game.role==="team")queueMicrotask(autoOpenImpact);
 }
+
+// Native browser confirm() exposes the site address on iPhone Safari.
+// Use a game-themed, keyboard-accessible <dialog> instead.
+function gameConfirm(message,{title="확인",confirmText="확인",danger=false}={}){
+  return new Promise(resolve=>{
+    document.querySelector("#game-confirm-dialog")?.remove();
+    const dialog=document.createElement("dialog");
+    dialog.id="game-confirm-dialog";
+    dialog.className="game-confirm-dialog";
+    dialog.setAttribute("aria-labelledby","game-confirm-title");
+    dialog.setAttribute("aria-describedby","game-confirm-body");
+    dialog.innerHTML=`<div class="game-confirm-head">${ico("exchange",28)}
+       <h2 id="game-confirm-title">${h(title)}</h2></div>
+       <p id="game-confirm-body">${h(message)}</p>
+       <div class="game-confirm-actions">
+         <button type="button" class="btn" data-confirm="cancel">취소</button>
+         <button type="button" class="btn ${danger?"danger":"gold"}" data-confirm="ok">${h(confirmText)}</button>
+       </div>`;
+    const finish=confirmed=>{if(dialog.open)dialog.close();dialog.remove();resolve(confirmed);};
+    dialog.addEventListener("click",event=>{
+      const button=event.target.closest?.("[data-confirm]");
+      if(button)finish(button.dataset.confirm==="ok");
+      else if(event.target===dialog)finish(false);
+    });
+    dialog.addEventListener("cancel",()=>{dialog.remove();resolve(false);},{once:true});
+    document.body.append(dialog);
+    try{dialog.showModal();}catch{dialog.remove();resolve(false);}
+  });
+}
+
 async function mutate(url,data,success){
   if(busy)return false;busy=true;
   try{await api(url,data);await refresh(true);if(success)toast(success);return true;}
@@ -1213,23 +1354,19 @@ document.addEventListener("click",async e=>{
   if(action==="close-info"){document.querySelector("#info-modal")?.close();return;}
   if(action==="toggle-ambient"){
     setAmbient(!ambientEnabled);
-    target.setAttribute("aria-pressed",String(ambientEnabled));
-    target.innerHTML=`${ico("play",15)} 배경 음악 ${ambientEnabled?"켜짐":"꺼짐"}`;
-    toast(ambientEnabled?"조용한 자체 제작 배경음이 재생됩니다.":"배경 음악을 껐습니다.");
+    syncSoundControlText();
+    if(!ambientEnabled)toast("배경 음악을 껐습니다.");
     return;
   }
   if(action==="toggle-timer-sound"){
     timerSoundEnabled=!timerSoundEnabled;
-    if(timerSoundEnabled){
-      try{
-        const Ctx=window.AudioContext||window.webkitAudioContext;
-        if(Ctx&&!audioContext)audioContext=new Ctx();
-        audioContext?.resume();
-      }catch{}
-    }
-    target.setAttribute("aria-pressed",String(timerSoundEnabled));
-    target.innerHTML=`${ico("time",15)} 알림음 ${timerSoundEnabled?"켜짐":"꺼짐"} · 클릭하여 변경`;
-    toast(`종료 임박 알림음이 ${timerSoundEnabled?"켜졌습니다":"꺼졌습니다"}.`);
+    if(timerSoundEnabled) testAudioByTap(); // unlock + immediate audible test on iPhone/iPad
+    else toast("효과음을 껐습니다.");
+    syncSoundControlText();
+    return;
+  }
+  if(action==="test-audio"){
+    testAudioByTap(); // also resumes sound after returning from another app/tab
     return;
   }
   if(action==="trade-card"){
@@ -1362,14 +1499,14 @@ document.addEventListener("click",async e=>{
     dlg.addEventListener("close",()=>dlg.remove(),{once:true});
     dlg.showModal();return;
   }
-  if(action==="cancel")return mutate("/api/cancel",{id},"제안을 취소했습니다.");
+  if(action==="cancel"){if(await gameConfirm("등록한 카드 교환 제안을 취소할까요?",{title:"교환 제안 취소",confirmText:"제안 취소",danger:true}))return mutate("/api/cancel",{id},"제안을 취소했습니다.");return;}
   if(action==="logout")return mutate("/api/logout",{},"로그아웃했습니다.");
   if(action==="pin"){
-    if(!confirm("PIN을 바꾸면 이전 PIN으로는 입장할 수 없습니다. 재발급할까요?"))return;
+    if(!await gameConfirm("PIN을 바꾸면 이전 PIN으로는 입장할 수 없습니다. 재발급할까요?",{title:"팀 입장 PIN 재발급",confirmText:"재발급"}))return;
     return mutate("/api/teacher",{action:"pin"},"새 PIN을 발급했습니다.");
   }
   if(action==="kick"){
-    if(!confirm("해당 팀을 대기실에서 퇴장시킬까요?"))return;
+    if(!await gameConfirm("해당 팀을 대기실에서 퇴장시킬까요?",{title:"팀 퇴장",confirmText:"퇴장시키기",danger:true}))return;
     return mutate("/api/teacher",{action:"kick",teamId:id},"팀을 퇴장시켰습니다.");
   }
   if(action==="reset"){
@@ -1385,7 +1522,7 @@ document.addEventListener("click",async e=>{
     return;
   }
   if(["start","next","pause","resume"].includes(action)){
-    if(action==="start"&&!confirm("게임을 시작할까요? 이후에는 새 팀을 참가시킬 수 없습니다."))return;
+    if(action==="start"&&!await gameConfirm("게임을 시작할까요? 이후에는 새 팀을 참가시킬 수 없습니다.",{title:"게임 시작",confirmText:"시작하기"}))return;
     return mutate("/api/teacher",{action},action==="next"?"다음 단계로 넘어갔습니다.":"변경되었습니다.");
   }
 });
@@ -1415,3 +1552,18 @@ setInterval(()=>refresh(),5000);
 if("serviceWorker" in navigator && (location.protocol==="https:"||location.hostname==="localhost"||location.hostname==="127.0.0.1")){
   navigator.serviceWorker.register("/sw.js").catch(()=>{});
 }
+
+// 기사 탭: 다른 기사로 이동할 때 별도의 네트워크 요청을 하지 않습니다.
+document.addEventListener("click",event=>{
+  const tab=event.target.closest?.('[data-action="article-tab"]');
+  if(!tab)return;
+  const index=Number(tab.dataset.id);
+  if(!Number.isInteger(index)||index<0)return;
+  activeArticleIndex=index;
+  document.querySelectorAll(".article-tabs [data-action='article-tab']").forEach(button=>{
+    const selected=Number(button.dataset.id)===index;
+    button.classList.toggle("active",selected);
+    button.setAttribute("aria-selected",String(selected));
+  });
+  document.querySelectorAll(".article-panel").forEach((panel,i)=>{panel.hidden=i!==index;});
+});
