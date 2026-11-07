@@ -41,15 +41,9 @@ const HOST = process.env.HOST || "0.0.0.0";
 const DATA_DIR = path.resolve(__dirname, process.env.DATA_DIR || "runtime");
 const storage = makeStorage({backend: process.env.STORAGE_BACKEND || "local",directory:DATA_DIR});
 const newsSource = JSON.parse(fs.readFileSync(path.join(__dirname, "data/historical_news_2019_2026.json"), "utf8"));
-// EASY V2 lesson content is server-only: quiz answer and reveal are never sent before allowed.
-const beginnerLessons = JSON.parse(fs.readFileSync(path.join(__dirname, "data/beginner_lessons.json"), "utf8")).lessons;
-const lessonMap = new Map(beginnerLessons.map(x=>[`${x.year}:${x.stage}`,x]));
-function currentLesson() { return lessonMap.get(`${currentYear()}:${state.stageIndex+1}`) || null; }
-function lessonKey() { return `${currentYear()}-${state.stageIndex+1}`; }
 const actualSource = JSON.parse(fs.readFileSync(path.join(__dirname, "data/sector_returns_2019_2026.json"), "utf8"));
 const stagesSource = JSON.parse(fs.readFileSync(path.join(__dirname, "data/sector_game_stage_returns_2019_2026.json"), "utf8")).records;
-// 초급 모드는 경제 흐름이 뚜렷한 4개 연도만 사용합니다.
-const YEARS = [2020, 2021, 2022, 2023];
+const YEARS = Array.from(new Set(actualSource.map(r => r.year))).sort();
 const sectors = actualSource.filter(r => r.year === YEARS[0]).map(r => ({
   id: r.sector_id, name: r.sector_name_ko, ticker: r.ticker
 })).sort((a,b) => a.id - b.id);
@@ -65,7 +59,7 @@ const TOTAL_START_CARDS = sectors.length * START_CARDS_PER_SECTOR;
 const BASE_PRICE = 10000;
 const INITIAL_ASSET = TOTAL_START_CARDS * BASE_PRICE;
 const LEGACY_INITIAL_ASSET = sectors.length * 2 * BASE_PRICE;
-const DRAW_MODES = Object.freeze(["even"]);
+const DRAW_MODES = Object.freeze(["even", "random"]);
 function evenHoldings() {
   return Object.fromEntries(sectors.map(sector=>[sector.id, START_CARDS_PER_SECTOR]));
 }
@@ -89,7 +83,7 @@ function newState() {
   return {
     version: 1, phase: "lobby", pausedFrom: null, secondsRemaining: null,
     yearIndex: 0, stageIndex: 0, deadline: null, pin: randomPin(),
-    config: { newsSeconds: 75, tradeSeconds: 90 },
+    config: { newsSeconds: 45, tradeSeconds: 90 },
     prices: Object.fromEntries(sectors.map(x => [x.id, BASE_PRICE])),
     participants: [], listings: [], completedTrades: [], priceHistory: [],
     lastMoves: [], results: [], stageStartSnapshots: null, sessions: {}, createdAt: new Date().toISOString()
@@ -198,18 +192,17 @@ function currentStageReturn(id) {
 }
 function currentlyVisibleNews(role) {
   if (state.phase==="lobby" && role!=="teacher") return [];
-  if (state.phase==="finished") return newsSource.events.filter(ev => YEARS.includes(ev.year)).map(ev => eventView(ev,role==="teacher"));
+  if (state.phase==="finished") return newsSource.events.map(ev => eventView(ev,role==="teacher"));
   const nowYear = currentYear();
   const upto = state.stageIndex === 0 ? 2 : 4;
-  const allowed = newsSource.events.filter(ev => YEARS.includes(ev.year) && (ev.year < nowYear ||
-    (ev.year === nowYear && Number(ev.id.split("-").at(-1)) <= upto)));
+  const allowed = newsSource.events.filter(ev => ev.year < nowYear ||
+    (ev.year === nowYear && Number(ev.id.split("-").at(-1)) <= upto));
   // 학생에게는 발표 이후에도 강사 전용 해설을 절대 전달하지 않습니다.
   return allowed.map(ev => eventView(ev,role==="teacher"));
 }
 function eventView(ev, revealAnalysis) {
   return { id:ev.id,year:ev.year,date:ev.date,title:ev.title,fact:ev.fact,
     discussion_question:ev.discussion_question,source:ev.source,source_ko:ev.source_ko||null,source_ko_search:ev.source_ko_search||null,
-    easy_summary: ev.easy_summary || "", easy_term: ev.easy_term || "", easy_question: ev.easy_question || "",
     ...(revealAnalysis ? {analysis:ev.analysis} : {}) };
 }
 function valuation(p) {
@@ -306,62 +299,6 @@ function publicResult(result) {
   const {year,stageIndex,changes,at,scores,endingYear,returnKind}=result;
   return {year,stageIndex,changes,at,scores,endingYear,returnKind};
 }
-// 각 퀴즈가 참조하는 기사는 현재 뉴스 단계에서 실제 공개된 기사여야 합니다.
-function quizSourceNews(lesson) {
-  const event=newsSource.events.find(ev=>ev.id===lesson.quiz.newsId);
-  const articleNumber=Number(event?.id.split("-").at(-1));
-  if(!event || event.year!==lesson.year ||
-      !((lesson.stage===1 && articleNumber>=1 && articleNumber<=2) ||
-        (lesson.stage===2 && articleNumber>=3 && articleNumber<=4))) {
-    throw new Error(`초급 퀴즈와 뉴스 연결 오류: ${lesson.year}-${lesson.stage}`);
-  }
-  return {id:event.id,title:event.title,date:event.date,
-    summary:event.easy_summary||event.fact};
-}
-for(const lesson of beginnerLessons)quizSourceNews(lesson);
-
-function quizAnswerView(lesson) {
-  const correctOption=lesson.quiz.correct;
-  return {correctOption,
-    correctLabel:lesson.quiz.options.find(x=>x.value===correctOption)?.label||"",
-    explanation:lesson.quiz.explanation};
-}
-function lessonView(role,team) {
-  if (state.phase==="lobby") return null;
-  const lesson=currentLesson();
-  if(!lesson) return null;
-  const showReveal=["result","finished"].includes(state.phase) || (state.phase==="paused" && state.pausedFrom==="result");
-  return {
-    year:lesson.year,stage:lesson.stage,topic:lesson.topic,
-    coach:lesson.coach,
-    quiz:{question:lesson.quiz.question,options:lesson.quiz.options,
-      sourceNews:quizSourceNews(lesson),
-      // 미응답자도 가격 발표 시 정답을 볼 수 있지만, 발표 이전에는 비공개입니다.
-      ...(showReveal||role==="teacher"?{solution:quizAnswerView(lesson)}:{})},
-    ...(showReveal||role==="teacher"?{reveal:lesson.reveal}:{}),
-    ...(team?{submission:team.quizAnswers?.[lessonKey()]||null}:{})
-  };
-}
-// 완료된 뉴스 단계만 제공하여 미응답 학생도 나중에 정답을 복습할 수 있습니다.
-function quizReviewHistory(team) {
-  return state.results.map(result=>{
-    const year=result.year,stage=result.stageIndex+1;
-    const lesson=lessonMap.get(`${year}:${stage}`);
-    if(!lesson)return null;
-    const response=team.quizAnswers?.[`${year}-${stage}`]||null;
-    return {year,stage,topic:lesson.topic,
-      question:lesson.quiz.question,sourceNews:quizSourceNews(lesson),
-      solution:quizAnswerView(lesson),
-      answered:Boolean(response),correct:response?.correct??null,
-      selectedLabel:response?lesson.quiz.options.find(x=>x.value===response.answer)?.label||"":""};
-  }).filter(Boolean).reverse();
-}
-function quizStats(){
-  const key=lessonKey();
-  return {total:state.participants.length,
-    answered:state.participants.filter(p=>Boolean(p.quizAnswers?.[key])).length,
-    correct:state.participants.filter(p=>p.quizAnswers?.[key]?.correct).length};
-}
 function view(req) {
   const s=sessionFor(req), role = s?.role || "guest";
   const team = role==="team" ? state.participants.find(p=>p.id===s.teamId) : null;
@@ -374,9 +311,7 @@ function view(req) {
     team:team ? {id:team.id,name:team.name,members:team.members,drawMode:team.drawMode||null,
       drawComplete: Boolean(team.drawMode)||state.phase!=="lobby",
       holdings:team.holdings,cash:0,cardCount:holdingCount(team),initialAsset:initialAsset(team),
-      total:valuation(team),returnPct:(valuation(team)/initialAsset(team)-1)*100,
-      practiceDone:Boolean(team.practiceDone),
-      practiceReceipt:team.practiceReceipt||null} : null,
+      total:valuation(team),returnPct:(valuation(team)/initialAsset(team)-1)*100} : null,
     room: {phase:state.phase,pausedFrom:state.pausedFrom,
       year:currentYear(),stage:state.stageIndex+1,round:state.yearIndex+1,totalRounds:YEARS.length,
       deadline:state.deadline,secondsRemaining:state.secondsRemaining,
@@ -392,8 +327,6 @@ function view(req) {
     ...(team?{myPrediction:team.predictions?.[classroomPredictionKey()]||null,
      predictionHistory:Object.entries(team.predictions||{}).map(([key,entry])=>({key,...entry}))}:{}),
     ...(role==="teacher"?{predictionBoard:classroomPredictions()}:{}),
-    ...(role!=="guest"?{beginnerLesson:lessonView(role,team)}:{}),
-    ...(team?{quizReviews:quizReviewHistory(team)}:{}),
     ...(team && state.phase==="finished"?{tradeReport:finalTradeReport(team)}:{}),
     ...(team?{
       stageTradeHistory:state.results.map(result=>({
@@ -411,8 +344,6 @@ function view(req) {
     })):[],
     lastResult:latestResult && (state.phase === "result" || state.phase === "finished") ? publicResult(latestResult) : null,
     ...(role==="teacher"?{
-      quizStats:quizStats(),
-      practiceStats:{total:state.participants.length,completed:state.participants.filter(p=>p.practiceDone).length},
       resultHistory:state.results.slice().reverse(),
       lastResetAt:state.lastResetAt||null,
       ...(state.phase==="result"?{stageTeamReports:latestResult?.teamTradeReports||[]}:{}),
@@ -426,7 +357,6 @@ function view(req) {
     recentTrades:role!=="guest" ? state.completedTrades.slice(-15).reverse() : [],
     ...(role==="teacher"?{teacherMembers:state.participants.map(p=>({id:p.id,name:p.name,members:p.members,
         drawMode:p.drawMode||null,cardCount:holdingCount(p),holdings:p.holdings}))}:{}),
-    course:{edition:"beginner",years:YEARS,newsCount:16},
     explanation:"가격 변화는 실측 '사건 직후' 수익률이 아니라, ETF 연간 수익률을 두 단계로 배분한 교육용 모델입니다."
   };
 }
@@ -506,7 +436,7 @@ function beginNews() {
 }
 function start() {
   bad(state.phase!=="lobby","대기실 상태에서만 시작할 수 있습니다.");
-  bad(state.participants.length<2,"게임 시작에는 두 팀 이상이 필요합니다. 카드 교환을 연습할 두 팀을 등록해 주세요.");
+  bad(state.participants.length<2,"게임 시작에는 두 팀 이상이 필요합니다.");
   bad(state.participants.some(team=>!team.drawMode),"아직 카드를 뽑지 않은 팀이 있습니다. 모든 팀의 카드 뽑기가 끝난 뒤 시작하세요.");
   for(const p of state.participants) {
     p.initialHoldings=structuredClone(p.holdings);
@@ -748,7 +678,7 @@ const server=http.createServer((req,res)=>{
     const url=new URL(req.url,`http://${req.headers.host||"localhost"}`);
     const pathname=url.pathname;
     if (req.method==="GET" && staticFile(req,res,pathname)) return;
-    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-beginner-v3-editorial"});
+    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-v9-editorial"});
     if (pathname==="/api/state" && req.method==="GET") return send(res,200,view(req));
     if(pathname==="/api/presentation" && req.method==="GET"){
       restricted(sessionFor(req)?.role!=="teacher","발표 화면은 강사 로그인 후 이용하세요.");
@@ -836,7 +766,7 @@ const server=http.createServer((req,res)=>{
         for(const listing of state.listings)if(listing.sellerId===team.id)listing.sellerName=name;
       } else if(body.action==="draw") {
         const mode=String(body.mode||"");
-        bad(!DRAW_MODES.includes(mode),"초급 버전은 균등 배분만 사용할 수 있습니다.");
+        bad(!DRAW_MODES.includes(mode),"균등 뽑기 또는 랜덤 뽑기를 선택하세요.");
         bad(Boolean(team.drawMode),"카드 뽑기는 팀당 한 번만 가능합니다.");
         team.holdings=mode==="even"?evenHoldings():randomHoldings();
         team.drawMode=mode;
@@ -845,38 +775,9 @@ const server=http.createServer((req,res)=>{
         team.initialAsset=INITIAL_ASSET;
         bad(holdingCount(team)!==TOTAL_START_CARDS,"카드 배분 합계가 110장이 아닙니다.");
         bad(Object.values(team.holdings).some(v=>v<1),"모든 산업을 최소 한 장 보유해야 합니다.");
-      } else if(body.action==="practice") {
-        bad(!team.drawMode,"카드를 먼저 배분받은 다음 연습할 수 있습니다.");
-        bad(Boolean(team.practiceDone),"연습 교환은 팀당 한 번 완료할 수 있습니다.");
-        const offerId=Number(body.offerId),wantId=Number(body.wantId);
-        bad(!Number.isSafeInteger(offerId)||!Number.isSafeInteger(wantId)||
-          !sectors.some(x=>x.id===offerId)||!sectors.some(x=>x.id===wantId)||
-          offerId===wantId,"서로 다른 산업 카드 2종을 선택하세요.");
-        bad(Number(team.holdings[offerId]||0)<1,"연습에 사용할 카드가 없습니다.");
-        // 이 동작은 샌드박스 예시이며 실제 카드/거래/평가금액은 변경하지 않습니다.
-        team.practiceDone=true;
-        team.practiceReceipt={offerId,wantId,qty:1,at:new Date().toISOString(),simulated:true};
       } else if(body.action==="strategy") {
         bad(true,"기존 투자 성향 선택은 종료되었습니다. 카드 뽑기 팝업에서 선택하세요.");
       } else bad(true,"알 수 없는 팀 관리 명령입니다.");
-      await commit();
-      return send(res,200,view(req));
-    }
-    if (pathname==="/api/quiz") {
-      restricted(sess?.role!=="team","학생팀만 퀴즈에 응답할 수 있습니다.");
-      bad(!["news","trade"].includes(state.phase),"퀴즈 응답은 현재 뉴스 분석·거래 단계에서만 가능합니다.");
-      const team=state.participants.find(p=>p.id===sess.teamId);
-      restricted(!team,"참가팀 정보가 없습니다.");
-      bad(!team.drawMode,"카드 배분을 완료한 뒤 응답하세요.");
-      const lesson=currentLesson(),key=lessonKey();
-      bad(!lesson,"현재 뉴스의 퀴즈를 찾을 수 없습니다.");
-      bad(Boolean(team.quizAnswers?.[key]),"이 뉴스 단계의 퀴즈는 이미 제출했습니다.");
-      const answer=safeStr(body.answer,1);
-      bad(!lesson.quiz.options.some(x=>x.value===answer),"제시된 답안 중 하나를 선택하세요.");
-      const correct=answer===lesson.quiz.correct;
-      team.quizAnswers??={};
-      team.quizAnswers[key]={answer,correct,correctOption:lesson.quiz.correct,
-        explanation:lesson.quiz.explanation,submittedAt:new Date().toISOString()};
       await commit();
       return send(res,200,view(req));
     }
