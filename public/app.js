@@ -434,16 +434,90 @@ function teamLobbyPanel(g){
 }
 
 function articleTopic(x){
+  // 사건 고유명사를 먼저 판단한다. 개념 키워드가 기사 주제를 덮어쓰지 않도록 한다.
   const title=String(x.title||"");
-  const theme=String(x.learning_concept?.theme||"").toLowerCase();
-  if(/러시아|우크라이나|침공|전쟁|전면전|군사 충돌|군사작전|geopolitic/.test(title+" "+theme))return "geopolitics";
-  if(/원유|유가|석유|에너지|energy/.test(title+" "+theme))return "energy";
-  if(/무역|관세|공급망|컨테이너|물류|trade/.test(title+" "+theme))return "trade";
-  if(/병원|바이오|제약|의료|health/.test(title+" "+theme))return "health";
-  if(/은행|금융위기|bank/.test(title+" "+theme))return "banks";
-  if(/반도체|인공지능|인공 지능|인공지능|AI|기술주|빅테크|tech/.test(title+" "+theme))return "tech";
-  if(/연준|금리|긴축|통화|테이퍼링|자산매입|rates|금융/.test(title+" "+theme))return "rates";
+  const theme=String(x.learning_concept?.theme||"");
+  if(/소비자물가|물가상승|물가 상승|인플레이션|CPI/i.test(title)){
+    return /둔화|완화|진정|하락|안정|낮아|꺾|내려/.test(title)?"inflation-cool":"inflation-rise";
+  }
+  if(/WHO|세계보건기구|코로나19|팬데믹|비상사태|보건/i.test(title))return "health";
+  if(/실리콘밸리|SVB|은행 폐쇄|뱅크런|은행 파산|은행 위기/i.test(title))return "banks";
+  if(/러시아|우크라이나|침공|전쟁|전면전|군사 충돌|군사작전/i.test(title))return "geopolitics";
+  if(/원유|유가|석유|정유|천연가스|에너지/i.test(title))return "energy";
+  if(/무역|관세|공급망|컨테이너|물류|해운|항만/i.test(title))return "trade";
+  if(/반도체|인공지능|인공 지능|기술주|빅테크|IT 업종|데이터센터/i.test(title))return "tech";
+  if(/연준|금리|긴축|통화|테이퍼링|자산매입|중앙은행/i.test(title))return "rates";
+  if(/은행|금융위기|bank/i.test(title+" "+theme))return "banks";
+  if(/유가|석유|에너지|energy/i.test(theme))return "energy";
+  if(/바이오|제약|의료|health/i.test(theme))return "health";
+  if(/기술|반도체|tech/i.test(theme))return "tech";
+  if(/금리|긴축|연준|rates/i.test(theme))return "rates";
   return "trade";
+}
+function articleMainTopic(x){
+  return articleTopic(x).replace(/^inflation-(rise|cool)$/,"inflation");
+}
+function articlePairContext(current){
+  if(current.length!==2)return "";
+  const first=current[0],last=current[1];
+  const dates=current.map(x=>Date.parse(String(x.date||"")+"T00:00:00Z"));
+  const difference=dates.every(Number.isFinite)?Math.abs(Math.round((dates[1]-dates[0])/86400000)):0;
+  const months=Math.max(1,Math.round(difference/30));
+  const same=articleMainTopic(first)===articleMainTopic(last);
+  const inflation=same&&articleMainTopic(first)==="inflation";
+  let label,info;
+  if(difference>=45){
+    label=same?`후속 변화 비교 · 약 ${months}개월 차이`:`시점 차이 주의 · 약 ${months}개월 차이`;
+    info=inflation?
+      "먼저 나온 물가 급등 기사와 이후의 상승률 둔화 기사는 서로 모순되지 않습니다. 물가 상승률이 낮아져도 물가 수준은 계속 오를 수 있어요.":
+      same?"같은 이슈라도 시간이 흐르며 상황이 달라집니다. 두 기사의 날짜를 비교하고 새로운 정보로 전망이 어떻게 바뀌었는지 생각해 보세요.":
+      "두 뉴스는 같은 날 일어난 사건이 아닙니다. 각 기사 날짜에 이미 알려진 정보만 이용해 판단해 보세요.";
+  } else if(same){
+    label="같은 이슈의 전개";
+    info="첫 기사와 두 번째 기사의 발표일을 비교해 상황이 어떻게 바뀌었는지 살펴보세요.";
+  }else{
+    label="비슷한 시기의 서로 다른 이슈";
+    info="두 사건이 시장에 미칠 영향을 따로 살피고, 서로 상충하는 신호가 있다면 불확실성도 함께 고려하세요.";
+  }
+  return `<aside class="news-pair-context" aria-label="두 뉴스의 관계"><strong>${h(label)}</strong><p>${h(info)}</p></aside>`;
+}
+function articleHistoricalNote(x,g){
+  const title=String(x.title||"");
+  const yr=Number(x.year);
+  let titleText="",message="",question="";
+  if(yr===2022 && /소비자물가|물가상승|물가 상승|인플레이션|CPI/i.test(title)){
+    titleText="2022년 물가 흐름을 읽는 법";
+    const later=/둔화|완화|진정|하락|안정|낮아|꺾|내려/.test(title);
+    message=later?
+      "물가 상승률이 이전보다 낮아졌다는 뜻이지, 물가 자체가 내려갔다는 뜻은 아닙니다. 통계 기준월과 실제 발표 날짜는 다를 수 있습니다.":
+      "당시에는 물가 상승 압력이 컸습니다. 이후 발표된 지표의 둔화 여부는 그 지표가 실제로 공개된 시점부터 판단에 반영해야 합니다.";
+    question=later?
+      "물가 상승 속도가 느려진다면 앞으로 금리 기대와 산업별 부담은 어떻게 달라질까요?":
+      "물가 상승 압력이 커지면 금리와 기업 비용에 어떤 영향을 줄까요?";
+  }else if(/WHO|세계보건기구|코로나19.*(종료|해제)|비상사태.*종료/i.test(title)){
+    titleText="오해하지 마세요";
+    message="국제공중보건 비상사태 종료는 코로나19가 사라졌다는 뜻이 아닙니다. 비상 대응에서 장기 관리로 전환된다는 의미에 가깝습니다.";
+    question="보건 정책의 변화가 여행·의료·소비 산업에 미칠 영향은 무엇일까요?";
+  }else if(/실리콘밸리|SVB/i.test(title)){
+    titleText="금융시장 판단 기준";
+    message="한 은행의 폐쇄가 모든 은행이 같은 위험에 놓였다는 뜻은 아닙니다. 예금 유출, 채권 손실, 당국의 대응을 구분해야 합니다.";
+    question="은행 불안이 커지면 금융업과 기술기업의 자금 조달에는 어떤 영향이 있을까요?";
+  }
+  if(!message)return "";
+  return `<aside class="news-context-note"><strong>${h(titleText)}</strong><p>${h(message)}</p><div class="news-context-question"><b>생각해 볼 질문</b><span>${h(question)}</span></div></aside>`;
+}
+function inflationHistoryBridge(g,current){
+  if(Number(g.room.year)!==2022)return "";
+  const titles=current.map(x=>String(x.title||"")).join(" ");
+  if(!/소비자물가|물가 상승|인플레이션|CPI/i.test(titles))return "";
+  const prior=(g.news||[]).filter(x=>Number(x.year)===2022 &&
+    !current.some(c=>c.id===x.id)&&/소비자물가|물가 상승|인플레이션|CPI/i.test(String(x.title||"")) &&
+    String(x.date||"")<=String(current[current.length-1]?.date||""));
+  if(!prior.length)return "";
+  const last=prior.sort((a,b)=>String(b.date).localeCompare(String(a.date)))[0];
+  return `<aside class="news-history-bridge"><strong>이전 물가 뉴스와 연결해서 보기</strong>
+    <p><time>${h(last.date||"이전")}</time> ${h(last.title||"물가 관련 뉴스")} → 이번 뉴스</p>
+    <p>뉴스가 서로 반대처럼 보여도, 물가 수준과 물가 상승률은 서로 다릅니다. 새로운 지표가 나왔을 때 당시의 판단을 업데이트해 보세요.</p></aside>`;
 }
 let activeArticleIndex=0, previousArticleKey="";
 function newsList(g){
@@ -456,20 +530,21 @@ function newsList(g){
   activeArticleIndex=Math.min(activeArticleIndex,Math.max(0,current.length-1));
   const renderNews=(x,i,isPast=false)=>{
     const concept=x.learning_concept;
-    const topic=articleTopic(x), image=["rates","geopolitics"].includes(topic)?`/art/article-${topic}.webp`:`/art/article-${topic}.svg`;
+    const topic=articleTopic(x), image=`/art/article-${topic}.webp`;
     const question=x.easy_question||concept?.question||x.discussion_question;
     const summary=x.easy_summary||x.fact;
     const detail=x.fact||"";
     const sourceK=x.source_ko?.url||x.source_ko_search;
     const sourceO=/^https:\/\//.test(x.source?.url||"")?x.source.url:null;
     return `<article id="news-${h(x.id)}" class="news-card news-readable ${isPast?"news-past":"news-current"}" ${isPast?"":'data-current-news="true"'}>
-      <div class="news-readable-meta"><span>${ico("newspaper",16)} ${isPast?"지난 기사":`기사 ${i+1} / ${current.length}`}</span><time>${h(x.date)}</time></div>
+      <div class="news-readable-meta"><span>${ico("newspaper",16)} ${isPast?"지난 뉴스":"시장 뉴스"}</span><time>${h(x.date)}</time></div>
       <h3 class="news-readable-title">${h(x.title)}</h3>
       <figure class="news-readable-image">
         <img src="${image}" loading="${isPast?"lazy":"eager"}" decoding="async" alt="${h(x.title)} 관련 ${topic==="geopolitics"?"전쟁 상황 재현":topic==="rates"?"중앙은행":"경제 주제"} 이미지"/>
-        <figcaption>${topic==="geopolitics"?"전쟁 상황을 이해하기 위한 AI 생성 재현 이미지 · 실제 현장 사진이 아닙니다.":"기사 내용을 돕기 위한 교육용 이미지입니다."}</figcaption>
+        <figcaption>${topic.startsWith("inflation")?"물가 흐름을 설명하는 교육용 합성 이미지 · 실제 통계 그래프가 아닙니다.":"기사 이해를 위한 AI 생성 재현 이미지 · 실제 현장 사진이 아닙니다."}</figcaption>
       </figure>
       <div class="news-readable-summary"><b>한 줄 요약</b><p>${h(summary)}</p></div>
+      ${!isPast?articleHistoricalNote(x,g):""}
       ${detail&&detail!==summary?`<div class="news-readable-body"><h4>무슨 일이 있었나요?</h4><p>${h(detail)}</p></div>`:""}
       ${x.easy_term?`<div class="news-readable-term"><strong>어려운 말 풀이</strong><span>${h(x.easy_term)}</span></div>`:""}
       <div class="news-readable-source">
@@ -492,7 +567,7 @@ function newsList(g){
       <div><small>${r.year}년 · ${r.stage}차 뉴스</small><h2>${ico("newspaper",23)} 오늘의 경제 뉴스</h2></div>
       <span>${r.round} / ${r.totalRounds}회차</span>
     </div>
-    ${current.length?`<div class="article-tabs" role="tablist" aria-label="기사 선택">${current.map((x,i)=>`
+    ${current.length?`${articlePairContext(current)}${inflationHistoryBridge(g,current)}<div class="article-tabs" role="tablist" aria-label="기사 선택">${current.map((x,i)=>`
       <button type="button" role="tab" data-action="article-tab" data-id="${i}" aria-selected="${i===activeArticleIndex}" aria-controls="article-panel-${i}" class="${i===activeArticleIndex?"active":""}">기사 ${i+1}</button>`).join("")}</div>
       <div class="current-news-stack">${current.map((x,i)=>`<div id="article-panel-${i}" class="article-panel" role="tabpanel" ${i===activeArticleIndex?"":"hidden"}>${renderNews(x,i)}</div>`).join("")}</div>`:
       `<div class="empty">${ico("time",18)} ${r.phase==="lobby"?"게임을 시작하면 경제 뉴스가 표시됩니다.":"현재 공개된 뉴스가 없습니다."}</div>`}

@@ -41,7 +41,7 @@ test("기사: 2개 탭·주제별 이미지·기사 뒤 접힌 개념만 제공"
  const html=ctx.preview({room:{stage:1,year:2021,phase:"news",round:2,totalRounds:4},news,role:"team"});
  assert.match(html,/role="tablist"/);
  assert.match(html,/article-rates.webp/);
- assert.match(html,/article-energy.svg/);
+ assert.match(html,/article-energy.webp/);
  assert.match(html,/news-readable-title/);
  assert.match(html,/<details class="news-learn">/);
  assert.ok(html.indexOf("무슨 일이 있었나요?")<html.indexOf('class="news-learn"'));

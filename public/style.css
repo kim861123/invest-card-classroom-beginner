@@ -1091,7 +1091,7 @@ body{
   margin:14px 0 !important;
 }
 .newsroom .news-card.news-current::before{
-  content:"TODAY'S MARKET STORY / 지금 읽는 기사";
+  content:none;
   display:block;font-size:10px;font-weight:900;letter-spacing:.08em;
   color:#8a5926;padding-bottom:11px;margin-bottom:15px;
   border-bottom:1px solid #dccfb8;

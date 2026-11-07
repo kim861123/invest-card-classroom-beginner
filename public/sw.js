@@ -1,7 +1,13 @@
-const CACHE="invest-play-shell-classroom-beginner-v3.3-audio-layout";
+const CACHE="invest-play-shell-classroom-beginner-v3.4-news-context";
 const STATIC=["/","/app.js","/style.css","/mobile-v32.css","/audio/notify.wav","/audio/ambient.wav",
-"/art/article-rates.webp","/art/article-geopolitics.webp","/art/article-energy.svg","/art/article-trade.svg",
-"/art/article-health.svg","/art/article-tech.svg","/art/article-banks.svg"];
+"/art/article-rates.webp","/art/article-geopolitics.webp",
+"/art/article-health.webp",
+"/art/article-energy.webp",
+"/art/article-trade.webp",
+"/art/article-tech.webp",
+"/art/article-inflation-rise.webp",
+"/art/article-inflation-cool.webp",
+"/art/article-banks.webp"];
 self.addEventListener("install",event=>event.waitUntil(
   caches.open(CACHE).then(async cache=>{
     await Promise.all(STATIC.map(async url=>{try{await cache.add(url);}catch{/* offline cache is optional */}}));
