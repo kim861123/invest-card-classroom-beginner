@@ -62,7 +62,7 @@ test("왕초보 코스: 4개 연도·8단계, 안전한 시작 카드·쉬운 �
     await start();
     const visitor=client(),teacher=client(),alpha=client(),beta=client();
     const health=await visitor("/api/health");
-    assert.equal(health.data.build,"classroom-beginner-v2.1-mobile-quiz-review");
+    assert.equal(health.data.build,"classroom-beginner-v3-editorial");
     const init=(await visitor("/api/state")).data;
     assert.equal(init.room.year,2020);
     assert.equal(init.room.totalRounds,4);
@@ -180,7 +180,7 @@ test("초급 UI 및 데이터 파일 확인",()=>{
   assert.match(app,/function beginnerGuide/);
   assert.match(app,/초보자를 위한 한 줄 뉴스/);
   assert.match(app,/산업 카드/);
-  assert.match(index,/BEGINNER V2\.1/);
+  assert.match(index,/BEGINNER V2\.2/);
   assert.match(app,/function beginnerCoach/);
   assert.match(app,/function beginnerQuiz/);
   assert.match(app,/function beginnerPractice/);

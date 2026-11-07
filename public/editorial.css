@@ -1,0 +1,53 @@
+
+/* Shared premium editorial design — EASY V3 / ADV V9 */
+:root{--paper:#fffaf0;--paper-ink:#172741;--paper-gold:#cba769}
+html,body{max-width:100%;overflow-x:clip}
+.newsroom .news-card.news-current{position:relative;isolation:isolate;background:linear-gradient(145deg,#fffefa,#f5eddc)!important;color:var(--paper-ink)!important;border:1px solid #d9c7a3!important;box-shadow:0 20px 55px #010b1b80,0 0 0 5px #bb9a5514!important;border-radius:13px!important;overflow:hidden;padding:clamp(18px,4vw,34px)!important}
+.newsroom .news-current h3,.newsroom .news-current p,.newsroom .news-current b,.newsroom .news-current strong{color:var(--paper-ink)}
+.newspaper-masthead{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:4px double #987b48;padding-bottom:13px;margin-bottom:12px}
+.newspaper-masthead span{font-family:Georgia,"Noto Serif KR",serif;font-size:clamp(23px,4.3vw,38px);font-weight:900;letter-spacing:-1.4px;color:#172742}
+.newspaper-masthead small{font-size:9px;letter-spacing:.12em;color:#876c41}
+.news-past .newspaper-masthead,.news-past .newspaper-editorial-banner{display:none}
+.newspaper-editorial-banner{height:clamp(120px,28vw,215px);margin:8px 0 16px;border-radius:6px;background:linear-gradient(0deg,#11213c77,#10213b44),url("/art/news-signal.webp") center/cover;position:relative}
+.newspaper-editorial-banner span,.newspaper-editorial-banner strong{position:absolute;color:white!important;text-shadow:0 2px 8px #07101d}
+.newspaper-editorial-banner span{left:14px;top:12px;font-size:10px;letter-spacing:.12em}
+.newspaper-editorial-banner strong{left:14px;bottom:13px;font-size:13px}
+.newsroom .news-current .newspaper-headline{font-family:Georgia,"Noto Serif KR",serif!important;font-size:clamp(25px,4vw,42px)!important;line-height:1.4!important;letter-spacing:-.04em!important;margin:14px 0 10px!important}
+.newspaper-byline{font-size:11px;color:#77684d;border-bottom:1px solid #d4c5a8;padding:0 0 14px;margin-bottom:14px}
+.newsroom .news-current .news-meta,.newsroom .news-current .news-date,.newsroom .news-current .news-index{color:#6b5c3b!important}
+.newsroom .news-current .beginner-summary,.newsroom .news-current .beginner-term,.newsroom .news-current .news-question,.newsroom .news-current .beginner-source{background:#fffaf0!important;color:#1b2c43!important;border:1px solid #e6d7b9!important}
+.newsroom .news-current .beginner-summary *,.newsroom .news-current .beginner-term *,.newsroom .news-current .news-question *,.newsroom .news-current .beginner-source *{color:#1b2c43!important}
+.newsroom .news-current .news-sources a{color:#315a85!important}
+.editorial-stage-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:20px 0 12px;position:sticky;top:0;z-index:10;background:#0e1a2bea;padding:9px;border:1px solid #364a61;border-radius:16px;backdrop-filter:blur(14px)}
+.editorial-stage-nav button{border:1px solid #334a63;border-radius:11px;background:#172740;color:#bfcee0;padding:12px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-size:clamp(11px,2.8vw,14px);min-width:0}
+.editorial-stage-nav button small{font-size:10px;color:#b1a17b}
+.editorial-stage-nav button.active{background:linear-gradient(135deg,#aa8a4b,#f1d08b);color:#13243b;border-color:#e5bf6b;box-shadow:0 4px 18px #dab56735}
+.editorial-stage-nav button.active small{color:#4a3c22}
+.classroom-pane{display:none;animation:classroomFade .32s ease both}.classroom-pane.is-active{display:block}
+@keyframes classroomFade{from{opacity:.5;transform:translateY(8px)}to{opacity:1;transform:none}}
+.prediction-panel{background:linear-gradient(125deg,#1b2e49,#16243b);border-color:#4d6b7d}
+.prediction-form{display:grid;grid-template-columns:1fr 1.5fr;gap:12px}.prediction-form label{min-width:0;display:flex;flex-direction:column;gap:7px}
+.prediction-form select,.prediction-form textarea{max-width:100%;width:100%;font:inherit;background:#f9f5e8;color:#15233a;border:1px solid #aa9878;border-radius:9px;padding:12px;min-height:45px}
+.prediction-form textarea{min-height:85px}.prediction-form button{grid-column:1/-1}
+.prediction-commit{border:1px solid #4fb5a5;background:#163a41;border-radius:12px;padding:16px}.prediction-commit p{margin:9px 0}
+.prediction-teacher-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:11px;border-top:1px solid #30435b}.prediction-teacher-row small{grid-column:1/-1;color:#bfd0de}
+.editorial-teacher-actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.classroom-action-note{padding:15px;color:#d8c699;border:1px dashed #826a43;border-radius:12px;margin-bottom:18px}
+.round-replay .replay-movers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.replay-mover,.replay-history-item{padding:11px;border:1px solid #344a60;border-radius:9px;display:flex;justify-content:space-between;gap:8px;min-width:0}
+.replay-mover span{font-size:12px}.replay-mover strong{white-space:nowrap}.replay-history-item{margin:8px 0}
+@media(max-width:620px){.prediction-form{grid-template-columns:minmax(0,1fr)}.newspaper-masthead small{display:none}.editorial-stage-nav{gap:4px;padding:5px}.editorial-stage-nav button{padding:12px 2px}.newsroom .news-card.news-current{padding:17px!important}.newsroom .news-current .newspaper-headline{font-size:26px!important}.round-replay .replay-movers{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.classroom-pane{animation:none!important}*{scroll-behavior:auto!important}}
+
+/* Economic relationship infographic and tactile collectible cards */
+.industry-relationship{border:1px solid #7b6844;background:linear-gradient(125deg,#1d2c45,#132136)}
+.relationship-flow{display:flex;align-items:stretch;gap:8px;margin:15px 0}
+.relation-node{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:6px;background:linear-gradient(140deg,#1e3c58,#12243b);border:1px solid #637887;border-radius:13px;padding:17px;text-align:center}
+.relation-node small{font-size:11px;color:#e0c087}.relation-node b{font-size:clamp(12px,2.2vw,18px);overflow-wrap:anywhere}
+.relation-arrow{display:grid;place-items:center;color:#f7ce81;font-size:25px}
+.asset-tile{perspective:1000px}
+.asset-tile .sector-image{transition:transform .3s ease,filter .3s ease;transform-style:preserve-3d;will-change:transform}
+@media(hover:hover){.asset-tile:hover .sector-image{transform:translateY(-6px) rotateY(-4deg) rotateX(3deg) scale(1.03);filter:drop-shadow(0 18px 15px #030b17aa)}}
+.asset-tile .sector-image:active{transform:scale(.98)}
+@media(max-width:650px){.relationship-flow{display:grid;grid-template-columns:1fr;gap:6px}.relation-arrow{transform:rotate(90deg);font-size:17px}.relation-node{padding:13px}}
+@media(prefers-reduced-motion:reduce){.asset-tile .sector-image{transition:none!important}}

@@ -317,11 +317,16 @@ function newsList(g){
   const older=g.news.filter(x=>!current.some(y=>y.id===x.id));
   const phaseMessage=r.phase==="result"?"이번 발표에 사용된 뉴스":r.phase==="lobby"?"게임 시작 전 미리보기":r.phase==="finished"?"최종 뉴스":"지금 분석할 뉴스";
   const renderNews=(x,i,isPast=false)=>`<article id="news-${h(x.id)}" class="news-card ${isPast?"news-past":"news-current"}" ${isPast?"":'data-current-news="true"'}>
+    <div class="newspaper-masthead"><span>THE INVEST TIMES</span><small>ECONOMY · INDUSTRY · EDUCATION</small></div>
+    <div class="newspaper-editorial-banner" role="img" aria-label="산업과 경제시장을 상징하는 일러스트">
+      <span>MARKET EDITION / ${h(x.year)}</span><strong>경제 사건을 읽고 시장을 생각하다</strong>
+    </div>
     <div class="news-meta">
       <span class="news-index">${isPast?ico("history",14):ico("newspaper",14)} ${isPast?"지난 뉴스":`현재 뉴스 ${i+1} / ${current.length}`}</span>
       <span class="news-date">${h(x.date)}</span>
     </div>
-    <h3>${h(x.title)}</h3>
+    <h3 class="newspaper-headline">${h(x.title)}</h3>
+    <div class="newspaper-byline">INVEST TIMES 경제교육팀 · ${h(x.date)} · 경제교육용 재구성</div>
     <div class="beginner-summary"><span>${ico("sparkles",16)} 초보자를 위한 한 줄 뉴스</span>
       <strong>${h(x.easy_summary||x.fact)}</strong></div>
     ${x.easy_term?`<div class="beginner-term"><b>어려운 말 풀이</b> · ${h(x.easy_term)}</div>`:""}
@@ -858,7 +863,10 @@ function teacherView(g){
        <span>거래 연습 ${g.practiceStats?.completed||0}/${g.practiceStats?.total||0}팀 ·
        현재 퀴즈 참여 ${g.quizStats?.answered||0}/${g.quizStats?.total||0}팀</span>
        <span>힌트는 미래 가격을 공개하지 않으며, 강사용 해설은 학생 API에서 제외됩니다.</span></div>
-    ${quickPanels(g)}${teacherTradeReports(g)}
+    <div class="editorial-teacher-actions">
+ <a class="btn gold" href="/present" target="_blank" rel="noopener">▣ 발표 전용 화면</a>
+ <a class="btn" href="/report" target="_blank" rel="noopener">▤ 수업 리포트 · PDF 인쇄</a>
+ </div>${predictionTeacherPanel(g)}${quickPanels(g)}${teacherTradeReports(g)}
     <div class="instructor-command-layout"><div class="instructor-primary">${teacherReveal(g)}</div>
       <aside class="instructor-sidebar">${teacherActions(g)}${qrTeacher(g)}</aside></div>
     <div class="two-col-main"><div>${newsList(g)}${market(g)}</div>
@@ -867,18 +875,105 @@ function teacherView(g){
     <div class="btn-row"><button class="btn" data-action="logout">강사 로그아웃</button></div>
     ${resetConfirmDialog()}`;
 }
+
+let activeClassroomTab="news",previousClassroomStage="";
+function classroomStageTab(g){
+ const marker=`${g.room.year}-${g.room.stage}-${g.room.phase}`;
+ if(previousClassroomStage!==marker){
+   previousClassroomStage=marker;
+   activeClassroomTab=["result","finished"].includes(g.room.phase)?"result":
+     g.room.phase==="trade"?"trade":"news";
+ }
+ const tabs=[["news","01","신문 읽기"],["trade","02","카드 교환"],["collection","03","나의 카드"],["result","04","결과·리플레이"]];
+ return `<nav class="editorial-stage-nav" role="tablist" aria-label="게임 단계">
+ ${tabs.map(([id,n,label])=>`<button type="button" role="tab" aria-selected="${activeClassroomTab===id}"
+  data-action="classroom-tab" data-id="${id}" class="${activeClassroomTab===id?"active":""}"><small>${n}</small><strong>${label}</strong></button>`).join("")}
+ </nav>`;
+}
+function classroomPane(id,content){
+ return `<section class="classroom-pane ${activeClassroomTab===id?"is-active":""}" data-classroom-pane="${id}">${content}</section>`;
+}
+function predictionPanel(g){
+ if(!g.team||g.room.phase==="lobby")return "";
+ const p=g.myPrediction,open=["news","trade"].includes(g.room.phase);
+ const picked=g.sectors.find(x=>x.id===p?.sectorId);
+ const change=g.lastResult?.changes?.find(x=>x.id===p?.sectorId);
+ return `<section class="panel section prediction-panel" id="prediction-panel">
+ <div class="section-title"><div><span class="eyebrow">PREDICT & LEARN</span><h2>${ico("target",20)} 우리 팀의 산업 예측</h2></div></div>
+ <p class="panel-sub">뉴스가 어떤 산업에 영향을 줄까요? 미래 가격을 미리 볼 수 없으며, 선택의 이유가 더 중요합니다.</p>
+ ${p?`<div class="prediction-commit"><b>선택 산업: ${h(picked?.name||"")}</b><p>우리 팀의 근거: ${h(p.reason)}</p>
+  ${["result","finished"].includes(g.room.phase)&&change?
+   `<strong class="${buyClass(change.gameModelPct)}">이번 발표 · ${h(picked?.name||"")} ${pct(change.gameModelPct)}</strong>`:
+   "<span>가격 발표 후 예상과 결과를 비교할 수 있어요.</span>"}</div>`:
+ open?`<form id="prediction-form" class="prediction-form">
+  <label>상승할 것으로 예상하는 산업
+   <select name="sectorId" required>${g.sectors.map(s=>`<option value="${s.id}">${h(s.name)} · ${h(s.ticker)}</option>`).join("")}</select></label>
+  <label>선택한 이유 (4자 이상)
+   <textarea name="reason" maxlength="160" minlength="4" required placeholder="예: 유가가 오르면 에너지 산업에 도움이 될 것 같아요."></textarea></label>
+  <button class="btn gold" type="submit">우리 팀 예상 제출</button>
+ </form>`:`<p class="small-note">이 단계의 예상 제출 시간이 종료됐습니다.</p>`}
+ <p class="small-note">교육용 예측 기록이며 정답 추천이나 미래 가격 공개가 아닙니다.</p>
+ </section>`;
+}
+function predictionTeacherPanel(g){
+ const board=g.predictionBoard;
+ if(!board)return "";
+ return `<section class="panel section prediction-panel teacher-predictions">
+ <div class="section-title"><div><span class="eyebrow">CLASSROOM SENTIMENT</span><h2>산업별 투자 예상</h2></div></div>
+ <p>${board.answered||0} / ${board.total||0}팀 참여</p>
+ ${(board.entries||[]).map(p=>`<div class="prediction-teacher-row"><b>${h(p.teamName)}</b><span>${h(g.sectors.find(x=>x.id===p.sectorId)?.name||"")}</span><small>${h(p.reason)}</small></div>`).join("")||'<p class="small-note">아직 참가한 팀이 없습니다.</p>'}
+ </section>`;
+}
+function replayPanel(g){
+ const rows=(g.stageTradeHistory||[]).slice().reverse();
+ if(!rows.length&&!g.lastResult)return '<section class="panel section"><h3>아직 가격 발표 전입니다</h3><p>발표 후 이번 턴을 복습할 수 있습니다.</p></section>';
+ return `<section class="panel section round-replay"><span class="eyebrow">MARKET REPLAY</span>
+ <h2>턴별 가격 발표 · 교환 성과</h2>
+ ${g.lastResult?`<div class="replay-movers">${(g.lastResult.changes||[]).map(c=>`<div class="replay-mover"><span>${h(c.name)}</span><strong class="${buyClass(c.gameModelPct)}">${pct(c.gameModelPct)}</strong></div>`).join("")}</div>`:""}
+ ${rows.map(x=>`<div class="replay-history-item"><b>${x.year}년 ${x.stage}차</b>
+ ${x.report?.ready?`<span>교환 효과 ${Number(x.report.differencePctPoint)>=0?"+":""}${Number(x.report.differencePctPoint).toFixed(2)}%p</span>`:"<span>해당 기록 없음</span>"}
+ </div>`).join("")}
+ ${impactLaunch(g)}
+ </section>`;
+}
+
+
+function relationMap(g){
+ const examples={
+  2019:["무역 갈등","원자재·산업재","공급망 불확실성"],
+  2020:["경제활동 제약","에너지·소비","이동·소비 감소 가능성"],
+  2021:["경기 회복","에너지·산업재","수요 회복과 비용 상승"],
+  2022:["금리 인상","금융·부동산","조달비용과 자산가격"],
+  2023:["생성형 AI","정보기술·통신","신기술 투자 확대"],
+  2024:["금리 변화","금융·부동산","대출·기업 투자 여건"],
+  2025:["무역 정책","산업재·기술","국제 교역 비용"],
+  2026:["원자재 수급","에너지·소재","비용과 판매가격"]
+ };
+ const [event,industry,logic]=examples[g.room.year]||examples[2023];
+ return `<section class="panel section industry-relationship" aria-label="경제와 산업 관계도">
+  <span class="eyebrow">ECONOMY → INDUSTRY</span><h2>경제와 산업은 어떻게 연결될까요?</h2>
+  <div class="relationship-flow">
+   <div class="relation-node"><small>경제 사건</small><b>${event}</b></div>
+   <div class="relation-arrow" aria-hidden="true">→</div>
+   <div class="relation-node"><small>살펴볼 산업</small><b>${industry}</b></div>
+   <div class="relation-arrow" aria-hidden="true">→</div>
+   <div class="relation-node"><small>생각할 연결고리</small><b>${logic}</b></div>
+  </div><p class="small-note">경제 개념을 설명하기 위한 관계도입니다. 해당 산업의 상승·하락이나 투자 성과를 보장하지 않습니다.</p>
+ </section>`;
+}
+
 function studentView(g){
   statusTop.textContent=`${g.team.name} · ${g.room.year}년 · ${phaseText[g.room.phase]}`;
   return `${headLine(g,`${h(g.team.name)}의 투자 전략실`,"경제를 몰라도 괜찮아요! 쉬운 뉴스 요약을 읽고 카드 교환을 연습해 보세요.")}
-    ${illustratedStage(g)}${statusStats(g)}${beginnerGuide(g)}${quickPanels(g)}${impactLaunch(g)}
+    ${illustratedStage(g)}${statusStats(g)}${beginnerGuide(g)}${quickPanels(g)}
     ${g.room.phase==="paused"?'<div class="alert">${ico("pause",17)} 강사가 게임을 일시정지했습니다. 거래는 잠겨 있습니다.</div>':""}
     ${g.room.phase==="lobby"?`<div class="info">${ico("check",17)} 참가 완료! <b>우리 팀은 카드 110장을 단 한 번 뽑습니다.</b> 강사의 게임 시작을 기다려 주세요.</div>${teamLobbyPanel(g)}${beginnerPractice(g)}`:""}
     ${g.room.phase==="finished"?'<div class="result-banner"><h3>${ico("trophy",20)} 게임 종료</h3><p>투자 판단과 산업별 시장 결과를 복기해 보세요.</p></div>':""}
-    <div class="two-col-main"><div>
-      ${newsList(g)}${beginnerCoach(g)}${beginnerQuiz(g)}${beginnerQuizReview(g)}${beginnerResult(g)}${listingBoard(g)}${market(g,true)}
-      ${results(g)}
-    </div><div><div class="panel section"><h3>${ico("target",19)} 초보 투자 체크리스트</h3><p class="panel-sub">① 오늘 뉴스는 무슨 소식인가요?<br>② 어떤 산업 카드에 영향이 있을까요?<br>③ 카드를 바꿀까요, 그대로 둘까요?<br>④ 가격 발표 뒤 우리 예상이 맞았는지 이야기해 봐요.</p></div>
-    </div></div>
+    ${classroomStageTab(g)}
+    ${classroomPane("news",`${newsList(g)}${relationMap(g)}${predictionPanel(g)}${beginnerCoach(g)}${beginnerQuiz(g)}${beginnerQuizReview(g)}`)}
+    ${classroomPane("trade",`${listingBoard(g)}<div class="classroom-action-note">카드 교환을 진행하려면 컬렉션에서 ‘교환 제안하기’를 누르세요.</div>`)}
+    ${classroomPane("collection",`${market(g,true)}`)}
+    ${classroomPane("result",`${beginnerResult(g)}${results(g)}${replayPanel(g)}`)}
     <div class="btn-row"><button class="btn" data-action="logout">참가 종료(로그아웃)</button></div>`;
 }
 function landingView(g){
@@ -1190,6 +1285,26 @@ document.addEventListener("click",async e=>{
     return mutate("/api/teacher",{action},action==="next"?"다음 단계로 넘어갔습니다.":"변경되었습니다.");
   }
 });
+
+document.addEventListener("submit",async e=>{
+ if(e.target.id!=="prediction-form")return;
+ e.preventDefault();
+ const d=new FormData(e.target);
+ await mutate("/api/predict",{sectorId:Number(d.get("sectorId")),reason:String(d.get("reason")||"")},
+ "우리 팀의 예측이 기록됐습니다. 결과 발표 뒤 비교해 보세요.");
+},true);
+document.addEventListener("click",e=>{
+ const target=e.target.closest("[data-action='classroom-tab']");
+ if(!target)return;
+ activeClassroomTab=target.dataset.id;
+ document.querySelectorAll("[data-classroom-pane]").forEach(el=>
+  el.classList.toggle("is-active",el.dataset.classroomPane===activeClassroomTab));
+ document.querySelectorAll(".editorial-stage-nav button").forEach(el=>{
+  const chosen=el.dataset.id===activeClassroomTab;
+  el.classList.toggle("active",chosen);el.setAttribute("aria-selected",String(chosen));
+ });
+ document.querySelector(".editorial-stage-nav")?.scrollIntoView({block:"nearest",behavior:"smooth"});
+},true);
 refresh(true).then(()=>connectStream());
 setInterval(tickCountdown,1000);
 setInterval(()=>refresh(),5000);

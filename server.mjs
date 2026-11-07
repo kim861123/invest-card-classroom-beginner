@@ -389,6 +389,9 @@ function view(req) {
       maxOtherAvailable:maxCounterpartyAvailable(team.id,x.id)
     }]))}:{}),
     scores:scores(), news:currentlyVisibleNews(role),
+    ...(team?{myPrediction:team.predictions?.[classroomPredictionKey()]||null,
+     predictionHistory:Object.entries(team.predictions||{}).map(([key,entry])=>({key,...entry}))}:{}),
+    ...(role==="teacher"?{predictionBoard:classroomPredictions()}:{}),
     ...(role!=="guest"?{beginnerLesson:lessonView(role,team)}:{}),
     ...(team?{quizReviews:quizReviewHistory(team)}:{}),
     ...(team && state.phase==="finished"?{tradeReport:finalTradeReport(team)}:{}),
@@ -426,6 +429,46 @@ function view(req) {
     course:{edition:"beginner",years:YEARS,newsCount:16},
     explanation:"가격 변화는 실측 '사건 직후' 수익률이 아니라, ETF 연간 수익률을 두 단계로 배분한 교육용 모델입니다."
   };
+}
+
+function classroomPredictionKey(){return `${currentYear()}-${state.stageIndex+1}`;}
+function classroomPredictions(){
+ const key=classroomPredictionKey();
+ const entries=state.participants.filter(p=>p.predictions?.[key]).map(p=>({
+  teamId:p.id,teamName:p.name,...p.predictions[key]
+ }));
+ return {total:state.participants.length,answered:entries.length,entries};
+}
+function reportData(){
+ return {
+  generatedAt:new Date().toISOString(),finished:state.phase==="finished",
+  scores:scores(),sectors,
+  rounds:state.results.map(r=>({year:r.year,stage:r.stageIndex+1,at:r.at,
+    scores:r.scores,changes:r.changes})),
+  trades:state.completedTrades.map(t=>({year:t.year,stage:t.stage,
+    sellerName:t.sellerName,buyerName:t.buyerName,offerId:t.offerId,
+    offerQty:t.offerQty,wantId:t.wantId,wantQty:t.wantQty})),
+  predictions:state.participants.map(p=>({team:p.name,
+    entries:Object.entries(p.predictions||{}).map(([stage,x])=>({stage,...x}))})),
+  quizzes:state.participants.map(p=>({team:p.name,
+    answered:Object.keys(p.quizAnswers||{}).length,
+    correct:Object.values(p.quizAnswers||{}).filter(q=>q.correct).length}))
+ };
+}
+function projectorData(){
+ const latest=state.results.at(-1);
+ return {
+  room:{phase:state.phase,year:currentYear(),stage:state.stageIndex+1,
+    teamCount:state.participants.length,deadline:state.deadline,totalRounds:YEARS.length},
+  news:currentlyVisibleNews("team").filter(x=>x.year===currentYear() &&
+    Number(x.id.split("-").at(-1))>(state.stageIndex===0?0:2)),
+  scores:scores(),
+  lastResult:latest && ["result","finished"].includes(state.phase)?publicResult(latest):null,
+  predictions:{total:state.participants.length,answered:classroomPredictions().answered,
+    counts:Object.entries(classroomPredictions().entries.reduce((memo,p)=>{
+     memo[p.sectorId]=(memo[p.sectorId]||0)+1;return memo;},{}))
+      .map(([id,count])=>({sector:sectors.find(s=>s.id===Number(id))?.name||"기타",count}))}
+ };
 }
 function expireListings() {
   for (const l of state.listings) if (l.status==="open") l.status="expired";
@@ -674,6 +717,11 @@ function staticFile(req,res,pathname) {
     "/": ["index.html","text/html; charset=utf-8"],
     "/join": ["index.html","text/html; charset=utf-8"],
     "/teacher": ["index.html","text/html; charset=utf-8"],
+    "/present": ["present.html","text/html; charset=utf-8"],
+    "/report": ["report.html","text/html; charset=utf-8"],
+    "/present.js":["present.js","text/javascript; charset=utf-8"],
+    "/report.js":["report.js","text/javascript; charset=utf-8"],
+    "/editorial.css":["editorial.css","text/css; charset=utf-8"],
     "/app.js":["app.js","text/javascript; charset=utf-8"],
     "/style.css":["style.css","text/css; charset=utf-8"],
     "/manifest.webmanifest":["manifest.webmanifest","application/manifest+json"],
@@ -700,8 +748,17 @@ const server=http.createServer((req,res)=>{
     const url=new URL(req.url,`http://${req.headers.host||"localhost"}`);
     const pathname=url.pathname;
     if (req.method==="GET" && staticFile(req,res,pathname)) return;
-    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-beginner-v2.2-quiz-mobile-reveal"});
+    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-beginner-v3-editorial"});
     if (pathname==="/api/state" && req.method==="GET") return send(res,200,view(req));
+    if(pathname==="/api/presentation" && req.method==="GET"){
+      restricted(sessionFor(req)?.role!=="teacher","발표 화면은 강사 로그인 후 이용하세요.");
+      return send(res,200,projectorData());
+    }
+    if(pathname==="/api/report" && req.method==="GET"){
+      restricted(sessionFor(req)?.role!=="teacher","강사만 보고서를 볼 수 있습니다.");
+      return send(res,200,reportData());
+    }
+
     if (pathname==="/api/events" && req.method==="GET") {
       const s=sessionFor(req);
       restricted(!s,"로그인 후에 연결할 수 있습니다.");
@@ -822,6 +879,22 @@ const server=http.createServer((req,res)=>{
         explanation:lesson.quiz.explanation,submittedAt:new Date().toISOString()};
       await commit();
       return send(res,200,view(req));
+    }
+    if(pathname==="/api/predict"){
+      restricted(sess?.role!=="team","학생팀만 제출할 수 있습니다.");
+      bad(!["news","trade"].includes(state.phase),"뉴스 읽기·카드 교환 중에만 제출할 수 있습니다.");
+      const team=state.participants.find(p=>p.id===sess.teamId);
+      restricted(!team,"참가팀 정보가 없습니다.");
+      bad(!team.drawMode,"시작 카드를 먼저 받으세요.");
+      const sectorId=Number(body.sectorId);
+      bad(!Number.isSafeInteger(sectorId)||!sectors.some(s=>s.id===sectorId),"올바른 산업을 고르세요.");
+      const reason=safeStr(body.reason,160);
+      bad(reason.length<4,"판단 근거를 네 글자 이상 입력하세요.");
+      team.predictions??={};
+      const key=classroomPredictionKey();
+      bad(Boolean(team.predictions[key]),"이번 단계의 예측은 이미 제출했습니다.");
+      team.predictions[key]={sectorId,reason,at:new Date().toISOString()};
+      await commit();return send(res,200,view(req));
     }
     if (pathname==="/api/logout") {
       await clearSession(req,res);

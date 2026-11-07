@@ -1,0 +1,17 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>INVEST PLAY | 강의 발표</title><style>
+body{background:#081426;color:#f8f2dc;margin:0;font-family:system-ui,"Noto Sans KR",sans-serif}main{padding:clamp(18px,4vw,60px);max-width:1500px;margin:auto}
+h1{font-size:clamp(30px,6vw,68px);margin:12px 0;color:#f0cb80}h2{font-size:clamp(23px,3vw,38px)}
+.hero{background:linear-gradient(90deg,#101d35b9,#13213a55),url("/art/market-horizon.webp") center/cover;border:1px solid #9b8048;border-radius:24px;padding:4vw;min-height:200px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;margin-top:24px}
+.panel{background:#16243b;border:1px solid #415773;border-radius:16px;padding:22px}.price-reveal{animation:priceReveal .7s cubic-bezier(.2,.85,.2,1) both;transform-origin:center}
+@keyframes priceReveal{from{opacity:0;transform:perspective(600px) rotateX(-75deg) translateY(14px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.price-reveal{animation:none!important}}
+.price{display:flex;justify-content:space-between;padding:12px;border-bottom:1px solid #455876}
+.up{color:#53dfc2}.down{color:#ff9c91}p{line-height:1.75}button{background:#e1be78;border:0;border-radius:9px;padding:12px 20px;font:inherit;cursor:pointer}
+#notice{margin-top:14px;color:#fbd09b}
+.awards{border:1px solid #caa15e;background:linear-gradient(110deg,#142642,#283b57);padding:24px;border-radius:22px;margin-top:26px}
+.awards[hidden]{display:none}.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:12px;margin:20px 0}
+.podium>div{text-align:center;background:#2b4567;border:1px solid #b99a60;border-radius:16px;padding:25px 9px;font-size:clamp(14px,2.2vw,25px)}
+.podium>div:first-child{min-height:130px}.podium>div:nth-child(2){background:linear-gradient(#746039,#3f3951);min-height:175px}.podium>div:last-child{min-height:100px}
+.rank{font-size:clamp(19px,2.6vw,31px);padding:10px 0;border-bottom:1px solid #43516e}small{color:#c3bca5}
+</style></head><body><main><header class="hero"><p>INVEST PLAY · CLASSROOM THEATER</p><h1>시장의 선택, 우리의 투자</h1><p id="stage">화면을 준비하고 있습니다…</p><button onclick="document.documentElement.requestFullscreen?.()">전체 화면으로 발표</button></header><div id="notice"></div><section id="awards" class="awards" hidden></section><section class="grid"><div class="panel"><h2>오늘의 경제신문</h2><div id="news"></div></div><div class="panel"><h2>산업별 가격 변화</h2><div id="prices"></div></div><div class="panel"><h2>실시간 팀 순위</h2><div id="ranks"></div></div></section><footer><p>경제교육용 시뮬레이션 · 개별 뉴스 발표 직후의 실제 투자수익률과 다를 수 있습니다.</p></footer></main><script type="module" src="/present.js"></script></body></html>
