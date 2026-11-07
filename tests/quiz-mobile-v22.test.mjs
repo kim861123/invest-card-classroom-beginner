@@ -17,7 +17,7 @@ test("EASY V2.2: 퀴즈 라디오 입력이 일반 입력란의 100% 폭을 상�
   assert.match(css,/grid-template-columns:20px minmax\(0,1fr\)/);
   assert.match(css,/\.easy-quiz-choice>span\{/);
   assert.match(css,/overflow-wrap:break-word/);
-  assert.match(fs.readFileSync(path.join(dir,"public/index.html"),"utf8"),/beginner-v3.2-ui-mobile/);
+  assert.match(fs.readFileSync(path.join(dir,"public/index.html"),"utf8"),/beginner-v3.3-audio-layout/);
 });
 
 test("EASY V2.2: 미응답 학생은 발표 전 비공개, 발표 후 정답과 해설 표시",()=>{

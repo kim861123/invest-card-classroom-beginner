@@ -1,6 +1,6 @@
-const CACHE="invest-play-shell-classroom-beginner-v3.2-ui-mobile";
+const CACHE="invest-play-shell-classroom-beginner-v3.3-audio-layout";
 const STATIC=["/","/app.js","/style.css","/mobile-v32.css","/audio/notify.wav","/audio/ambient.wav",
-"/art/article-rates.webp","/art/article-energy.svg","/art/article-trade.svg",
+"/art/article-rates.webp","/art/article-geopolitics.webp","/art/article-energy.svg","/art/article-trade.svg",
 "/art/article-health.svg","/art/article-tech.svg","/art/article-banks.svg"];
 self.addEventListener("install",event=>event.waitUntil(
   caches.open(CACHE).then(async cache=>{

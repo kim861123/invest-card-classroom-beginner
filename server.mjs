@@ -746,6 +746,7 @@ function staticFile(req,res,pathname) {
     "/editorial.css":["editorial.css","text/css; charset=utf-8"],
     "/mobile-v32.css":["mobile-v32.css","text/css; charset=utf-8"],
     "/art/article-rates.webp":["art/article-rates.webp","image/webp"],
+    "/art/article-geopolitics.webp":["art/article-geopolitics.webp","image/webp"],
     "/art/article-energy.svg":["art/article-energy.svg","image/svg+xml"],
     "/art/article-trade.svg":["art/article-trade.svg","image/svg+xml"],
     "/art/article-health.svg":["art/article-health.svg","image/svg+xml"],
@@ -779,7 +780,7 @@ const server=http.createServer((req,res)=>{
     const url=new URL(req.url,`http://${req.headers.host||"localhost"}`);
     const pathname=url.pathname;
     if (req.method==="GET" && staticFile(req,res,pathname)) return;
-    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-beginner-v3.2-ui-mobile"});
+    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-beginner-v3.3-audio-layout"});
     if (pathname==="/api/state" && req.method==="GET") return send(res,200,view(req));
     if(pathname==="/api/presentation" && req.method==="GET"){
       restricted(sessionFor(req)?.role!=="teacher","발표 화면은 강사 로그인 후 이용하세요.");

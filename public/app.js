@@ -117,14 +117,14 @@ function soundTrack(kind){
   try{
     if(kind==="ambient"){
       if(!ambientAudio){
-        ambientAudio=new Audio("/audio/ambient.wav");
-        ambientAudio.preload="auto";ambientAudio.loop=true;ambientAudio.volume=.65;
+        ambientAudio=new Audio("/audio/ambient.wav?v=melody-33");
+        ambientAudio.preload="auto";ambientAudio.loop=true;ambientAudio.volume=.45;
       }
       return ambientAudio;
     }
     if(!notificationAudio){
-      notificationAudio=new Audio("/audio/notify.wav");
-      notificationAudio.preload="auto";notificationAudio.volume=.9;
+      notificationAudio=new Audio("/audio/notify.wav?v=cue-33");
+      notificationAudio.preload="auto";notificationAudio.volume=1;
     }
     return notificationAudio;
   }catch{return null;}
@@ -165,84 +165,62 @@ function playSceneCue(kind="trade"){
   const notes={trade:[520,659],reveal:[392,523,659],phase:[440,523]};
   playNotificationSound(notes[kind]||notes.trade);
 }
-function playAmbient(){
-  if(!ambientEnabled||document.hidden)return;
-  // Synthesized sound is used only if HTML audio playback is unavailable.
-  try{
-    if(!audioContext||audioContext.state!=="running")return;
-    const t=audioContext.currentTime;
-    [164.81,196,246.94].forEach(freq=>{
-      const osc=audioContext.createOscillator(),gain=audioContext.createGain();
-      osc.type="sine";osc.frequency.setValueAtTime(freq,t);
-      gain.gain.setValueAtTime(.0001,t);
-      gain.gain.linearRampToValueAtTime(.008,t+.7);
-      gain.gain.linearRampToValueAtTime(.0001,t+3.65);
-      osc.connect(gain);gain.connect(audioContext.destination);
-      osc.start(t);osc.stop(t+3.7);
-    });
-  }catch{}
-}
 function syncSoundControlText(){
   const s=document.querySelector('[data-action="toggle-timer-sound"]');
   if(s){
     s.setAttribute("aria-pressed",String(timerSoundEnabled));
-    s.innerHTML=`${ico("time",15)} 효과음 ${timerSoundEnabled?"켜짐":"꺼짐"}`;
+    s.innerHTML=`${ico("time",15)} 효과음 ${timerSoundEnabled?"켬":"끔"}`;
   }
   const b=document.querySelector('[data-action="toggle-ambient"]');
   if(b){
     b.setAttribute("aria-pressed",String(ambientEnabled));
-    b.innerHTML=`${ico("play",15)} 배경 음악 ${ambientEnabled?"켜짐":"꺼짐"}`;
+    b.innerHTML=`${ico("play",15)} 배경음악 ${ambientEnabled?"켬":"끔"}`;
   }
 }
 function setAmbient(enabled){
-  ambientEnabled=Boolean(enabled);
-  if(ambientTimer){clearInterval(ambientTimer);ambientTimer=null;}
-  if(!ambientEnabled){ambientAudio?.pause();syncSoundControlText();return;}
-  startWebAudioOnGesture(); // Must run synchronously in the button's click handler.
-  const track=soundTrack("ambient");
-  if(!track){
-    playAmbient();ambientTimer=setInterval(playAmbient,4500);return;
+  if(!enabled){
+    ambientEnabled=false;
+    if(ambientTimer){clearInterval(ambientTimer);ambientTimer=null;}
+    ambientAudio?.pause();
+    syncSoundControlText();
+    return;
   }
+  startWebAudioOnGesture(); // Direct user gesture: iOS requires a tap for media playback.
+  const track=soundTrack("ambient");
+  if(!track){ambientEnabled=false;syncSoundControlText();toast("이 기기에서 배경음악을 재생할 수 없습니다.");return;}
+  ambientEnabled=true;
   try{
+    track.currentTime=0;
     const result=track.play();
     result?.catch?.(()=>{
-      if(audioContext?.state==="running"){
-        playAmbient();ambientTimer=setInterval(playAmbient,4500);
-        toast("이 기기에서는 대체 배경음을 재생합니다.");
-      }else{
-        ambientEnabled=false;syncSoundControlText();
-        toast("배경음이 차단됐습니다. 소리 테스트 버튼을 터치하고 다시 시도하세요.");
+      if(ambientEnabled){
+        ambientEnabled=false;
+        track.pause();
+        syncSoundControlText();
+        toast("음악이 차단됐습니다. iPhone 음량·무음 모드·오디오 출력을 확인하세요.");
       }
     });
   }catch{
     ambientEnabled=false;syncSoundControlText();
-    toast("배경음을 시작하지 못했습니다. 소리 테스트를 이용해 주세요.");
+    toast("배경음악을 시작하지 못했습니다. 기기 소리 설정을 확인해 주세요.");
   }
 }
 function testAudioByTap(){
-  // The first play() must happen synchronously in the user's actual tap.
+  // Called on effect toggle, not a separate 'reconnect' UI.
   startWebAudioOnGesture();
   const track=soundTrack("notification");
   if(!track){
-    const fallback=playSynthCue([650,850]);
-    toast(fallback?"대체 시험 소리를 재생했습니다. 실제로 들리는지 확인하세요.":"오디오를 시작하지 못했습니다. 음량·무음 모드·블루투스를 확인하세요.");
+    toast("효과음 파일을 불러올 수 없습니다.");
     return;
   }
   try{
     track.pause();track.currentTime=0;
     const result=track.play();
-    Promise.resolve(result).then(()=>{
-      toast("시험 효과음 재생 요청이 수락됐습니다. 소리가 들리는지 확인하세요.");
-    }).catch(()=>{
-      const fallback=playSynthCue([650,850]);
-      toast(fallback?"기본 효과음이 차단돼 대체 소리로 재생했습니다. 들리는지 확인하세요.":"이 브라우저에서 소리 재생이 차단됐습니다. 기기 음량 및 브라우저 설정을 확인하세요.");
+    result?.catch?.(()=>{
+      if(timerSoundEnabled)toast("효과음이 차단됐습니다. 기기 음량·무음 모드·블루투스 출력을 확인해 주세요.");
     });
   }catch{
-    const fallback=playSynthCue([650,850]);
-    toast(fallback?"대체 시험 소리를 재생했습니다. 들리는지 확인하세요.":"효과음 재생에 실패했습니다. 기기 음량 및 무음 설정을 확인하세요.");
-  }
-  if(ambientEnabled && ambientAudio?.paused){
-    try{ambientAudio.play()?.catch?.(()=>{});}catch{}
+    toast("효과음을 시작하지 못했습니다. 기기 소리 설정을 확인해 주세요.");
   }
 }
 document.addEventListener("visibilitychange",()=>{
@@ -458,6 +436,7 @@ function teamLobbyPanel(g){
 function articleTopic(x){
   const title=String(x.title||"");
   const theme=String(x.learning_concept?.theme||"").toLowerCase();
+  if(/러시아|우크라이나|침공|전쟁|전면전|군사 충돌|군사작전|geopolitic/.test(title+" "+theme))return "geopolitics";
   if(/원유|유가|석유|에너지|energy/.test(title+" "+theme))return "energy";
   if(/무역|관세|공급망|컨테이너|물류|trade/.test(title+" "+theme))return "trade";
   if(/병원|바이오|제약|의료|health/.test(title+" "+theme))return "health";
@@ -477,7 +456,7 @@ function newsList(g){
   activeArticleIndex=Math.min(activeArticleIndex,Math.max(0,current.length-1));
   const renderNews=(x,i,isPast=false)=>{
     const concept=x.learning_concept;
-    const topic=articleTopic(x), image=topic==="rates"?"/art/article-rates.webp":`/art/article-${topic}.svg`;
+    const topic=articleTopic(x), image=["rates","geopolitics"].includes(topic)?`/art/article-${topic}.webp`:`/art/article-${topic}.svg`;
     const question=x.easy_question||concept?.question||x.discussion_question;
     const summary=x.easy_summary||x.fact;
     const detail=x.fact||"";
@@ -487,7 +466,8 @@ function newsList(g){
       <div class="news-readable-meta"><span>${ico("newspaper",16)} ${isPast?"지난 기사":`기사 ${i+1} / ${current.length}`}</span><time>${h(x.date)}</time></div>
       <h3 class="news-readable-title">${h(x.title)}</h3>
       <figure class="news-readable-image">
-        <img src="${image}" loading="${isPast?"lazy":"eager"}" decoding="async" alt="${h(x.title)} 주제와 관련된 ${topic==="rates"?"중앙은행 건물 이미지":"경제 설명 그림"}"/>
+        <img src="${image}" loading="${isPast?"lazy":"eager"}" decoding="async" alt="${h(x.title)} 관련 ${topic==="geopolitics"?"전쟁 상황 재현":topic==="rates"?"중앙은행":"경제 주제"} 이미지"/>
+        <figcaption>${topic==="geopolitics"?"전쟁 상황을 이해하기 위한 AI 생성 재현 이미지 · 실제 현장 사진이 아닙니다.":"기사 내용을 돕기 위한 교육용 이미지입니다."}</figcaption>
       </figure>
       <div class="news-readable-summary"><b>한 줄 요약</b><p>${h(summary)}</p></div>
       ${detail&&detail!==summary?`<div class="news-readable-body"><h4>무슨 일이 있었나요?</h4><p>${h(detail)}</p></div>`:""}
@@ -596,10 +576,10 @@ function beginnerResult(g){
     <strong class="${buyClass(x.gameModelPct)}">${pct(x.gameModelPct)}</strong></div>`;
   return `<section class="panel section easy-explain" id="easy-result-explain">
     <div class="easy-lesson-head"><span class="easy-lesson-symbol">${ico("chart",24)}</span>
-    <div><span class="eyebrow">RESULT · EASY EXPLAINER</span><h2>그림으로 보는 이번 가격 발표</h2>
+    <div><span class="eyebrow">RESULT · EASY EXPLAINER</span><h2>산업별 가격 변화 그래프</h2>
     <p>${r.year}년 ${r.stageIndex+1}차 · 쉬운 결과 해설</p></div></div>
     <div class="easy-explain-feature"><strong>이런 일이 있었어요</strong><p>${h(l.reveal.summary)}</p></div>
-    <div class="easy-result-bars"><p>이번 발표의 상승·하락 변동폭 비교</p>
+    <div class="easy-result-bars"><p>막대그래프로 비교하는 산업별 상승·하락 폭</p>
       ${makeRow(top)}${makeRow(low)}</div>
     <p class="small-note">※ 숫자는 역사적 연간 섹터 성과를 나눈 교육용 모델입니다. 위 뉴스 하나가 가격 변동을 일으켰다고 단정할 수 없습니다.</p>
   </section>`;
@@ -991,13 +971,12 @@ function statusStats(g){
     ${stat(my?"우리 팀 수익률":"현재 최고 수익률",my?pct(my.returnPct):pct(g.scores[0]?.returnPct||0),my?format(my.total)+"원 · 마지막 가격 발표 기준":g.scores[0]?.name||"대기 중",my?buyClass(my.returnPct):"")}
   </div><div class="timer-tools">
     <div class="timer-alert-bar" data-timer-alert role="status" aria-live="polite"></div>
-    <button type="button" class="timer-sound-btn" data-action="toggle-timer-sound" aria-pressed="${timerSoundEnabled}">
-      ${ico("time",15)} 효과음 ${timerSoundEnabled?"켜짐":"꺼짐"} · 클릭하여 변경
-    </button>
+    <button type="button" class="timer-sound-btn" data-action="toggle-timer-sound"
+      aria-label="효과음 켜기 또는 끄기" aria-pressed="${timerSoundEnabled}">
+      ${ico("time",15)} 효과음 ${timerSoundEnabled?"켬":"끔"}</button>
     <button type="button" class="timer-sound-btn ambient-toggle" data-action="toggle-ambient"
-      aria-pressed="${ambientEnabled}">${ico("play",15)} 배경 음악 ${ambientEnabled?"켜짐":"꺼짐"}</button>
-    <button type="button" class="timer-sound-btn" data-action="test-audio">${ico("play",15)} 소리 테스트 · 재연결</button>
-    <small class="audio-mobile-hint">스마트폰·태블릿에서는 소리 켜기 후 시험 재생이 필요합니다. 안 들리면 기기 무음·음량을 확인하세요.</small>
+      aria-label="배경음악 켜기 또는 끄기" aria-pressed="${ambientEnabled}">
+      ${ico("play",15)} 배경음악 ${ambientEnabled?"켬":"끔"}</button>
   </div>`;
 }
 function resetConfirmDialog(){
@@ -1355,7 +1334,7 @@ document.addEventListener("click",async e=>{
   if(action==="toggle-ambient"){
     setAmbient(!ambientEnabled);
     syncSoundControlText();
-    if(!ambientEnabled)toast("배경 음악을 껐습니다.");
+    if(!ambientEnabled)toast("배경음악을 껐습니다.");
     return;
   }
   if(action==="toggle-timer-sound"){
@@ -1363,10 +1342,6 @@ document.addEventListener("click",async e=>{
     if(timerSoundEnabled) testAudioByTap(); // unlock + immediate audible test on iPhone/iPad
     else toast("효과음을 껐습니다.");
     syncSoundControlText();
-    return;
-  }
-  if(action==="test-audio"){
-    testAudioByTap(); // also resumes sound after returning from another app/tab
     return;
   }
   if(action==="trade-card"){

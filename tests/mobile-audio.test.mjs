@@ -20,10 +20,10 @@ test("휴대기기용 효과음·배경음 WAV가 실제로 존재하고 서버�
   assert.match(server,/\/audio\/ambient\.wav/);
   assert.match(server,/audio\/wav/);
 });
-test("효과음 버튼의 탭에서 즉시 테스트 재생하며 재연결 버튼이 있다",()=>{
+test("효과음 버튼에서 즉시 확인음을 재생하고 별도 재연결 버튼은 없다",()=>{
   assert.match(js,/if\(action==="toggle-timer-sound"\)[\s\S]*?testAudioByTap\(\)/);
-  assert.match(js,/data-action="test-audio"/);
-  assert.match(js,/if\(action==="test-audio"\)[\s\S]*?testAudioByTap\(\)/);
+  assert.doesNotMatch(js,/data-action="test-audio"/);
+  assert.match(js,/data-action="toggle-ambient"/);
   assert.match(js,/function playNotificationSound/);
 });
 test("휴대기기 터치 시 오디오 시작과 시험 재생이 실행된다",()=>{
