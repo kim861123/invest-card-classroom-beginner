@@ -56,3 +56,8 @@ Windows에서는 `.env.example` 파일을 복사하여 이름을 `.env`로 바�
 ## 주의
 실제 다수 기기 동시 접속, Render 휴면에서 깨어나는 지연, 휴대전화별 브라우저 UI는 배포 후 별도로 확인해야 합니다.
 비밀번호와 Supabase 비밀 키를 GitHub에 올리지 마세요.
+
+
+## 최신 UX 개선 버전
+EASY V3.1 · classroom-beginner-v3.1-lesson-presentation
+자세한 배포 및 변경 내용은 `UPGRADE_EASY_V3_1_KR.md` 참고.
