@@ -519,26 +519,57 @@ function teamLobbyPanel(g){
  </section>`;
 }
 
+// V3.5.6 / V9.5.6: 기사별 대표 이미지 우선 매칭.
+// 정확한 기사 제목·기사 데이터의 image_topic 값이 우선하며,
+// 미분류 기사는 관세/무역으로 오분류하지 않고 중립 시장 사진을 사용합니다.
+const ARTICLE_IMAGE_KEYS=new Set([
+  "rates","geopolitics","energy","trade","health","tech",
+  "inflation-rise","inflation-cool","banks","midterm-stocks","market"
+]);
+const ARTICLE_IMAGE_BY_ID=Object.freeze({
+  // 뉴스 원본 JSON에 고유 id가 확인되면 여기에 "기사ID": "이미지키"를 추가합니다.
+});
+const ARTICLE_IMAGE_BY_TITLE=Object.freeze({
+  "미국중간선거이후미국증시반등":"midterm-stocks",
+  "미국중간선거이후증시반등":"midterm-stocks",
+  "미국중간선거후미국증시반등":"midterm-stocks",
+  "미국중간선거후증시반등":"midterm-stocks",
+  "who코로나19국제공중보건비상사태종료":"health",
+  "미실리콘밸리은행svb폐쇄":"banks",
+  "미국실리콘밸리은행svb폐쇄":"banks"
+});
+function normalizedArticleTitle(value){
+  return String(value||"").normalize("NFKC")
+    .replace(/[\s\p{P}\p{S}]/gu,"").toLowerCase();
+}
 function articleTopic(x){
-  // 사건 고유명사를 먼저 판단한다. 개념 키워드가 기사 주제를 덮어쓰지 않도록 한다.
-  const title=String(x.title||"");
-  const theme=String(x.learning_concept?.theme||"");
-  if(/소비자물가|물가상승|물가 상승|인플레이션|CPI/i.test(title)){
-    return /둔화|완화|진정|하락|안정|낮아|꺾|내려/.test(title)?"inflation-cool":"inflation-rise";
+  const id=String(x?.id||"");
+  const explicit=String(x?.image_topic||x?.image_key||"");
+  if(ARTICLE_IMAGE_KEYS.has(explicit))return explicit;
+  if(ARTICLE_IMAGE_KEYS.has(ARTICLE_IMAGE_BY_ID[id]))return ARTICLE_IMAGE_BY_ID[id];
+  const title=String(x?.title||"");
+  const normalized=normalizedArticleTitle(title);
+  if(ARTICLE_IMAGE_KEYS.has(ARTICLE_IMAGE_BY_TITLE[normalized]))return ARTICLE_IMAGE_BY_TITLE[normalized];
+  const theme=String(x?.learning_concept?.theme||"");
+  // 사건을 정확하게 인식한 뒤 일반 주제 키워드를 검사합니다.
+  if(/중간\s*선거|중간선거|midterm/i.test(title) && /증시|주식|주가|월가|주식시장|지수|반등|급등/i.test(title))return "midterm-stocks";
+  if(/소비자물가|물가상승|물가 상승|인플레이션|CPI|물가상승률/i.test(title)){
+    return /둔화|완화|진정|하락|안정|낮아|꺾|내려|하향|감속|내림|정점/i.test(title)?"inflation-cool":"inflation-rise";
   }
-  if(/WHO|세계보건기구|코로나19|팬데믹|비상사태|보건/i.test(title))return "health";
+  if(/WHO|세계보건기구|코로나19|팬데믹|비상사태|보건|감염병/i.test(title))return "health";
   if(/실리콘밸리|SVB|은행 폐쇄|뱅크런|은행 파산|은행 위기/i.test(title))return "banks";
   if(/러시아|우크라이나|침공|전쟁|전면전|군사 충돌|군사작전/i.test(title))return "geopolitics";
-  if(/원유|유가|석유|정유|천연가스|에너지/i.test(title))return "energy";
-  if(/무역|관세|공급망|컨테이너|물류|해운|항만/i.test(title))return "trade";
-  if(/반도체|인공지능|인공 지능|기술주|빅테크|IT 업종|데이터센터/i.test(title))return "tech";
+  if(/증시|주식시장|주가지수|주가 반등|주가 급등|나스닥|다우지수|S&P|월가|stock market/i.test(title))return "market";
+  if(/원유|유가|석유|정유|천연가스|OPEC|WTI|에너지/i.test(title))return "energy";
+  if(/무역|관세|수입품|수출입|공급망|컨테이너|물류|해운|항만/i.test(title))return "trade";
+  if(/반도체|인공지능|인공 지능|생성형\s*AI|AI\s*투자|AI\s*반도체|기술주|빅테크|IT 업종|데이터센터|엔비디아/i.test(title))return "tech";
   if(/연준|금리|긴축|통화|테이퍼링|자산매입|중앙은행/i.test(title))return "rates";
   if(/은행|금융위기|bank/i.test(title+" "+theme))return "banks";
   if(/유가|석유|에너지|energy/i.test(theme))return "energy";
   if(/바이오|제약|의료|health/i.test(theme))return "health";
-  if(/기술|반도체|tech/i.test(theme))return "tech";
+  if(/기술|반도체|tech|AI/i.test(theme))return "tech";
   if(/금리|긴축|연준|rates/i.test(theme))return "rates";
-  return "trade";
+  return "market";
 }
 function articleMainTopic(x){
   return articleTopic(x).replace(/^inflation-(rise|cool)$/,"inflation");
@@ -616,7 +647,7 @@ function newsList(g){
   activeArticleIndex=Math.min(activeArticleIndex,Math.max(0,current.length-1));
   const renderNews=(x,i,isPast=false)=>{
     const concept=x.learning_concept;
-    const topic=articleTopic(x), imageBase=`/art/article-${topic}`, image=`${imageBase}.webp?v=photo-v353`;
+    const topic=articleTopic(x), imageBase=`/art/article-${topic}`, image=`${imageBase}.webp?v=photo-v356`;
     const question=x.easy_question||concept?.question||x.discussion_question;
     const summary=x.easy_summary||x.fact;
     const detail=x.fact||"";
@@ -625,9 +656,9 @@ function newsList(g){
     return `<article id="news-${h(x.id)}" class="news-card news-readable ${isPast?"news-past":"news-current"}" ${isPast?"":'data-current-news="true"'}>
       <div class="news-readable-meta"><span>${ico("newspaper",16)} ${isPast?"지난 뉴스":"시장 뉴스"}</span><time>${h(x.date)}</time></div>
       <h3 class="news-readable-title">${h(x.title)}</h3>
-      <figure class="news-readable-image">
-        <img src="${image}" srcset="${imageBase}-640.webp?v=photo-v353 640w, ${imageBase}-1200.webp?v=photo-v353 1200w, ${imageBase}.webp?v=photo-v353 1600w" sizes="(max-width:480px) calc(100vw - 64px), (max-width:900px) 85vw, 740px" width="1600" height="900" loading="${isPast?"lazy":"eager"}" fetchpriority="${isPast?"low":"high"}" decoding="async" alt="${h(x.title)} 관련 ${topic==="geopolitics"?"전쟁 상황 재현":topic==="rates"?"중앙은행":"경제 주제"} 이미지"/>
-        <figcaption>${topic.startsWith("inflation")?"물가 흐름을 설명하는 교육용 합성 이미지 · 실제 통계 그래프가 아닙니다.":"기사 이해를 위한 AI 생성 재현 이미지 · 실제 현장 사진이 아닙니다."}</figcaption>
+      <figure class="news-readable-image" data-image-topic="${topic}">
+        <img src="${image}" srcset="${imageBase}-640.webp?v=photo-v356 640w, ${imageBase}-1200.webp?v=photo-v356 1200w, ${imageBase}.webp?v=photo-v356 1600w" sizes="(max-width:480px) calc(100vw - 64px), (max-width:900px) 85vw, 740px" width="1600" height="900" loading="${isPast?"lazy":"eager"}" fetchpriority="${isPast?"low":"high"}" decoding="async" alt="${h(x.title)} 관련 ${topic==="geopolitics"?"전쟁 상황 재현":topic==="rates"?"중앙은행":"경제 주제"} 이미지"/>
+        <figcaption>${topic.startsWith("inflation")?"물가 흐름을 설명하는 AI 생성 이미지 · 실제 통계 그래프가 아니며, 상승률 둔화는 물가 하락과 다릅니다.":topic==="market"?"경제 시장을 표현한 일반 AI 생성 이미지 · 사건 현장 사진이 아닙니다.":"기사 이해를 위한 AI 생성 재현 이미지 · 실제 현장 사진이 아닙니다."}</figcaption>
       </figure>
       <div class="news-readable-summary"><b>한 줄 요약</b><p>${h(summary)}</p></div>
       ${!isPast?articleHistoricalNote(x,g):""}
@@ -1169,7 +1200,7 @@ function illustratedStage(g){
       <span class="illustrated-eyebrow">${eyebrow}</span>
       <h2>${title}</h2>
       <p>${description}</p>
-      <div class="illustrated-stage-metadata"><span>${g.room.year}년 ${g.room.stage}차 뉴스</span><span>진행 ${((g.room.round-1)*2+g.room.stage)} / ${g.room.totalRounds*2}단계</span></div>
+      <div class="illustrated-stage-metadata"><span>${g.room.year}년 ${g.room.stage}차 뉴스</span><span>진행 ${g.room.phase==="finished"?g.room.totalRounds*2:Math.max(0,Math.min(g.room.totalRounds*2,(g.room.round-1)*2+g.room.stage))} / ${g.room.totalRounds*2}단계</span></div>
        <div class="stage-flow" aria-label="진행 과정">
          <span class="${phase==="news"?"current":phase==="lobby"?"":"done"}">01 뉴스 분석</span>
          <i></i><span class="${phase==="trade"?"current":["result","finished"].includes(phase)?"done":""}">02 카드 교환</span>
@@ -1182,7 +1213,7 @@ function statusStats(g){
   const r=g.room;
   const my=g.team;
   return `<div class="stat-grid">
-    ${stat("현재 턴",`${r.round} / ${r.totalRounds}`,`${r.year}년 ${r.stage}단계`)}
+    ${stat(r.phase==="finished"?"최종 턴":"현재 턴",r.phase==="finished"?`${r.totalRounds} / ${r.totalRounds}`:`${r.round} / ${r.totalRounds}`,r.phase==="finished"?`전체 ${r.totalRounds*2}단계 완료`:`${r.year}년 ${r.stage}단계`)}
     ${stat("남은 시간","<span data-countdown>"+countdown(g)+"</span>",phaseText[r.phase])}
     ${stat("참가팀",`${r.teamCount}팀`,"실시간 동기화")}
     ${stat(my?"우리 팀 수익률":"현재 최고 수익률",my?pct(my.returnPct):pct(g.scores[0]?.returnPct||0),my?format(my.total)+"원 · 마지막 가격 발표 기준":g.scores[0]?.name||"대기 중",my?buyClass(my.returnPct):"")}
@@ -1345,36 +1376,50 @@ function relationMap(g){
 // Final standings are read from the server score board; never recompute rank locally.
 function finalPodium(g){
   if(g?.room?.phase!=="finished")return "";
-  const scores=(g.scores||[]).filter(x=>x&&Number.isFinite(Number(x.rank)))
+  const scores=(g.scores||[])
+    .filter(x=>x && Number.isFinite(Number(x.rank)))
     .slice().sort((a,b)=>Number(a.rank)-Number(b.rank)||Number(b.total||0)-Number(a.total||0));
-  const podium=scores.slice(0,3);
+  const top=scores.slice(0,3);
+  // Do not show an empty bronze podium when only two teams participated.
+  const order=top.length===1?[1]:top.length===2?[2,1]:[2,1,3];
+  const medal={1:"🥇",2:"🥈",3:"🥉"};
+  const title={1:"투자 챔피언",2:"준우승",3:"3위 수상"};
   const podiumSlot=(rank)=>{
-    const x=podium.find(item=>Number(item.rank)===rank);
-    if(!x)return `<div class="final-podium-slot empty-slot" aria-hidden="true"></div>`;
+    const x=top.find(item=>Number(item.rank)===rank);
+    if(!x)return "";
     const mine=Boolean(g.team&&x.id===g.team.id);
     return `<article class="final-podium-slot rank-${rank} ${mine?"is-mine":""}" aria-label="${rank}위 ${h(x.name)}">
-      <div class="podium-medal">${rank===1?"🥇":rank===2?"🥈":"🥉"}</div>
+      <span class="podium-ribbon">${h(title[rank])}</span>
+      <div class="podium-medal" aria-hidden="true">${medal[rank]}</div>
       <strong class="podium-team">${h(x.name)}${mine?` <span class="podium-me">우리 팀</span>`:""}</strong>
+      <span class="podium-score-label">최종 수익률</span>
       <span class="podium-return ${buyClass(x.returnPct)}">${pct(x.returnPct)}</span>
-      <div class="podium-step"><span>${rank}위</span></div>
+      <div class="podium-step"><span>${rank}<small>위</small></span></div>
     </article>`;
   };
   const mine=scores.find(x=>g.team&&x.id===g.team.id);
-  return `<section class="panel final-awards" id="final-awards" aria-labelledby="final-awards-title">
+  const winner=scores.find(x=>Number(x.rank)===1);
+  const maxStages=Number(g.room.totalRounds||0)*2;
+  return `<section class="panel final-awards final-awards-v355" id="final-awards" aria-labelledby="final-awards-title">
     <div class="final-awards-heading">
-      <span class="final-awards-kicker">${ico("trophy",20)} 게임 종료 · 최종 시상식</span>
+      <span class="final-awards-kicker">${ico("trophy",20)} GAME COMPLETE · 최종 시상식</span>
       <h2 id="final-awards-title">우리들의 투자 올림픽</h2>
-      <p>최종 평가자산 기준 순위입니다. 교환 전략과 시장 변화를 함께 돌아보세요.</p>
+      <p>경제 뉴스와 카드 교환으로 완성한 우리 반의 투자 기록</p>
+      <div class="final-awards-facts">
+        <span>참가 <b>${scores.length}팀</b></span>
+        <span>전체 <b>${maxStages}단계 완료</b></span>
+        ${winner?`<span>우승 <b>${h(winner.name)}</b></span>`:""}
+      </div>
     </div>
-    ${podium.length?`<div class="final-podium" role="group" aria-label="최종 상위 3개 팀 시상대">
-      ${podiumSlot(2)}${podiumSlot(1)}${podiumSlot(3)}
+    ${top.length?`<div class="final-podium count-${top.length}" role="group" aria-label="최종 상위 ${top.length}개 팀 시상대">
+      ${order.map(podiumSlot).join("")}
     </div>`:`<p class="final-no-scores">최종 순위 집계 결과를 기다리고 있습니다.</p>`}
     ${mine?`<div class="final-my-team">
-      <span>${ico("target",18)} 우리 팀 최종 기록</span>
-      <strong>${h(mine.name)} · ${h(mine.rank)}위 · ${pct(mine.returnPct)}</strong>
-      <small>최종 평가자산 ${format(mine.total)}원</small>
+      <span>${ico("target",18)} 우리 팀의 최종 성적</span>
+      <strong>${h(mine.name)} <em>${h(mine.rank)}위 / ${scores.length}팀</em></strong>
+      <div class="final-my-team-numbers"><b class="${buyClass(mine.returnPct)}">${pct(mine.returnPct)}</b><span>평가자산 ${format(mine.total)}원</span></div>
     </div>`:""}
-    <p class="final-awards-footnote">동점은 서버의 공식 순위 기준을 따릅니다. 아래에서 산업별 가격 변화와 교환 성과를 확인할 수 있습니다.</p>
+    <p class="final-awards-footnote">서버 확정 순위를 표시합니다. 아래에서 산업별 가격 변화와 카드 교환 성과를 살펴보세요.</p>
   </section>`;
 }
 

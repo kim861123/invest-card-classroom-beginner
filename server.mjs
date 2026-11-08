@@ -45,8 +45,8 @@ const lessonConcepts = JSON.parse(fs.readFileSync(path.join(__dirname,"data/news
 // EASY V2 lesson content is server-only: quiz answer and reveal are never sent before allowed.
 const beginnerLessons = JSON.parse(fs.readFileSync(path.join(__dirname, "data/beginner_lessons.json"), "utf8")).lessons;
 const lessonMap = new Map(beginnerLessons.map(x=>[`${x.year}:${x.stage}`,x]));
-function currentLesson() { return lessonMap.get(`${currentYear()}:${state.stageIndex+1}`) || null; }
-function lessonKey() { return `${currentYear()}-${state.stageIndex+1}`; }
+function currentLesson() { return lessonMap.get(`${currentYear()}:${publicStage()}`) || null; }
+function lessonKey() { return `${currentYear()}-${publicStage()}`; }
 const actualSource = JSON.parse(fs.readFileSync(path.join(__dirname, "data/sector_returns_2019_2026.json"), "utf8"));
 const stagesSource = JSON.parse(fs.readFileSync(path.join(__dirname, "data/sector_game_stage_returns_2019_2026.json"), "utf8")).records;
 // 초급 모드는 경제 흐름이 뚜렷한 4개 연도만 사용합니다.
@@ -192,7 +192,16 @@ function nameKey(value) {
 function isTakenName(name, exceptId=null) {
   return state.participants.some(p => p.id!==exceptId && nameKey(p.name) === nameKey(name));
 }
-function currentYear() { return YEARS[state.yearIndex] || YEARS[0]; }
+// The last saved index from old builds may equal YEARS.length at game end.
+function currentYear() {
+  return YEARS[Math.min(YEARS.length-1,Math.max(0,Number(state.yearIndex)||0))];
+}
+function publicRound() {
+  return Math.min(YEARS.length,Math.max(1,(Number(state.yearIndex)||0)+1));
+}
+function publicStage() {
+  return state.phase==="finished" ? 2 : Math.min(2,Math.max(1,(Number(state.stageIndex)||0)+1));
+}
 function currentStageReturn(id) {
   const row=stageMap.get(`${currentYear()}:${id}`);
   return state.stageIndex === 0 ? row?.news_1_and_2_model_pct : row?.news_3_and_4_model_pct;
@@ -400,7 +409,7 @@ function view(req) {
       practiceDone:Boolean(team.practiceDone),
       practiceReceipt:team.practiceReceipt||null} : null,
     room: {phase:state.phase,pausedFrom:state.pausedFrom,
-      year:currentYear(),stage:state.stageIndex+1,round:state.yearIndex+1,totalRounds:YEARS.length,
+      year:currentYear(),stage:publicStage(),round:publicRound(),totalRounds:YEARS.length,
       deadline:state.deadline,secondsRemaining:state.secondsRemaining,
       teamCount:state.participants.length,undrawnTeams:state.phase==="lobby"?state.participants.filter(p=>!p.drawMode).length:0,config:state.config,
       ...(role==="teacher"?{pin:state.pin,
@@ -442,7 +451,7 @@ function view(req) {
         teamId:p.id,teamName:p.name,report:finalTradeReport(p)
       }))}:{}),
       teacherBrief: newsSource.events.filter(ev=>ev.year===currentYear() &&
-        (state.stageIndex===0?Number(ev.id.slice(-2))<=2:Number(ev.id.slice(-2))>2)).map(ev=>eventView(ev,true))
+        (publicStage()===1?Number(ev.id.slice(-2))<=2:Number(ev.id.slice(-2))>2)).map(ev=>eventView(ev,true))
     }:{}),
     priceHistory:state.priceHistory,
     recentTrades:role!=="guest" ? state.completedTrades.slice(-15).reverse() : [],
@@ -480,7 +489,7 @@ function reportData(){
 function projectorData(){
  const latest=state.results.at(-1);
  return {
-  room:{phase:state.phase,year:currentYear(),stage:state.stageIndex+1,
+  room:{phase:state.phase,year:currentYear(),stage:publicStage(),
     teamCount:state.participants.length,deadline:state.deadline,totalRounds:YEARS.length},
   news:currentlyVisibleNews("team").filter(x=>x.year===currentYear() &&
     Number(x.id.split("-").at(-1))>(state.stageIndex===0?0:2)),
@@ -538,11 +547,18 @@ function start() {
 }
 function next() {
   bad(state.phase!=="result","결과 해설 화면에서만 다음 단계로 진행할 수 있습니다.");
+  // Last reveal is the last game step: do not increment into a non-existent round.
+  // Previous versions advanced yearIndex to YEARS.length, producing 17/16 and 9/8.
+  if (state.stageIndex===1 && state.yearIndex>=YEARS.length-1) {
+    state.yearIndex=YEARS.length-1;
+    state.stageIndex=1;
+    state.phase="finished";
+    state.deadline=null;
+    return;
+  }
   if (state.stageIndex===0) state.stageIndex=1;
   else {state.stageIndex=0;state.yearIndex++; }
-  if (state.yearIndex>=YEARS.length) {
-    state.phase="finished";state.deadline=null;
-  } else beginNews();
+  beginNews();
 }
 function pause() {
   bad(!["news","trade"].includes(state.phase),"진행 중에만 일시정지할 수 있습니다.");
@@ -736,7 +752,7 @@ function staticFile(req,res,pathname) {
     }
   }
   // V3.5.3: responsive news images; exact whitelist prevents arbitrary file access.
-  if (/^\/art\/article-(rates|geopolitics|energy|trade|health|tech|inflation-rise|inflation-cool|banks)-(640|1200)\.webp$/.test(pathname)) {
+  if (/^\/art\/article-(rates|geopolitics|energy|trade|health|tech|inflation-rise|inflation-cool|banks|midterm-stocks|market)-(640|1200)\.webp$/.test(pathname)) {
     const file=path.join(__dirname,"public",pathname.slice(1));
     if(!fs.existsSync(file)) return false;
     res.writeHead(200,{"Content-Type":"image/webp","Cache-Control":"public, max-age=86400"});
@@ -768,6 +784,8 @@ function staticFile(req,res,pathname) {
     "/art/article-inflation-rise.webp":["art/article-inflation-rise.webp","image/webp"],
     "/art/article-inflation-cool.webp":["art/article-inflation-cool.webp","image/webp"],
     "/art/article-banks.webp":["art/article-banks.webp","image/webp"],
+    "/art/article-midterm-stocks.webp":["art/article-midterm-stocks.webp","image/webp"],
+    "/art/article-market.webp":["art/article-market.webp","image/webp"],
     "/app.js":["app.js","text/javascript; charset=utf-8"],
     "/style.css":["style.css","text/css; charset=utf-8"],
     "/manifest.webmanifest":["manifest.webmanifest","application/manifest+json"],
@@ -798,7 +816,7 @@ const server=http.createServer((req,res)=>{
     const url=new URL(req.url,`http://${req.headers.host||"localhost"}`);
     const pathname=url.pathname;
     if (req.method==="GET" && staticFile(req,res,pathname)) return;
-    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"invest-play-easy-v3.5.3-newsimages"});
+    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"invest-play-easy-v3.5.6-news-photo-match"});
     if (pathname==="/api/state" && req.method==="GET") return send(res,200,view(req));
     if(pathname==="/api/presentation" && req.method==="GET"){
       restricted(sessionFor(req)?.role!=="teacher","발표 화면은 강사 로그인 후 이용하세요.");

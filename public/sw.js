@@ -1,4 +1,4 @@
-const CACHE="invest-play-shell-easy-v3.5.4-images";
+const CACHE="invest-play-shell-easy-v3.5.6-images";
 const STATIC=["/","/app.js","/style.css","/mobile-v32.css","/mobile-v35.css",
  "/audio/notify.mp3","/audio/ambient.mp3"];
  // 뉴스 이미지는 기사 열람 시 필요한 크기만 요청합니다. 전 종류 사전 다운로드 금지.

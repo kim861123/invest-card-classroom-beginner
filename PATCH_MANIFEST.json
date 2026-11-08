@@ -1,7 +1,7 @@
 {
   "project": "INVEST PLAY",
-  "release": "EASY V3.5.4",
-  "based_on": "EASY V3.5.3",
+  "release": "EASY V3.5.6",
+  "based_on": "EASY V3.5.5",
   "format": "GitHub overwrite patch",
   "rollback": "Restore previous patch if live deployment fails",
   "changes": [
@@ -12,7 +12,16 @@
     "read-only news topic/rate overrepresentation audit tool",
     "remove duplicated per-sector return listing in turn replay; retain main sector bar chart and expandable detailed table",
     "rename lower replay panel to 턴별 카드 교환 성과; retain per-turn card-trade results and impact analysis",
-    "refresh app and service-worker cache version"
+    "refresh app and service-worker cache version",
+    "Fix off-by-one extra turn display: final server transition stays at last year/second stage",
+    "Normalize presentation values from legacy saved finished sessions (17/16 becomes 16/16; 9/8 becomes 8/8)",
+    "Replace final podium with responsive elevated ceremony including distinct medal positions, team returns and honest two-team layout",
+    "Keep the existing server ranking and all trading/price records; no new trading step",
+    "Replaced four weak article images with new original AI-generated high-detail scenes: WHO, rising CPI, disinflation, AI semiconductor",
+    "Added U.S. midterm stock market rebound article-specific image and explicit matching",
+    "Prevent unrelated article fallback to tariff/shipping image, use general financial market instead",
+    "Responsive 1600/1200/640 WebP files and photo-v356 cache-busting; original uploaded news JSON still needed for full ID-based review",
+    "New image matching regression tests and source JSON audit tool"
   ],
   "limitations": [
     "actual historical news data not supplied: headlines, count, rate weight, quizzes, stage returns unchanged",
@@ -20,6 +29,10 @@
     "no live Render deployment or physical mobile device verification",
     "existing V3.5.2 mobile audio test failure remains and is outside this patch scope",
     "Render live server and physical iPhone/iPad were not verified for this replay-only change",
-    "No pricing calculation, trade functionality or historical data was changed"
-  ]
+    "No pricing calculation, trade functionality or historical data was changed",
+    "Existing deployed/DB saved sessions are normalized in UI, not rewritten or reset",
+    "No full database-backed integration test without original data/storage.mjs",
+    "Live Render server and physical Safari not verified"
+  ],
+  "verification": "New image tests 8/8 passed, node syntax passed; full server integration unavailable without original storage/database/news source."
 }
