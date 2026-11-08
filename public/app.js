@@ -534,6 +534,9 @@ const ARTICLE_IMAGE_BY_TITLE=Object.freeze({
   "미국중간선거이후증시반등":"midterm-stocks",
   "미국중간선거후미국증시반등":"midterm-stocks",
   "미국중간선거후증시반등":"midterm-stocks",
+  "미국중간선거이후미국증시반등기사":"midterm-stocks",
+  "미국중간선거이후뉴욕증시반등":"midterm-stocks",
+  "미국중간선거후뉴욕증시반등":"midterm-stocks",
   "who코로나19국제공중보건비상사태종료":"health",
   "미실리콘밸리은행svb폐쇄":"banks",
   "미국실리콘밸리은행svb폐쇄":"banks"
@@ -545,11 +548,24 @@ function normalizedArticleTitle(value){
 function articleTopic(x){
   const id=String(x?.id||"");
   const explicit=String(x?.image_topic||x?.image_key||"");
-  if(ARTICLE_IMAGE_KEYS.has(explicit))return explicit;
-  if(ARTICLE_IMAGE_KEYS.has(ARTICLE_IMAGE_BY_ID[id]))return ARTICLE_IMAGE_BY_ID[id];
   const title=String(x?.title||"");
   const normalized=normalizedArticleTitle(title);
+  // 대표 이미지 선택 시 본문·교육 주제보다 실제 기사 제목과 사건을 우선합니다.
+  // 데이터에 과거 image_topic='trade'가 남아 있어도 주식시장 기사에 선박을 띄우지 않습니다.
+  const semanticTitle=title.replace(/美(?=\s*증시|\s*주가|\s*중간선거)/g,"미국");
+  // 실제 기사 사건을 먼저 확인합니다. 이전 데이터의 오래된 image_topic=trade보다 우선합니다.
   if(ARTICLE_IMAGE_KEYS.has(ARTICLE_IMAGE_BY_TITLE[normalized]))return ARTICLE_IMAGE_BY_TITLE[normalized];
+  // "미국 중간선거 후 증시 반등"처럼 어순이 다른 기사도 주식시장으로 고정합니다.
+  if(/중간\s*선거|midterm/i.test(semanticTitle) &&
+     /증시|주식|주가|월가|주식시장|지수|반등|상승/i.test(semanticTitle))return "midterm-stocks";
+  if(/소비자물가|물가상승|물가 상승|인플레이션|CPI|물가상승률/i.test(title)){
+    return /둔화|완화|진정|안정|낮아|꺾|내려|하향|감속|내림|정점/i.test(title)?"inflation-cool":"inflation-rise";
+  }
+  if(/WHO|세계보건기구|코로나19|팬데믹|비상사태.*(종료|해제)|보건 비상/i.test(title))return "health";
+  if(/AI|인공지능|인공 지능|생성형|반도체|엔비디아|데이터센터/i.test(title) &&
+     /반도체|AI|인공지능|생성형|엔비디아|데이터센터/i.test(title))return "tech";
+  if(ARTICLE_IMAGE_KEYS.has(ARTICLE_IMAGE_BY_ID[id]))return ARTICLE_IMAGE_BY_ID[id];
+  if(ARTICLE_IMAGE_KEYS.has(explicit))return explicit;
   const theme=String(x?.learning_concept?.theme||"");
   // 사건을 정확하게 인식한 뒤 일반 주제 키워드를 검사합니다.
   if(/중간\s*선거|중간선거|midterm/i.test(title) && /증시|주식|주가|월가|주식시장|지수|반등|급등/i.test(title))return "midterm-stocks";
@@ -647,7 +663,7 @@ function newsList(g){
   activeArticleIndex=Math.min(activeArticleIndex,Math.max(0,current.length-1));
   const renderNews=(x,i,isPast=false)=>{
     const concept=x.learning_concept;
-    const topic=articleTopic(x), imageBase=`/art/article-${topic}`, image=`${imageBase}.webp?v=photo-v356`;
+    const topic=articleTopic(x), imageBase=`/art/article-${topic}`, image=`${imageBase}.webp?v=photo-v358`;
     const question=x.easy_question||concept?.question||x.discussion_question;
     const summary=x.easy_summary||x.fact;
     const detail=x.fact||"";
@@ -657,7 +673,7 @@ function newsList(g){
       <div class="news-readable-meta"><span>${ico("newspaper",16)} ${isPast?"지난 뉴스":"시장 뉴스"}</span><time>${h(x.date)}</time></div>
       <h3 class="news-readable-title">${h(x.title)}</h3>
       <figure class="news-readable-image" data-image-topic="${topic}">
-        <img src="${image}" srcset="${imageBase}-640.webp?v=photo-v356 640w, ${imageBase}-1200.webp?v=photo-v356 1200w, ${imageBase}.webp?v=photo-v356 1600w" sizes="(max-width:480px) calc(100vw - 64px), (max-width:900px) 85vw, 740px" width="1600" height="900" loading="${isPast?"lazy":"eager"}" fetchpriority="${isPast?"low":"high"}" decoding="async" alt="${h(x.title)} 관련 ${topic==="geopolitics"?"전쟁 상황 재현":topic==="rates"?"중앙은행":"경제 주제"} 이미지"/>
+        <img src="${image}" srcset="${imageBase}-640.webp?v=photo-v358 640w, ${imageBase}-1200.webp?v=photo-v358 1200w, ${imageBase}.webp?v=photo-v358 1600w" sizes="(max-width:480px) calc(100vw - 64px), (max-width:900px) 85vw, 740px" width="1600" height="900" loading="${isPast?"lazy":"eager"}" fetchpriority="${isPast?"low":"high"}" decoding="async" alt="${h(x.title)} 관련 ${topic==="geopolitics"?"전쟁 상황 재현":topic==="rates"?"중앙은행":"경제 주제"} 이미지"/>
         <figcaption>${topic.startsWith("inflation")?"물가 흐름을 설명하는 AI 생성 이미지 · 실제 통계 그래프가 아니며, 상승률 둔화는 물가 하락과 다릅니다.":topic==="market"?"경제 시장을 표현한 일반 AI 생성 이미지 · 사건 현장 사진이 아닙니다.":"기사 이해를 위한 AI 생성 재현 이미지 · 실제 현장 사진이 아닙니다."}</figcaption>
       </figure>
       <div class="news-readable-summary"><b>한 줄 요약</b><p>${h(summary)}</p></div>

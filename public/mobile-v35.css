@@ -317,3 +317,8 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 @media(prefers-reduced-motion:reduce){
   .final-awards-v355 *{animation:none!important;transition:none!important}
 }
+
+/* V3.5.7: 고해상도 사진을 Safari에서도 확대 없이 선명하게 표시 */
+.news-readable-image{width:100%;max-width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:14px}
+.news-readable-image>img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;image-rendering:auto}
+.news-readable-image>figcaption{font-size:11px;line-height:1.45}

@@ -1,7 +1,7 @@
 {
   "project": "INVEST PLAY",
-  "release": "EASY V3.5.6",
-  "based_on": "EASY V3.5.5",
+  "release": "비기너 V3.5.8",
+  "based_on": "비기너 V3.5.7",
   "format": "GitHub overwrite patch",
   "rollback": "Restore previous patch if live deployment fails",
   "changes": [
@@ -21,7 +21,9 @@
     "Added U.S. midterm stock market rebound article-specific image and explicit matching",
     "Prevent unrelated article fallback to tariff/shipping image, use general financial market instead",
     "Responsive 1600/1200/640 WebP files and photo-v356 cache-busting; original uploaded news JSON still needed for full ID-based review",
-    "New image matching regression tests and source JSON audit tool"
+    "New image matching regression tests and source JSON audit tool",
+    "Confirmed actual full-resolution WebP image files and repaired stale trade-tag override for midterm stock rebound headlines",
+    "Updated browser cache versions and added separate event-mapping tests, including 美 shorthand"
   ],
   "limitations": [
     "actual historical news data not supplied: headlines, count, rate weight, quizzes, stage returns unchanged",
@@ -32,7 +34,10 @@
     "No pricing calculation, trade functionality or historical data was changed",
     "Existing deployed/DB saved sessions are normalized in UI, not rewritten or reset",
     "No full database-backed integration test without original data/storage.mjs",
-    "Live Render server and physical Safari not verified"
+    "Live Render server and physical Safari not verified",
+    "Original news JSON unavailable; cannot certify all article IDs or live Render display."
   ],
-  "verification": "New image tests 8/8 passed, node syntax passed; full server integration unavailable without original storage/database/news source."
+  "verification": "New V3.5.8 article-matching tests 6/6 passed, JS syntax passed. Production Safari/Render deployment not verified.",
+  "image_quality_hotfix": "v3.5.8",
+  "note": "Previous patch reverified with actual image assets. Image sources reused, not all regenerated."
 }
