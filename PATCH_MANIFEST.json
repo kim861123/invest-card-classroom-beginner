@@ -1,7 +1,7 @@
 {
-  "patch_version": "EASY V3.4",
-  "applies_over": "EASY V3.3",
-  "changes": "기사 시점·뉴스 관계·CPI 판단 질문, 이미지 선택·7종 보강, 모바일 기사 UI 정리, 캐시 갱신",
-  "limitations": "원본 data/historical_news_2019_2026.json 미포함. 뉴스 원문 쌍 교체 및 전체 게임 통합 검증은 미수행",
-  "files_count": 32
+  "patch_version": "EASY V3.5",
+  "applies_over": "EASY V3.4",
+  "changes": "최종시상대/종료 아이콘 오류/가로넘침 수정/카드 이미지 사전 로딩/기사 이미지 9종 최적화/캐시 갱신",
+  "limitations": "전체 저장소 데이터, public/cards 원본 이미지 부재. 실기 iOS Safari·오디오 검증 미수행. 기사 이미지 주제별 9종이므로 기사마다 고유 사진 아님.",
+  "files_count": 35
 }

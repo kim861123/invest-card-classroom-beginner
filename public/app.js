@@ -70,7 +70,7 @@ async function refresh(force=false){
         document.querySelector("#info-modal")?.close();
         document.querySelector("#asset-modal")?.close();
       }
-      game=next;render();
+      game=next;render();scheduleCardWarmup(game);
       if(oldRole!==next.role)connectStream();
     }else {game=next;tickCountdown();}
   }catch(e){toast(e.message);}
@@ -354,9 +354,40 @@ function syncDrawDialog(){
  dialog.showModal();
 }
 
+
+// Start warming original card artwork once team data exists. 11 requests, limited concurrency.
+const warmCardUrls=new Set();
+const warmCardObjects=new Set();
+let warmCardsQueued=false;
+function prefetchCardArtwork(sectors){
+  if(!Array.isArray(sectors)||!sectors.length)return;
+  const urls=sectors.map(s=>cardPath(s.ticker)).filter(url=>!warmCardUrls.has(url));
+  urls.forEach(url=>warmCardUrls.add(url));
+  let cursor=0,active=0;
+  function next(){
+    while(active<3 && cursor<urls.length){
+      const url=urls[cursor++],img=new Image();
+      warmCardObjects.add(img);active++;
+      let finished=false;
+      const done=()=>{if(finished)return;finished=true;active--;warmCardObjects.delete(img);next();};
+      img.onload=done;img.onerror=done;
+      img.decoding="async";img.fetchPriority="low";img.src=url;
+      if(img.complete)queueMicrotask(done);
+    }
+  }
+  next();
+}
+function scheduleCardWarmup(g){
+  if(warmCardsQueued||g?.role!=="team"||!g.sectors?.length)return;
+  warmCardsQueued=true;
+  const start=()=>prefetchCardArtwork(g.sectors);
+  if("requestIdleCallback" in window)requestIdleCallback(start,{timeout:1700});
+  else setTimeout(start,350);
+}
+
 function sectorArt(s,compact=false,action="card"){
   return `<button type="button" class="sector-image ${compact?"mini":""}" data-action="${action}" data-id="${h(s.ticker)}" aria-label="${h(s.name)} ${action==="trade-card"?"카드 교환 제안 작성":"카드 크게 보기"}">
-    <img loading="lazy" src="${cardPath(s.ticker)}" alt="${h(s.name)} 산업 카드 이미지"/>
+    <img loading="lazy" decoding="async" src="${cardPath(s.ticker)}" alt="${h(s.name)} 산업 카드 이미지"/>
     <span class="image-ticker">${h(s.ticker)}</span>
   </button>`;
 }
@@ -530,7 +561,7 @@ function newsList(g){
   activeArticleIndex=Math.min(activeArticleIndex,Math.max(0,current.length-1));
   const renderNews=(x,i,isPast=false)=>{
     const concept=x.learning_concept;
-    const topic=articleTopic(x), image=`/art/article-${topic}.webp`;
+    const topic=articleTopic(x), image=`/art/article-${topic}.webp?v=photo-v35`;
     const question=x.easy_question||concept?.question||x.discussion_question;
     const summary=x.easy_summary||x.fact;
     const detail=x.fact||"";
@@ -857,10 +888,7 @@ function autoOpenImpact() {
   if(game.room.phase==="result"&&game.lastResult) {
     key=`impact-v8:${game.team.id}:stage:${game.lastResult.at}`;
     kind="stage";
-  } else if(game.room.phase==="finished") {
-    key=`impact-v8:${game.team.id}:final:${game.room.year}`;
-    kind="final";
-  }
+  } // Final round shows the full podium first; detailed report remains available via button.
   if(!key)return;
   try {
     if(sessionStorage.getItem(key))return;
@@ -1081,7 +1109,7 @@ function resetConfirmDialog(){
 function teacherView(g){
   statusTop.textContent=`강사 모드 · ${g.room.year}년 · ${phaseText[g.room.phase]}`;
   return `${headLine(g,"실시간 강사 대시보드","뉴스 공개 · 거래 시간 · 시장 가격 반영을 서버에서 통제합니다.")}
-    ${illustratedStage(g)}${statusStats(g)}
+    ${illustratedStage(g)}${statusStats(g)}${finalPodium(g)}
     <div class="beginner-teacher-banner"><strong>초급 코스 · 2020~2023 · 총 8단계</strong>
        <span>거래 연습 ${g.practiceStats?.completed||0}/${g.practiceStats?.total||0}팀 ·
        현재 퀴즈 참여 ${g.quizStats?.answered||0}/${g.quizStats?.total||0}팀</span>
@@ -1199,13 +1227,50 @@ function relationMap(g){
   </section>`;
 }
 
+
+// Final standings are read from the server score board; never recompute rank locally.
+function finalPodium(g){
+  if(g?.room?.phase!=="finished")return "";
+  const scores=(g.scores||[]).filter(x=>x&&Number.isFinite(Number(x.rank)))
+    .slice().sort((a,b)=>Number(a.rank)-Number(b.rank)||Number(b.total||0)-Number(a.total||0));
+  const podium=scores.slice(0,3);
+  const podiumSlot=(rank)=>{
+    const x=podium.find(item=>Number(item.rank)===rank);
+    if(!x)return `<div class="final-podium-slot empty-slot" aria-hidden="true"></div>`;
+    const mine=Boolean(g.team&&x.id===g.team.id);
+    return `<article class="final-podium-slot rank-${rank} ${mine?"is-mine":""}" aria-label="${rank}위 ${h(x.name)}">
+      <div class="podium-medal">${rank===1?"🥇":rank===2?"🥈":"🥉"}</div>
+      <strong class="podium-team">${h(x.name)}${mine?` <span class="podium-me">우리 팀</span>`:""}</strong>
+      <span class="podium-return ${buyClass(x.returnPct)}">${pct(x.returnPct)}</span>
+      <div class="podium-step"><span>${rank}위</span></div>
+    </article>`;
+  };
+  const mine=scores.find(x=>g.team&&x.id===g.team.id);
+  return `<section class="panel final-awards" id="final-awards" aria-labelledby="final-awards-title">
+    <div class="final-awards-heading">
+      <span class="final-awards-kicker">${ico("trophy",20)} 게임 종료 · 최종 시상식</span>
+      <h2 id="final-awards-title">우리들의 투자 올림픽</h2>
+      <p>최종 평가자산 기준 순위입니다. 교환 전략과 시장 변화를 함께 돌아보세요.</p>
+    </div>
+    ${podium.length?`<div class="final-podium" role="group" aria-label="최종 상위 3개 팀 시상대">
+      ${podiumSlot(2)}${podiumSlot(1)}${podiumSlot(3)}
+    </div>`:`<p class="final-no-scores">최종 순위 집계 결과를 기다리고 있습니다.</p>`}
+    ${mine?`<div class="final-my-team">
+      <span>${ico("target",18)} 우리 팀 최종 기록</span>
+      <strong>${h(mine.name)} · ${h(mine.rank)}위 · ${pct(mine.returnPct)}</strong>
+      <small>최종 평가자산 ${format(mine.total)}원</small>
+    </div>`:""}
+    <p class="final-awards-footnote">동점은 서버의 공식 순위 기준을 따릅니다. 아래에서 산업별 가격 변화와 교환 성과를 확인할 수 있습니다.</p>
+  </section>`;
+}
+
 function studentView(g){
   statusTop.textContent=`${g.team.name} · ${g.room.year}년 · ${phaseText[g.room.phase]}`;
   return `${headLine(g,`${h(g.team.name)}의 투자 전략실`,"경제를 몰라도 괜찮아요! 쉬운 뉴스 요약을 읽고 카드 교환을 연습해 보세요.")}
     ${illustratedStage(g)}${statusStats(g)}${beginnerGuide(g)}${quickPanels(g)}
-    ${g.room.phase==="paused"?'<div class="alert">${ico("pause",17)} 강사가 게임을 일시정지했습니다. 거래는 잠겨 있습니다.</div>':""}
+    ${g.room.phase==="paused"?`<div class="alert">${ico("pause",17)} 강사가 게임을 일시정지했습니다. 거래는 잠겨 있습니다.</div>`:""}
     ${g.room.phase==="lobby"?`<div class="info">${ico("check",17)} 참가 완료! <b>우리 팀은 카드 110장을 단 한 번 뽑습니다.</b> 강사의 게임 시작을 기다려 주세요.</div>${teamLobbyPanel(g)}${beginnerPractice(g)}`:""}
-    ${g.room.phase==="finished"?'<div class="result-banner"><h3>${ico("trophy",20)} 게임 종료</h3><p>투자 판단과 산업별 시장 결과를 복기해 보세요.</p></div>':""}
+    ${g.room.phase==="finished"?`<div class="result-banner"><h3>${ico("trophy",20)} 게임 종료</h3><p>아래 최종 순위 시상식과 산업별 시장 결과를 확인해 보세요.</p></div>`:""}
     ${classroomStageTab(g)}
     ${classroomPane("news",`${newsList(g)}${predictionPanel(g)}${beginnerCoach(g)}${beginnerQuiz(g)}${beginnerQuizReview(g)}`)}
     ${classroomPane("trade",`${listingBoard(g)}
@@ -1215,7 +1280,7 @@ function studentView(g){
        ${market(g,true)}
      </details>`)}
     
-    ${classroomPane("result",`${beginnerResult(g)}${results(g)}${replayPanel(g)}`)}
+    ${classroomPane("result",`${finalPodium(g)}${beginnerResult(g)}${results(g)}${replayPanel(g)}`)}
     <div class="btn-row"><button class="btn" data-action="logout">참가 종료(로그아웃)</button></div>`;
 }
 function landingView(g){
@@ -1447,7 +1512,7 @@ document.addEventListener("click",async e=>{
       <h2 id="card-detail-title">${h(s.name)} 산업 카드 · 원본 상세보기</h2></div><button type="button" class="modal-close" data-action="close-card" aria-label="닫기">${ico("close",21)}</button></div>
       <div class="card-detail-layout">
         <div class="card-detail-image-wrap" id="card-image-wrap">
-          <img id="card-detail-image" data-action="card-zoom" data-zoom-level="1" src="${cardPath(s.ticker)}" alt="${h(s.name)} 카드 원본. 대표산업, 산업설명, 티커가 이미지에 적혀 있습니다.">
+          <img id="card-detail-image" decoding="async" fetchpriority="high" data-action="card-zoom" data-zoom-level="1" src="${cardPath(s.ticker)}" alt="${h(s.name)} 카드 원본. 대표산업, 산업설명, 티커가 이미지에 적혀 있습니다.">
         </div>
         <aside class="card-detail-sidebar">
           <span class="eyebrow">CARD INTELLIGENCE</span>

@@ -1,0 +1,101 @@
+
+/* V3.5 / V9.5: iPhone horizontal swiping, final podium and card-first loading. */
+/* Only viewport root is clipped; results tables retain intentional inner scrolling. */
+html,body{
+  width:100%;max-width:100%;overflow-x:hidden!important;
+  overscroll-behavior-x:none;
+}
+body{position:relative}
+.shell,#app,.classroom-pane,.panel,.editorial-stage-nav,.readable-newsroom,
+.current-news-stack,.news-card,.article-panel,.asset-gallery,.collection-section,
+.collection-dropdown,.collection-dropdown summary,.instructor-command-layout,.two-col-main{
+  box-sizing:border-box;min-width:0;max-width:100%;
+}
+.shell{width:100%!important}
+#app{width:100%!important;overflow-x:clip!important}
+.classroom-pane,.editorial-stage-nav,.readable-newsroom,.article-panel{width:100%;overflow-wrap:anywhere}
+.article-tabs,.editorial-stage-nav{transform:none!important;left:auto!important;right:auto!important}
+.news-readable-image img,.news-card img{display:block;max-width:100%;height:auto}
+.news-readable-image{overflow:hidden;max-width:100%}
+.table-wrap,.result-table-wrap{width:100%;max-width:100%;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.quick-panel,.asset-tile,.market-card,.asset-info,.asset-gallery>*{min-width:0;max-width:100%}
+.collection-dropdown summary{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.collection-dropdown summary>*{min-width:0}
+.collection-dropdown .asset-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px}
+.sector-image{width:100%;max-width:100%;overflow:hidden;position:relative;background:linear-gradient(135deg,#223855,#101c32)}
+.sector-image img{display:block;width:100%;height:auto;max-width:100%;aspect-ratio:3/4;object-fit:contain;background:#14233d}
+.card-detail-image-wrap,.trade-card-preview{max-width:100%;min-width:0;overflow:auto}
+.card-detail-image-wrap img,.trade-card-preview img{max-width:100%;height:auto}
+@media(max-width:480px){
+  .shell{padding-left:12px!important;padding-right:12px!important}
+  #app,.classroom-pane,.panel{max-width:100%!important}
+  .quick-panels,.stat-grid,.asset-gallery{min-width:0}
+  .result-table{min-width:420px} /* Scroll only inside its .table-wrap. */
+  .table-wrap{overscroll-behavior-x:contain}
+  .collection-dropdown .asset-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .readable-newsroom .article-tabs button{min-width:0}
+}
+@media(max-width:350px){
+  .collection-dropdown .asset-gallery{grid-template-columns:1fr 1fr}
+  .asset-card-actions{display:flex;flex-direction:column}
+  .asset-card-actions button{width:100%;min-width:0;white-space:normal}
+}
+/* Final podium: ceremonial visual comes before detail/price tables. */
+.final-awards{
+  width:100%;max-width:100%;padding:clamp(16px,4vw,30px)!important;
+  background:radial-gradient(circle at 50% -10%,#31537e 0%,#16283f 50%,#101b32 100%)!important;
+  border:1px solid #ba9854!important;border-radius:22px!important;
+  box-shadow:0 14px 35px #030c1b66,inset 0 1px #fff2!important;
+  margin:18px 0 24px;
+}
+.final-awards-heading{text-align:center;max-width:100%;margin-bottom:20px}
+.final-awards-kicker{display:inline-flex;align-items:center;gap:7px;color:#f5d58e;font-size:14px;font-weight:800}
+.final-awards-heading h2{margin:10px 0 8px;font-size:clamp(24px,4.8vw,36px);line-height:1.3;color:#fff4ce}
+.final-awards-heading p{font-size:14px;color:#c8d7eb;line-height:1.6;margin:0}
+.final-podium{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:end;gap:clamp(6px,1.8vw,16px);width:100%;max-width:750px;
+  margin:0 auto;padding:8px 0 0;
+}
+.final-podium-slot{
+  min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:end;
+  gap:7px;text-align:center;overflow-wrap:anywhere;
+}
+.podium-medal{font-size:clamp(27px,6.5vw,52px);line-height:1.05;filter:drop-shadow(0 3px 8px #0006)}
+.podium-team{display:block;color:#fff;font-size:clamp(12px,2.8vw,18px);line-height:1.4;word-break:keep-all}
+.podium-return{font-size:clamp(12px,2.8vw,19px);font-weight:900}
+.podium-me{display:inline-block;font-size:11px;color:#ffdc8e}
+.podium-step{
+  width:100%;display:flex;align-items:flex-start;justify-content:center;
+  padding-top:16px;border-radius:13px 13px 3px 3px;
+  border:1px solid #ddcaa9;color:#13233d;font-size:clamp(16px,4.3vw,29px);font-weight:950;
+  box-shadow:inset 0 1px 2px #fff9,0 0 18px #0003;
+}
+.podium-step span{white-space:nowrap}
+.rank-1 .podium-step{height:clamp(116px,19vw,166px);background:linear-gradient(140deg,#ffe39a,#d8a343)}
+.rank-2 .podium-step{height:clamp(88px,15vw,123px);background:linear-gradient(140deg,#f4f6fa,#aab9c9)}
+.rank-3 .podium-step{height:clamp(68px,11vw,99px);background:linear-gradient(140deg,#edbd8d,#ad7046)}
+.final-podium-slot.is-mine .podium-team{text-decoration:underline;text-decoration-color:#f8cc76;text-underline-offset:4px}
+.final-podium-slot.empty-slot{visibility:hidden}
+.final-my-team{
+  display:grid;gap:4px;text-align:center;
+  margin:16px auto 0;padding:13px 14px;max-width:540px;
+  border:1px solid #bca46a;border-radius:13px;background:#1c3554;
+}
+.final-my-team span{color:#efd196;font-weight:750}
+.final-my-team strong{font-size:clamp(15px,3.6vw,19px);color:#fff}
+.final-my-team small{color:#c8d6e8}
+.final-awards-footnote{text-align:center;margin:16px 0 0;font-size:12px;color:#b4c6df;line-height:1.5}
+.final-no-scores{text-align:center;color:#e8effa}
+@media(max-width:420px){
+  .final-awards{padding:15px 10px!important}
+  .final-podium{gap:6px}
+  .podium-team{min-height:37px}
+  .podium-me{display:block}
+}
+/* Compact image placeholder while original card art is decoded. */
+.sector-image{background-color:#192b47}
+.sector-image img{transition:opacity .18s ease}
+@media(prefers-reduced-motion:reduce){
+ .sector-image img{transition:none}
+}
