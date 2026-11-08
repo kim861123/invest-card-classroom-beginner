@@ -70,7 +70,11 @@ async function refresh(force=false){
         document.querySelector("#info-modal")?.close();
         document.querySelector("#asset-modal")?.close();
       }
-      game=next;render();scheduleCardWarmup(game);
+      game=next;
+      render();
+      // Preloading is optional and must never block a student joining the game.
+      try { scheduleCardWarmup(game); }
+      catch(warmupError) { console.warn("카드 이미지 사전 로딩 생략",warmupError); }
       if(oldRole!==next.role)connectStream();
     }else {game=next;tickCountdown();}
   }catch(e){toast(e.message);}
@@ -355,34 +359,61 @@ function syncDrawDialog(){
 }
 
 
-// Start warming original card artwork once team data exists. 11 requests, limited concurrency.
+// Noncritical image warmup. Errors are isolated from joining and rendering.
 const warmCardUrls=new Set();
 const warmCardObjects=new Set();
 let warmCardsQueued=false;
 function prefetchCardArtwork(sectors){
   if(!Array.isArray(sectors)||!sectors.length)return;
-  const urls=sectors.map(s=>cardPath(s.ticker)).filter(url=>!warmCardUrls.has(url));
+  const ImageCtor=window.Image;
+  if(typeof ImageCtor!=="function")return;
+  const urls=sectors
+    .filter(s=>s&&typeof s.ticker==="string")
+    .map(s=>cardPath(s.ticker))
+    .filter(url=>url&&!warmCardUrls.has(url));
   urls.forEach(url=>warmCardUrls.add(url));
   let cursor=0,active=0;
-  function next(){
-    while(active<3 && cursor<urls.length){
-      const url=urls[cursor++],img=new Image();
-      warmCardObjects.add(img);active++;
-      let finished=false;
-      const done=()=>{if(finished)return;finished=true;active--;warmCardObjects.delete(img);next();};
-      img.onload=done;img.onerror=done;
-      img.decoding="async";img.fetchPriority="low";img.src=url;
-      if(img.complete)queueMicrotask(done);
+  function loadNext(){
+    while(active<3&&cursor<urls.length){
+      const url=urls[cursor++];active++;
+      let image;
+      try{
+        image=new ImageCtor();
+        warmCardObjects.add(image);
+        let finished=false;
+        const finish=()=>{
+          if(finished)return;
+          finished=true;
+          active--;
+          warmCardObjects.delete(image);
+          loadNext();
+        };
+        image.onload=finish;
+        image.onerror=finish;
+        image.decoding="async";
+        image.src=url;
+        if(image.complete)Promise.resolve().then(finish);
+      }catch(error){
+        active--;
+        if(image)warmCardObjects.delete(image);
+        console.warn("카드 이미지 일부 사전 로딩 실패",error);
+      }
     }
   }
-  next();
+  loadNext();
 }
 function scheduleCardWarmup(g){
-  if(warmCardsQueued||g?.role!=="team"||!g.sectors?.length)return;
+  if(warmCardsQueued||g?.role!=="team"||!Array.isArray(g.sectors)||!g.sectors.length)return;
   warmCardsQueued=true;
-  const start=()=>prefetchCardArtwork(g.sectors);
-  if("requestIdleCallback" in window)requestIdleCallback(start,{timeout:1700});
-  else setTimeout(start,350);
+  const start=()=>{
+    try{prefetchCardArtwork(g.sectors);}
+    catch(error){console.warn("카드 이미지 사전 로딩 실패",error);}
+  };
+  if(typeof window.requestIdleCallback==="function"){
+    try{window.requestIdleCallback(start,{timeout:1700});return;}
+    catch(error){console.warn("유휴시간 콜백 사용 불가",error);}
+  }
+  window.setTimeout(start,400);
 }
 
 function sectorArt(s,compact=false,action="card"){
@@ -561,7 +592,7 @@ function newsList(g){
   activeArticleIndex=Math.min(activeArticleIndex,Math.max(0,current.length-1));
   const renderNews=(x,i,isPast=false)=>{
     const concept=x.learning_concept;
-    const topic=articleTopic(x), image=`/art/article-${topic}.webp?v=photo-v35`;
+    const topic=articleTopic(x), image=`/art/article-${topic}.webp?v=photo-v351`;
     const question=x.easy_question||concept?.question||x.discussion_question;
     const summary=x.easy_summary||x.fact;
     const detail=x.fact||"";
@@ -1338,7 +1369,9 @@ function render(){
     route==="/join"?joinView(game):landingView(game);
   tickCountdown();
   syncDrawDialog();
-  if(game.role==="team")queueMicrotask(autoOpenImpact);
+  if(game.role==="team")Promise.resolve().then(()=>{
+    try{autoOpenImpact();}catch(error){console.warn("결과 안내 자동 표시 생략",error);}
+  });
 }
 
 // Native browser confirm() exposes the site address on iPhone Safari.

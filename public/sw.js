@@ -1,4 +1,4 @@
-const CACHE="invest-play-shell-classroom-beginner-v3.5-podium";
+const CACHE="invest-play-shell-classroom-beginner-v3.5.1-hotfix";
 const STATIC=["/","/app.js","/style.css","/mobile-v32.css","/mobile-v35.css","/audio/notify.wav","/audio/ambient.wav",
 "/art/article-rates.webp","/art/article-geopolitics.webp",
 "/art/article-health.webp",

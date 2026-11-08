@@ -50,7 +50,7 @@ test("all original card art URLs are prefetched, concurrency bounded",()=>{
   assert.match(js,/function prefetchCardArtwork\(sectors\)/);
   assert.match(js,/active<3/);
   assert.match(js,/scheduleCardWarmup\(game\)/);
-  assert.match(js,/new Image\(\)/);
+  assert.match(js,/new ImageCtor\(\)|new Image\(\)/);
 });
 test("mobile root no x overflow, tables remain scrollable and new css is loaded",()=>{
   assert.match(css,/overflow-x:hidden!important/);
