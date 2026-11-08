@@ -1,13 +1,7 @@
-const CACHE="invest-play-shell-classroom-beginner-v3.5.1-hotfix";
-const STATIC=["/","/app.js","/style.css","/mobile-v32.css","/mobile-v35.css","/audio/notify.wav","/audio/ambient.wav",
-"/art/article-rates.webp","/art/article-geopolitics.webp",
-"/art/article-health.webp",
-"/art/article-energy.webp",
-"/art/article-trade.webp",
-"/art/article-tech.webp",
-"/art/article-inflation-rise.webp",
-"/art/article-inflation-cool.webp",
-"/art/article-banks.webp"];
+const CACHE="invest-play-shell-easy-v3.5.4-images";
+const STATIC=["/","/app.js","/style.css","/mobile-v32.css","/mobile-v35.css",
+ "/audio/notify.mp3","/audio/ambient.mp3"];
+ // 뉴스 이미지는 기사 열람 시 필요한 크기만 요청합니다. 전 종류 사전 다운로드 금지.
 self.addEventListener("install",event=>event.waitUntil(
   caches.open(CACHE).then(async cache=>{
     await Promise.all(STATIC.map(async url=>{try{await cache.add(url);}catch{/* offline cache is optional */}}));

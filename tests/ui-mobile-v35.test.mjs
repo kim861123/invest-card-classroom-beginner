@@ -48,7 +48,7 @@ test("finished banner uses actual icon interpolation, not literal text",()=>{
 });
 test("all original card art URLs are prefetched, concurrency bounded",()=>{
   assert.match(js,/function prefetchCardArtwork\(sectors\)/);
-  assert.match(js,/active<3/);
+  assert.match(js,/active<4/);
   assert.match(js,/scheduleCardWarmup\(game\)/);
   assert.match(js,/new ImageCtor\(\)|new Image\(\)/);
 });

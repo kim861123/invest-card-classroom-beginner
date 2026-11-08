@@ -1,8 +1,8 @@
 const root=document.querySelector("#app");
 const statusTop=document.querySelector("#top-status");
 let game=null, source=null, busy=false, lastToastTimer=null, drawChoiceBusy=false;
-let timerSoundEnabled=false, timerAlertKey="", timerAlerted=new Set(), audioContext=null;
-let ambientEnabled=false, ambientTimer=null;
+let timerSoundEnabled=true, timerAlertKey="", timerAlerted=new Set(), audioContext=null;
+let ambientEnabled=false, ambientTimer=null; // iOS requires an explicit tap to start background music
 const quizDraftByStage=Object.create(null);
 // 통일된 벡터 아이콘 — 이모지 대신 단정한 금융 대시보드 스타일
 const iconPaths={
@@ -101,6 +101,32 @@ function remainingSeconds(g){
 // A real, locally generated WAV plays on that tap; the same element is reused
 // for later time/phase notifications. Web Audio remains a best-effort fallback.
 let notificationAudio=null, ambientAudio=null;
+function createGameAudio(src,loop=false){
+  const audio=document.createElement("audio");
+  audio.src=src;
+  audio.preload="auto";
+  audio.loop=loop;
+  audio.playsInline=true;
+  audio.setAttribute("playsinline","");
+  audio.setAttribute("webkit-playsinline","");
+  audio.setAttribute("aria-hidden","true");
+  audio.style.display="none";
+  document.body.appendChild(audio);
+  return audio;
+}
+// First user gesture primes WebAudio and the notification media element.
+// Background music never starts without the learner explicitly enabling it.
+let audioPrimed=false;
+function primeAudioOnUserGesture(){
+  if(audioPrimed)return;
+  audioPrimed=true;
+  startWebAudioOnGesture();
+  try{soundTrack("notification")?.load();}catch{}
+}
+document.addEventListener("pointerdown",primeAudioOnUserGesture,{capture:true,once:true,passive:true});
+document.addEventListener("touchstart",primeAudioOnUserGesture,{capture:true,once:true,passive:true});
+document.addEventListener("keydown",primeAudioOnUserGesture,{capture:true,once:true});
+
 function startWebAudioOnGesture(){
   try{
     const Ctx=window.AudioContext||window.webkitAudioContext;
@@ -121,13 +147,13 @@ function soundTrack(kind){
   try{
     if(kind==="ambient"){
       if(!ambientAudio){
-        ambientAudio=new Audio("/audio/ambient.wav?v=melody-33");
-        ambientAudio.preload="auto";ambientAudio.loop=true;ambientAudio.volume=.45;
+        ambientAudio=createGameAudio("/audio/ambient.mp3?v=audio-352",true);
+        ambientAudio.preload="auto";ambientAudio.loop=true;ambientAudio.volume=.62;
       }
       return ambientAudio;
     }
     if(!notificationAudio){
-      notificationAudio=new Audio("/audio/notify.wav?v=cue-33");
+      notificationAudio=createGameAudio("/audio/notify.mp3?v=audio-352",false);
       notificationAudio.preload="auto";notificationAudio.volume=1;
     }
     return notificationAudio;
@@ -266,7 +292,7 @@ function headLine(g,title,desc=""){
 function stat(label,num,hint="",cls=""){
   return `<div class="stat"><small>${h(label)}</small><strong class="${cls}">${num}</strong>${hint?`<div class="hint">${h(hint)}</div>`:""}</div>`;
 }
-const cardPath = ticker => `/cards/${encodeURIComponent(ticker)}.png?v=original-art-v32`;
+const cardPath = ticker => `/cards/${encodeURIComponent(ticker)}.png`;
 const DRAW_TOTAL=110;
 // 초급 전용: 경제 경험이 없는 학습자를 위한 단순한 4단계 안내
 function beginnerGuide(g) {
@@ -374,7 +400,7 @@ function prefetchCardArtwork(sectors){
   urls.forEach(url=>warmCardUrls.add(url));
   let cursor=0,active=0;
   function loadNext(){
-    while(active<3&&cursor<urls.length){
+    while(active<4&&cursor<urls.length){
       const url=urls[cursor++];active++;
       let image;
       try{
@@ -391,6 +417,7 @@ function prefetchCardArtwork(sectors){
         image.onload=finish;
         image.onerror=finish;
         image.decoding="async";
+        image.fetchPriority="high";
         image.src=url;
         if(image.complete)Promise.resolve().then(finish);
       }catch(error){
@@ -405,20 +432,17 @@ function prefetchCardArtwork(sectors){
 function scheduleCardWarmup(g){
   if(warmCardsQueued||g?.role!=="team"||!Array.isArray(g.sectors)||!g.sectors.length)return;
   warmCardsQueued=true;
-  const start=()=>{
-    try{prefetchCardArtwork(g.sectors);}
-    catch(error){console.warn("카드 이미지 사전 로딩 실패",error);}
-  };
-  if(typeof window.requestIdleCallback==="function"){
-    try{window.requestIdleCallback(start,{timeout:1700});return;}
-    catch(error){console.warn("유휴시간 콜백 사용 불가",error);}
-  }
-  window.setTimeout(start,400);
+  try{
+    const ordered=[...g.sectors].sort((a,b)=>
+      Number(g.team?.holdings?.[b.id]||0)-Number(g.team?.holdings?.[a.id]||0));
+    prefetchCardArtwork(ordered);
+  }catch(error){console.warn("카드 이미지 사전 로딩 실패",error);}
 }
 
 function sectorArt(s,compact=false,action="card"){
   return `<button type="button" class="sector-image ${compact?"mini":""}" data-action="${action}" data-id="${h(s.ticker)}" aria-label="${h(s.name)} ${action==="trade-card"?"카드 교환 제안 작성":"카드 크게 보기"}">
-    <img loading="lazy" decoding="async" src="${cardPath(s.ticker)}" alt="${h(s.name)} 산업 카드 이미지"/>
+    <span class="sector-card-fallback" aria-hidden="true"><b>${h(s.name)}</b><small>${h(s.ticker)}</small></span>
+    <img loading="lazy" decoding="async" fetchpriority="auto" src="${cardPath(s.ticker)}" alt="${h(s.name)} 산업 카드 이미지"/>
     <span class="image-ticker">${h(s.ticker)}</span>
   </button>`;
 }
@@ -592,7 +616,7 @@ function newsList(g){
   activeArticleIndex=Math.min(activeArticleIndex,Math.max(0,current.length-1));
   const renderNews=(x,i,isPast=false)=>{
     const concept=x.learning_concept;
-    const topic=articleTopic(x), image=`/art/article-${topic}.webp?v=photo-v351`;
+    const topic=articleTopic(x), imageBase=`/art/article-${topic}`, image=`${imageBase}.webp?v=photo-v353`;
     const question=x.easy_question||concept?.question||x.discussion_question;
     const summary=x.easy_summary||x.fact;
     const detail=x.fact||"";
@@ -602,7 +626,7 @@ function newsList(g){
       <div class="news-readable-meta"><span>${ico("newspaper",16)} ${isPast?"지난 뉴스":"시장 뉴스"}</span><time>${h(x.date)}</time></div>
       <h3 class="news-readable-title">${h(x.title)}</h3>
       <figure class="news-readable-image">
-        <img src="${image}" loading="${isPast?"lazy":"eager"}" decoding="async" alt="${h(x.title)} 관련 ${topic==="geopolitics"?"전쟁 상황 재현":topic==="rates"?"중앙은행":"경제 주제"} 이미지"/>
+        <img src="${image}" srcset="${imageBase}-640.webp?v=photo-v353 640w, ${imageBase}-1200.webp?v=photo-v353 1200w, ${imageBase}.webp?v=photo-v353 1600w" sizes="(max-width:480px) calc(100vw - 64px), (max-width:900px) 85vw, 740px" width="1600" height="900" loading="${isPast?"lazy":"eager"}" fetchpriority="${isPast?"low":"high"}" decoding="async" alt="${h(x.title)} 관련 ${topic==="geopolitics"?"전쟁 상황 재현":topic==="rates"?"중앙은행":"경제 주제"} 이미지"/>
         <figcaption>${topic.startsWith("inflation")?"물가 흐름을 설명하는 교육용 합성 이미지 · 실제 통계 그래프가 아닙니다.":"기사 이해를 위한 AI 생성 재현 이미지 · 실제 현장 사진이 아닙니다."}</figcaption>
       </figure>
       <div class="news-readable-summary"><b>한 줄 요약</b><p>${h(summary)}</p></div>
@@ -741,25 +765,40 @@ function results(g){
     <p class="small-note">※ 교육용 변동률: 관측된 사건 직후 변동률이 아닙니다. 2019~2025는 미국 섹터 ETF 연간 총수익률, 2026은 11월 4일 기준 YTD 총수익률 기반 배분입니다.</p>
    </section>`;
 }
-function availableMine(g,id){
-  return Number(g.tradeAvailability?.[id]?.mineAvailable ?? g.team?.holdings?.[id] ?? 0);
+// Card exchange helpers: keep browser estimates aligned with /api/state.
+// The server re-validates both quantities when an offer is submitted.
+function availableMine(g,sectorId){
+  const key=String(sectorId);
+  const supplied=Number(g?.tradeAvailability?.[key]?.mineAvailable);
+  if(Number.isFinite(supplied))return Math.max(0,Math.floor(supplied));
+  const qty=Number(g?.team?.holdings?.[key]||0);
+  const reserved=(g?.listings||[]).filter(l=>
+    String(l.sellerId)===String(g?.team?.id)&&String(l.offerId)===key
+  ).reduce((sum,l)=>sum+Number(l.offerQty||0),0);
+  return Math.max(0,Math.floor(qty-reserved));
 }
-function availableOther(g,id){
-  return Number(g.tradeAvailability?.[id]?.maxOtherAvailable ?? 0);
+function availableOther(g,sectorId){
+  const supplied=g?.tradeAvailability?.[String(sectorId)]?.maxOtherAvailable;
+  const count=Number(supplied);
+  return supplied==null||!Number.isFinite(count)?0:Math.max(0,Math.floor(count));
 }
 function syncTradePreview(form){
-  if(!game||!form)return;
-  const wantSelect=form.querySelector('[name="wantId"]');
-  const wantQtyInput=form.querySelector('[name="wantQty"]');
-  const wantId=Number(wantSelect?.value);
-  const max=Math.min(30,availableOther(game,wantId));
-  if(wantQtyInput){
-    wantQtyInput.max=String(max);
-    if(Number(wantQtyInput.value)>max)wantQtyInput.value=String(Math.max(1,max));
-  }
-  const label=form.querySelector("[data-counterparty-max]");
-  if(label)label.textContent=max>0?`다른 팀에서 실제로 교환 가능한 최대 ${max}장`:"현재 교환 가능한 상대 팀 카드가 없습니다.";
+  if(!form||!game)return;
+  const select=form.elements.namedItem("wantId");
+  const qty=form.elements.namedItem("wantQty");
+  const submit=form.querySelector('button[type="submit"]');
+  if(!select||!qty)return;
+  const max=Math.min(30,availableOther(game,Number(select.value)));
+  qty.max=String(max);
+  if(max>0&&Number(qty.value)>max)qty.value=String(max);
+  if(max>0&&Number(qty.value)<1)qty.value="1";
+  const hint=form.querySelector("[data-counterparty-max]");
+  if(hint)hint.textContent=max>0?
+    `다른 팀에서 교환 가능한 카드: 최대 ${max}장`:
+    "현재 다른 팀에서 교환 가능한 카드가 없습니다. 다른 산업을 선택하세요.";
+  if(submit)submit.disabled=max<1;
 }
+
 function tradeCardModal(s,g){
   const owned=Number(g.team?.holdings?.[s.id]||0),unreserved=availableMine(g,s.id);
   const options=g.sectors.filter(x=>x.id!==s.id);
@@ -802,6 +841,14 @@ function tradeCardModal(s,g){
        <p>새 제안은 거래 시간 중이며, 내 제공 카드와 다른 팀의 수락 가능한 카드가 모두 있을 때 등록할 수 있습니다.</p></div>`}
     <p class="small-note">카드 교환은 수량 1~30장, 팀당 동시 5개 제안까지 가능합니다. 상대 보유 수량과 기존 제안을 서버에서 검증합니다.</p>`;
 }
+function tradePickerContent(g){
+  const choices=(g?.sectors||[]).filter(x=>Number(g?.team?.holdings?.[x.id]||0)>0);
+  return `<p class="trade-picker-hint">보유한 산업 카드를 선택하면 교환 제안 내용을 작성할 수 있습니다.</p>
+    <div class="trade-picker-grid">${choices.map(x=>`
+      <button type="button" class="trade-picker-choice" data-action="trade-card" data-id="${h(x.ticker)}">
+      <strong>${h(x.name)}</strong><small>${format(g.team?.holdings?.[x.id]||0)}장 보유</small>
+      ${ico("arrow",18)}</button>`).join("")||"<p>현재 보유 카드가 없습니다.</p>"}</div>`;
+}
 function listingBoard(g){
   const open=g.room.phase==="trade";
   return `<section class="section listing-board" id="open-listings">
@@ -809,6 +856,8 @@ function listingBoard(g){
       <h2>${ico('exchange',20)} 공개된 카드 교환 제안</h2></div>
       <div class="exchange-pills"><span class="pill ${open?"green":"gold"}">${open?"거래 가능":"거래 대기"}</span>
         <span class="pill">${g.listings.length}개 제안</span></div></div>
+    ${g.role==="team"&&open?`<button type="button" class="btn gold wide trade-picker-launch" data-action="open-trade-picker">
+      ${ico("exchange",18)} 교환 제안하기</button>`:""}
     <p class="small-note">${open?
       "다른 팀의 제안을 확인하고 수락하거나, 내 카드 컬렉션에서 카드를 눌러 새 제안을 등록하세요.":
       "지금은 뉴스 분석·진행 대기 중입니다. 거래 시간이 열리면 이곳에서 주문을 수락할 수 있습니다."}
@@ -833,14 +882,36 @@ function recentTrades(g){
     `<div class="member"><div><strong>${h(t.sellerName)}</strong> → <strong>${h(t.buyerName)}</strong><div class="small-note">${h(sector(t.offerId).name)} ${t.offerQty}장 ⇄ ${h(sector(t.wantId).name)} ${t.wantQty}장</div></div><span class="label-pill">${t.year}년 ${t.stage||""}차</span></div>`).join("") :
     `<div class="empty">${ico("history",22)} 아직 성사된 카드 교환이 없습니다.</div>`}</div>`;
 }
+// V3.5.2/V9.5.2: same server-supplied ranking for beginner and general versions.
+function liveRankingContents(g){
+  const scores=Array.isArray(g?.scores)?[...g.scores]:[];
+  scores.sort((a,b)=>Number(a.rank||999)-Number(b.rank||999));
+  const rows=scores.map(x=>`<tr><td><b>${Number(x.rank)||"—"}위</b></td>
+    <td>${h(x.name)}${g.team?.id===x.id?` <span class="label-pill">우리 팀</span>`:""}</td>
+    <td class="${buyClass(x.returnPct)}"><strong>${pct(x.returnPct)}</strong></td>
+    <td>${format(x.total)}원</td></tr>`).join("");
+  return `<div class="ranking-live-note">서버에 반영된 최근 가격 발표 기준 순위입니다. 거래 중에는 즉시 변하지 않을 수 있습니다.</div>
+    <div class="table-wrap ranking-scroll"><table class="table"><thead><tr>
+    <th>순위</th><th>팀</th><th>수익률</th><th>평가자산</th></tr></thead>
+    <tbody>${rows||'<tr><td colspan="4">아직 참가팀이 없습니다.</td></tr>'}</tbody></table></div>`;
+}
+function openLiveRanking(){
+  try{
+    if(!game){toast("순위를 아직 불러오지 못했습니다.");return;}
+    showInfoModal("실시간 팀 순위","현재 공개된 팀별 성적",liveRankingContents(game));
+  }catch(error){
+    console.error("순위 표시 오류",error);
+    toast("순위 화면을 열지 못했습니다. 잠시 후 다시 눌러 주세요.");
+  }
+}
 function quickPanels(g){
   const mineRank=g.team?g.scores.find(s=>s.id===g.team.id)?.rank:null;
   return `<nav class="quick-panels" aria-label="실시간 정보">
     <button type="button" class="quick-panel" data-action="view-rankings">
-      <span class="quick-panel-icon">${ico("trophy",24)}</span><span class="quick-panel-copy"><small>LIVE RANKING</small><strong>실시간 팀 순위</strong><em>${mineRank?`우리 팀 ${mineRank}위 · `:""}총 ${g.scores.length}팀</em></span>${ico("arrow",19)}
+      <span class="quick-panel-icon">${ico("trophy",24)}</span><span class="quick-panel-copy"><small>현재 순위</small><strong>실시간 팀 순위</strong><em>${mineRank?`우리 팀 ${mineRank}위 · `:""}총 ${g.scores.length}팀</em></span>${ico("arrow",19)}
     </button>
     <button type="button" class="quick-panel" data-action="view-trades">
-      <span class="quick-panel-icon">${ico("history",24)}</span><span class="quick-panel-copy"><small>TRADE ACTIVITY</small><strong>최근 성사된 거래</strong><em>최근 ${g.recentTrades.length}건 확인</em></span>${ico("arrow",19)}
+      <span class="quick-panel-icon">${ico("history",24)}</span><span class="quick-panel-copy"><small>최근 거래</small><strong>최근 성사된 거래</strong><em>최근 ${g.recentTrades.length}건 확인</em></span>${ico("arrow",19)}
     </button>
   </nav>`;
 }
@@ -989,6 +1060,18 @@ function showInfoModal(title,subtitle,contents){
   dialog.addEventListener("close",()=>dialog.remove(),{once:true});
   dialog.showModal();
 }
+function priceChangeGraph(changes){
+  const values=Array.isArray(changes)?changes:[];
+  const peak=Math.max(5,...values.map(x=>Math.abs(Number(x.gameModelPct)||0)));
+  return `<div class="price-change-chart" role="img" aria-label="산업별 게임 가격 변동률 막대그래프">
+    ${values.map(x=>{
+      const value=Number(x.gameModelPct)||0;
+      const size=Math.max(2,Math.round(Math.abs(value)/peak*100));
+      return `<div class="price-change-item"><span class="price-change-name">${h(x.name)}</span>
+        <span class="price-change-meter"><i class="${buyClass(value)}" style="width:${size}%"></i></span>
+        <strong class="${buyClass(value)}">${pct(value)}</strong></div>`;
+    }).join("")}</div>`;
+}
 function resultTable(r){
   return `<div class="table-wrap"><table class="table result-table"><thead><tr>
     <th>산업</th><th>전(원)</th><th>후(원)</th><th>변동률</th><th>실측</th>
@@ -1015,7 +1098,7 @@ function teacherReveal(g){
       <span class="pill ${r?"green":"gold"}">${r?"결과 발표 가능":"결과 대기"}</span></div>
     ${r?`<div class="result-banner"><h3>${r.year}년 ${r.stageIndex+1}차 시장 가격 발표</h3>
       <p>아래 숫자와 해설을 화면에 공유해 학생들과 투자 판단을 복기하세요.</p></div>
-      ${revealSummary(r)}${resultTable(r)}${teacherStageImpact(g)}
+      ${revealSummary(r)}${priceChangeGraph(r.changes)}<details class="result-detail-table"><summary>산업별 상세 수치 표 보기</summary>${resultTable(r)}</details>${teacherStageImpact(g)}
       <div class="teaching-insight"><b>${ico("shield",17)} 강사용 핵심 해설 · 학생 비공개</b>
         ${brief.map(n=>`<p><strong>${h(n.title)}</strong> — ${h(n.analysis||"사건의 영향과 실제 성과를 구분하여 토론하세요.")}</p>`).join("")}
       </div>`:
@@ -1041,7 +1124,7 @@ function teacherActions(g){
       ${r.phase==="paused"?`<button class="btn green" data-action="resume">진행 재개</button>`:""}
       ${r.phase==="result"?`<button class="btn gold" data-action="next">${r.round===r.totalRounds&&r.stage===2?"최종 종료·우승팀 확정":"다음 뉴스 공개 →"}</button>`:""}
       <button class="btn" data-action="csv">순위 CSV 저장</button>
-      <button class="btn danger" data-action="reset">↺ 새 게임 시작 · 전체 초기화</button>
+      <button class="btn danger reset-main-button" data-action="reset">↺ 새 게임 시작 · 전체 초기화</button>
     </div>
     ${r.phase==="lobby"?`<form id="config-form" class="grid-2" style="margin-top:22px">
       <label class="field">뉴스 읽기 시간(초)<input name="newsSeconds" type="number" min="15" max="300" value="${r.config.newsSeconds}" required></label>
@@ -1132,7 +1215,7 @@ function resetConfirmDialog(){
       </label>
       <div class="btn-row reset-btn-row">
         <button type="button" class="btn" data-action="cancel-reset">취소</button>
-        <button type="submit" class="btn danger">전체 초기화 실행</button>
+        <button type="submit" class="btn danger reset-confirm-button">전체 초기화 실행</button>
       </div>
     </form>
   </dialog>`;
@@ -1218,9 +1301,9 @@ function predictionTeacherPanel(g){
 function replayPanel(g){
  const rows=(g.stageTradeHistory||[]).slice().reverse();
  if(!rows.length&&!g.lastResult)return '<section class="panel section"><h3>아직 가격 발표 전입니다</h3><p>발표 후 이번 턴을 복습할 수 있습니다.</p></section>';
- return `<section class="panel section round-replay"><span class="eyebrow">MARKET REPLAY</span>
- <h2>턴별 가격 발표 · 교환 성과</h2>
- ${g.lastResult?`<div class="replay-movers">${(g.lastResult.changes||[]).map(c=>`<div class="replay-mover"><span>${h(c.name)}</span><strong class="${buyClass(c.gameModelPct)}">${pct(c.gameModelPct)}</strong></div>`).join("")}</div>`:""}
+ return `<section class="panel section round-replay" aria-label="턴별 카드 교환 성과">
+ <h2>턴별 카드 교환 성과</h2>
+ ${!rows.length?'<p class="small-note">이번 단계에 기록된 카드 교환 내역이 없습니다.</p>':""}
  ${rows.map(x=>`<div class="replay-history-item"><b>${x.year}년 ${x.stage}차</b>
  ${x.report?.ready?`<span>교환 효과 ${Number(x.report.differencePctPoint)>=0?"+":""}${Number(x.report.differencePctPoint).toFixed(2)}%p</span>`:"<span>해당 기록 없음</span>"}
  </div>`).join("")}
@@ -1369,6 +1452,9 @@ function render(){
     route==="/join"?joinView(game):landingView(game);
   tickCountdown();
   syncDrawDialog();
+  document.querySelectorAll(".sector-image img").forEach(img=>{
+    if(img.complete&&img.naturalWidth>0)img.closest(".sector-image")?.classList.add("is-loaded");
+  });
   if(game.role==="team")Promise.resolve().then(()=>{
     try{autoOpenImpact();}catch(error){console.warn("결과 안내 자동 표시 생략",error);}
   });
@@ -1409,6 +1495,27 @@ async function mutate(url,data,success){
   catch(e){toast(e.message);return false;}
   finally{busy=false;}
 }
+// Safari defers loading lazy images inside a closed <details>.
+function prioritizeCollectionImages(details){
+  if(!details?.open)return;
+  details.querySelectorAll(".asset-gallery .sector-image img").forEach((img,index)=>{
+    img.loading="eager";
+    img.fetchPriority=index<6?"high":"auto";
+    if(img.complete&&img.naturalWidth>0)img.closest(".sector-image")?.classList.add("is-loaded");
+  });
+}
+document.addEventListener("toggle",event=>{
+  const details=event.target;
+  if(details?.matches?.(".collection-dropdown"))prioritizeCollectionImages(details);
+},true);
+document.addEventListener("load",event=>{
+  if(event.target?.matches?.(".sector-image img"))
+    event.target.closest(".sector-image")?.classList.add("is-loaded");
+},true);
+document.addEventListener("error",event=>{
+  if(event.target?.matches?.(".sector-image img"))
+    event.target.closest(".sector-image")?.classList.add("is-error");
+},true);
 document.addEventListener("submit",async e=>{
   const form=e.target;if(!form.id)return;
   e.preventDefault();
@@ -1471,7 +1578,7 @@ document.addEventListener("change",e=>{
   }
 });
 document.addEventListener("click",async e=>{
-  const target=e.target.closest("[data-action]");
+  const target=e.target?.closest?.("[data-action]");
   if(!target)return;
   const action=target.dataset.action,id=target.dataset.id;
   if(action==="open-practice"){
@@ -1487,7 +1594,7 @@ document.addEventListener("click",async e=>{
   }
   if(action==="close-practice"){document.querySelector("#practice-modal")?.close();return;}
   if(action==="view-rankings"){
-    showInfoModal("실시간 팀 순위","LIVE RANKING",leaderboard(game));
+    openLiveRanking();
     return;
   }
   if(action==="view-trades"){
@@ -1517,19 +1624,43 @@ document.addEventListener("click",async e=>{
     syncSoundControlText();
     return;
   }
+  if(action==="open-trade-picker"){
+    try{
+      showInfoModal("교환할 카드 선택","교환 제안하기",tradePickerContent(game));
+    }catch(error){console.error("교환 카드 선택 오류",error);toast("교환할 카드를 표시할 수 없습니다.");}
+    return;
+  }
   if(action==="trade-card"){
-    const s=game?.sectors?.find(x=>x.ticker===id);
-    if(!s||game?.role!=="team"||!game.team)return;
-    document.querySelector("#trade-modal")?.remove();
-    const dialog=document.createElement("dialog");
-    dialog.id="trade-modal";
-    dialog.className="asset-modal trade-modal";
-    dialog.setAttribute("aria-labelledby","trade-modal-title");
-    dialog.innerHTML=tradeCardModal(s,game);
-    document.body.append(dialog);
-    dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close();});
-    dialog.addEventListener("close",()=>dialog.remove(),{once:true});
-    dialog.showModal();
+    try{
+      const s=game?.sectors?.find(x=>x.ticker===id);
+      if(!s||game?.role!=="team"||!game.team){
+        toast("참가팀 카드 정보를 확인할 수 없습니다. 화면을 새로고침해 주세요.");
+        return;
+      }
+      if(game.room?.phase!=="trade"){
+        toast("교환 제안은 거래 시간에만 가능합니다.");
+        return;
+      }
+       document.querySelector("#info-modal")?.close();
+       document.querySelector("#trade-modal")?.remove();
+       const dialog=document.createElement("dialog");
+      dialog.id="trade-modal";
+      dialog.className="asset-modal trade-modal";
+      dialog.setAttribute("aria-labelledby","trade-modal-title");
+      dialog.innerHTML=tradeCardModal(s,game);
+      document.body.append(dialog);
+      dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close();});
+      dialog.addEventListener("close",()=>dialog.remove(),{once:true});
+       if(typeof dialog.showModal==="function")dialog.showModal();
+       else {dialog.setAttribute("open","");dialog.classList.add("game-dialog-fallback");}
+       const form=dialog.querySelector("#trade-card-form");
+       if(form)syncTradePreview(form);
+       dialog.querySelector("[data-action='close-trade']")?.focus();
+    }catch(error){
+      console.error("카드 교환 제안창 오류",error);
+      document.querySelector("#trade-modal")?.remove();
+      toast("교환 제안창을 열지 못했습니다. 화면을 새로고침한 뒤 다시 시도해 주세요.");
+    }
     return;
   }
   if(action==="close-trade"){document.querySelector("#trade-modal")?.close();return;}

@@ -731,9 +731,17 @@ function staticFile(req,res,pathname) {
     const file = path.join(__dirname,"public",pathname.slice(1));
     if (fs.existsSync(file)) {
       res.writeHead(200,{"Content-Type":pathname.endsWith(".svg")?"image/svg+xml":"image/png",
-        "Cache-Control":"no-store"});
+        "Cache-Control":"public, max-age=604800"});
       res.end(fs.readFileSync(file));return true;
     }
+  }
+  // V3.5.3: responsive news images; exact whitelist prevents arbitrary file access.
+  if (/^\/art\/article-(rates|geopolitics|energy|trade|health|tech|inflation-rise|inflation-cool|banks)-(640|1200)\.webp$/.test(pathname)) {
+    const file=path.join(__dirname,"public",pathname.slice(1));
+    if(!fs.existsSync(file)) return false;
+    res.writeHead(200,{"Content-Type":"image/webp","Cache-Control":"public, max-age=86400"});
+    res.end(fs.readFileSync(file));
+    return true;
   }
   const map = {
     "/": ["index.html","text/html; charset=utf-8"],
@@ -745,6 +753,7 @@ function staticFile(req,res,pathname) {
     "/report.js":["report.js","text/javascript; charset=utf-8"],
     "/editorial.css":["editorial.css","text/css; charset=utf-8"],
     "/mobile-v32.css":["mobile-v32.css","text/css; charset=utf-8"],
+    "/mobile-v35.css":["mobile-v35.css","text/css; charset=utf-8"],
     "/art/article-rates.webp":["art/article-rates.webp","image/webp"],
     "/art/article-geopolitics.webp":["art/article-geopolitics.webp","image/webp"],
     "/art/article-energy.svg":["art/article-energy.svg","image/svg+xml"],
@@ -764,7 +773,9 @@ function staticFile(req,res,pathname) {
     "/manifest.webmanifest":["manifest.webmanifest","application/manifest+json"],
     "/sw.js":["sw.js","text/javascript; charset=utf-8"],
     "/audio/notify.wav":["audio/notify.wav","audio/wav"],
+    "/audio/notify.mp3":["audio/notify.mp3","audio/mpeg"],
     "/audio/ambient.wav":["audio/ambient.wav","audio/wav"],
+    "/audio/ambient.mp3":["audio/ambient.mp3","audio/mpeg"],
     "/icon-192.png":["icon-192.png","image/png"],
     "/icon-512.png":["icon-512.png","image/png"],
     "/art/market-horizon.webp":["art/market-horizon.webp","image/webp"],
@@ -775,7 +786,7 @@ function staticFile(req,res,pathname) {
   if (!map[pathname]) return false;
   const [file,type]=map[pathname];
   // UI 및 코드 파일은 업데이트 직후 반영되도록 캐시하지 않습니다.
-  const cache=pathname.startsWith("/icon-")?"public, max-age=3600":"no-store";
+  const cache=pathname.startsWith("/art/article-")?"public, max-age=604800":(pathname.startsWith("/icon-")?"public, max-age=3600":"no-store");
   res.writeHead(200,{"Content-Type":type,"Cache-Control":cache});
   res.end(fs.readFileSync(path.join(__dirname,"public",file)));
   return true;
@@ -787,7 +798,7 @@ const server=http.createServer((req,res)=>{
     const url=new URL(req.url,`http://${req.headers.host||"localhost"}`);
     const pathname=url.pathname;
     if (req.method==="GET" && staticFile(req,res,pathname)) return;
-    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"classroom-beginner-v3.3-audio-layout"});
+    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"invest-play-easy-v3.5.3-newsimages"});
     if (pathname==="/api/state" && req.method==="GET") return send(res,200,view(req));
     if(pathname==="/api/presentation" && req.method==="GET"){
       restricted(sessionFor(req)?.role!=="teacher","발표 화면은 강사 로그인 후 이용하세요.");
