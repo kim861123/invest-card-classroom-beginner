@@ -71,112 +71,177 @@ export function countPolicyByYear(events, years=null) {
   return [...result.values()].sort((a,b)=>a.year-b.year);
 }
 export function rebalanceRateNews(newsSource, options={}) {
-  const {protectedIds=[],allowedYears=null, maxRatesPerYear=1, candidates=[],dryRun=false}=options;
+  const {
+    protectedIds=[],allowedYears=null,maxRatesPerYear=1,
+    targetTotalRates=null,candidates=[],dryRun=false
+  }=options;
   const events=newsSource?.events;
-  const report={version:"3.5.9",changed:[],skipped:[],before:[],after:[],reason:""};
-  if(!Array.isArray(events)) {report.reason="events 배열이 없어 적용하지 않음";return report;}
+  const report={
+    version:"3.5.14",changed:[],skipped:[],before:[],after:[],
+    originalRateTotal:0,finalRateTotal:0,targetTotalRates,
+    targetReached:false,reason:""
+  };
+  if(!Array.isArray(events)){
+    report.reason="newsSource.events 배열을 읽지 못해 변경하지 않음";
+    return report;
+  }
   const allowed=Array.isArray(allowedYears)?allowedYears:null;
-  const protectedSet=new Set(protectedIds.map(String));
-  const backups=events.map(e=>({...e}));
-  const records=Array.isArray(candidates)?candidates:[];
-  report.before=countPolicyByYear(events,allowed);
+  const relevant=e=>Number.isInteger(yearOf(e))&&(!allowed||allowed.includes(yearOf(e)));
+  const protectedSet=new Set(protectedIds.filter(Boolean).map(String));
+  const original=events.map(e=>({...e}));
+  const records=Array.isArray(candidates)?candidates.filter(c=>
+    Number.isInteger(Number(c?.year)) && Number.isFinite(isoDate(c.date)) &&
+    !isPolicy(c) && c.title && c.fact && c.source?.url && /^https?:\/\//.test(c.source.url)
+  ):[];
   const byYear=new Map();
   events.forEach((e,idx)=>{
+    if(!relevant(e))return;
     const y=yearOf(e);
-    if(!Number.isInteger(y)|| (allowed&&!allowed.includes(y)))return;
     if(!byYear.has(y))byYear.set(y,[]);
     byYear.get(y).push({e,idx});
   });
-  for(const [year,slots] of byYear) {
-    if(slots.length!==4) {
-      report.skipped.push({year,reason:`기사 수 ${slots.length}건: 예상 4건이 아니므로 보존`});
-      continue;
-    }
-    slots.sort((a,b)=>a.idx-b.idx);
-    const rateSlots=slots.filter(x=>isPolicy(x.e));
-    if(rateSlots.length<=maxRatesPerYear)continue;
-    const protectedRate=rateSlots.filter(x=>protectedSet.has(String(x.e.id)));
-    const remainingAllowed=Math.max(0,maxRatesPerYear-protectedRate.length);
-    const keepUnprotected=rateSlots.filter(x=>!protectedSet.has(String(x.e.id)))
-      .sort((a,b)=>importance(b.e)-importance(a.e) || a.idx-b.idx).slice(0,remainingAllowed);
-    const retained=new Set([...protectedRate,...keepUnprotected].map(x=>x.idx));
-    const replaceable=rateSlots.filter(x=>!retained.has(x.idx)).sort((a,b)=>a.idx-b.idx);
-    for(const slot of replaceable) {
-      const date=isoDate(slot.e.date);
-      if(!Number.isFinite(date)) {
-        report.skipped.push({year,id:slot.e.id,reason:"기존 기사 날짜가 정확한 YYYY-MM-DD 형식이 아님"});
-        continue;
+  const validYears=[...byYear].filter(([year,slots])=>{
+    if(slots.length===4)return true;
+    report.skipped.push({year,reason:`기사 수가 ${slots.length}개여서 안전을 위해 보존`});
+    return false;
+  });
+  report.before=countPolicyByYear(events,allowed);
+  report.originalRateTotal=report.before.reduce((sum,r)=>sum+r.rate,0);
+  const target=Number.isInteger(targetTotalRates)&&targetTotalRates>=0
+    ?targetTotalRates:null;
+  const usedReplacementIds=new Set(events.map(x=>x._replacementId).filter(Boolean));
+  const changedIds=new Set();
+  function countRate() {return events.filter(e=>relevant(e)&&isPolicy(e)).length;}
+  function findReplacement(year,slots,slot) {
+    const origDate=isoDate(slot.e.date);
+    if(!Number.isFinite(origDate))return null;
+    const pos=slots.findIndex(x=>x.idx===slot.idx);
+    const prev=pos>0?slots[pos-1].e:null;
+    const next=pos+1<slots.length?slots[pos+1].e:null;
+    const prevDate=prev?isoDate(prev.date):NaN;
+    const nextDate=next?isoDate(next.date):NaN;
+    const others=slots.filter(x=>x.idx!==slot.idx).map(x=>x.e);
+    const topics=new Set(others.filter(e=>!isPolicy(e))
+      .map(e=>e._newsTopic||topicFromTitle(e.title)).filter(Boolean));
+    return records.filter(c=>{
+      const cd=isoDate(c.date);
+      if(Number(c.year)!==year||cd>origDate||origDate-cd>MAX_LOOKBACK_DAYS*DAY)return false;
+      if(Number.isFinite(prevDate)&&cd<prevDate)return false;
+      if(Number.isFinite(nextDate)&&cd>nextDate)return false;
+      if(usedReplacementIds.has(c.id))return false;
+      if(others.some(e=>e._replacementId===c.id || 
+        (e.source?.url&&e.source.url===c.source?.url) ||
+        normalizeTitle(e.title)===normalizeTitle(c.title)))return false;
+      if(others.some(e=>FINGERPRINT[c.id]?.test(String(e.title||""))))return false;
+      return normalizeTitle(c.title)!==normalizeTitle(slot.e.title);
+    }).sort((a,b)=>{
+      const dupA=topics.has(a.topic)?1:0,dupB=topics.has(b.topic)?1:0;
+      return dupA-dupB || Math.abs(origDate-isoDate(a.date))-Math.abs(origDate-isoDate(b.date)) ||
+        a.id.localeCompare(b.id);
+    })[0]||null;
+  }
+  function chooseSlot(strictAnnual) {
+    const choices=[];
+    for(const [year,slots] of validYears) {
+      const rateSlots=slots.filter(x=>isPolicy(x.e));
+      if(strictAnnual && rateSlots.length<=maxRatesPerYear)continue;
+      for(const slot of rateSlots){
+        if(protectedSet.has(String(slot.e.id))||changedIds.has(String(slot.e.id)))continue;
+        const alternative=findReplacement(year,slots,slot);
+        if(!alternative)continue;
+        choices.push({year,slots,slot,alternative,rateCount:rateSlots.length});
       }
-      const slotPosition=slots.findIndex(x=>x.idx===slot.idx);
-      const prev=slotPosition>0?slots[slotPosition-1].e:null;
-      const prevDate=prev?isoDate(prev.date):NaN;
-      const next=slotPosition<slots.length-1?slots[slotPosition+1].e:null;
-      const nextDate=next?isoDate(next.date):NaN;
-      const existingNews=slots.filter(x=>x.idx!==slot.idx).map(x=>x.e);
-      const priorTopics=new Set(existingNews.filter(e=>!isPolicy(e)).map(e=>e._newsTopic||topicFromTitle(e.title)).filter(Boolean));
-      const optionsFor=records.filter(c=>{
-        const when=isoDate(c.date);
-        if(Number(c.year)!==year || !Number.isFinite(when) || when>date || date-when>MAX_LOOKBACK_DAYS*DAY)return false;
-        if(Number.isFinite(prevDate)&&when<prevDate)return false;
-        if(Number.isFinite(nextDate)&&when>nextDate)return false;
-        if(existingNews.some(e=>e._replacementId===c.id || (e.source?.url&&e.source.url===c.source?.url)))return false;
-        if(existingNews.some(e=>FINGERPRINT[c.id]?.test(String(e.title||""))))return false;
-        if(normalizeTitle(c.title)===normalizeTitle(slot.e.title))return false;
-        return true;
-      }).sort((a,b)=>{
-        const categoryA=priorTopics.has(a.topic)?1:0,categoryB=priorTopics.has(b.topic)?1:0;
-        return categoryA-categoryB || Math.abs(date-isoDate(a.date))-Math.abs(date-isoDate(b.date)) || a.id.localeCompare(b.id);
-      });
-      const choice=optionsFor[0];
-      if(!choice) {
-        report.skipped.push({year,id:slot.e.id,reason:"시점·출처·중복 검사에 맞는 대체 사건이 없음"});
-        continue;
-      }
-      const originalTitle=slot.e.title;
-      const fields=["date","title","fact","discussion_question","source","easy_summary","easy_term","easy_question","analysis"];
-      for(const key of fields)slot.e[key]=choice[key];
-      slot.e.source_ko=null;slot.e.source_ko_search=null;
-      slot.e._replacementId=choice.id;
-      slot.e._newsTopic=choice.topic;
-      slot.e._editorialConcept=choice.concept;
-      slot.e._editorialImageTopic= choice.topic==="보건"?"health":
-        choice.topic==="물가"?(/둔화|낮아|완화/.test(choice.title)?"inflation-cool":"inflation-rise"):
-        choice.topic==="기술·AI"?"tech":
-        choice.topic==="에너지"?"energy":
-        choice.topic==="금융·은행"?"banks":
-        choice.topic==="무역·공급망"?"trade":
-        choice.topic==="지정학"?"geopolitics":"market";
-      // event ID / year는 원본 유지: 1·2차 뉴스, 퀴즈 인덱스, 산업 가격 단계 보호
-      report.changed.push({year,id:slot.e.id,originalTitle,title:choice.title,date:choice.date,
-        source:choice.source?.url,topic:choice.topic});
     }
+    choices.sort((a,b)=>{
+      // 연도별 중복부터 줄이고, 이후에는 상대적으로 중요도가 낮은 금리 뉴스부터 정리.
+      return b.rateCount-a.rateCount || importance(a.slot.e)-importance(b.slot.e) ||
+        a.year-b.year || a.slot.idx-b.slot.idx;
+    });
+    return choices[0]||null;
+  }
+  function replaceOne(choice) {
+    const {year,slot,alternative:c}=choice;
+    const oldTitle=slot.e.title;
+    for(const key of ["date","title","fact","discussion_question","source",
+                      "easy_summary","easy_term","easy_question","analysis"]) {
+      if(Object.hasOwn(c,key))slot.e[key]=c[key];
+    }
+    slot.e.source_ko=null;
+    slot.e.source_ko_search=null;
+    slot.e._replacementId=c.id;
+    slot.e._newsTopic=c.topic;
+    slot.e._editorialConcept=c.concept;
+    slot.e._editorialImageTopic=c.topic==="보건"?"health":
+      c.topic==="물가"?(/둔화|낮아|완화/.test(c.title)?"inflation-cool":"inflation-rise"):
+      c.topic==="기술·AI"?"tech":c.topic==="에너지"?"energy":
+      c.topic==="금융·은행"?"banks":
+      c.topic==="무역·공급망"?"trade":
+      c.topic==="지정학"?"geopolitics":"market";
+    changedIds.add(String(slot.e.id));
+    usedReplacementIds.add(c.id);
+    report.changed.push({year,id:slot.e.id,originalTitle:oldTitle,
+      title:c.title,date:c.date,topic:c.topic,source:c.source.url});
+  }
+  // 1차: 연도별 2개 이상의 금리 기사 중 안전하게 대체 가능한 기사부터 교체.
+  // 전체 목표를 이미 달성했으면 더 줄이지 않음.
+  let safetyCounter=events.length+1;
+  while(safetyCounter-->0 && (target===null||countRate()>target)) {
+    const choice=chooseSlot(true);
+    if(!choice)break;
+    replaceOne(choice);
+  }
+  // 2차: 남은 전체 금리 뉴스 수를 목표(일반 6개, 비기너 3개)까지 낮춤.
+  // 주요 기사 및 퀴즈 뉴스는 보호하고, 대체 뉴스가 없으면 원본 유지.
+  safetyCounter=events.length+1;
+  while(target!==null&&countRate()>target&&safetyCounter-->0) {
+    const choice=chooseSlot(false);
+    if(!choice)break;
+    replaceOne(choice);
   }
   report.after=countPolicyByYear(events,allowed);
+  report.finalRateTotal=report.after.reduce((sum,r)=>sum+r.rate,0);
+  report.targetReached=target===null || report.finalRateTotal<=target;
+  for(const [year,slots] of byYear) {
+    const left=slots.filter(x=>isPolicy(x.e));
+    const protectedRate=left.filter(x=>protectedSet.has(String(x.e.id)));
+    const remainingOther=left.filter(x=>!protectedSet.has(String(x.e.id)));
+    if(protectedRate.length)report.skipped.push({
+      year,reason:`퀴즈 연결 기사 등 ${protectedRate.length}개는 변경하지 않음`});
+    if(remainingOther.length && (left.length>maxRatesPerYear||!report.targetReached))
+      report.skipped.push({
+        year,reason:`교체 후보 부족 또는 공개 시점 불일치로 금리 ${remainingOther.length}개 유지`});
+  }
+  if(!report.targetReached)report.reason=
+    `전체 목표 ${target}개에 미달: 안전하게 교체할 수 없는 뉴스 ${report.finalRateTotal}개 유지`;
+  // 사전 검사용: 보고서를 계산한 뒤 원본의 모든 필드를 원상복구.
   if(dryRun)events.forEach((e,i)=>{
-    for(const key of Object.keys(e))if(!(key in backups[i]))delete e[key];
-    Object.assign(e,backups[i]);
+    for(const key of Object.keys(e))if(!(key in original[i]))delete e[key];
+    Object.assign(e,original[i]);
   });
   return report;
 }
 export function applyNewsRatePatch(newsSource,options={}) {
-  if(process.env.DISABLE_RATE_NEWS_PATCH==="1") {
-    console.info("[뉴스 균형] 환경변수로 비활성화됨");
+  if(process.env.DISABLE_RATE_NEWS_PATCH==="1"){
+    console.info("[금리 뉴스 조정] 환경변수로 비활성화됨");
     return {changed:[],skipped:[],reason:"disabled"};
   }
   let candidates;
-  try{
+  try {
     candidates=JSON.parse(fs.readFileSync(CANDIDATE_URL,"utf8")).candidates;
     if(!Array.isArray(candidates))throw Error("candidates 배열 없음");
   } catch(err) {
-    console.warn("[뉴스 균형] 후보 자료 파일을 불러올 수 없어 기존 기사 유지:",err.message);
+    console.warn("[금리 뉴스 조정] 대체 기사 파일 없음; 원본 유지:",err.message);
     return {changed:[],skipped:[],reason:"missing candidates"};
   }
   const report=rebalanceRateNews(newsSource,{...options,candidates});
-  console.info(`[뉴스 균형 V3.5.9] 교체 ${report.changed.length}건, 미교체 ${report.skipped.length}건`);
-  for(const row of report.before) {
-    const aft=report.after.find(x=>x.year===row.year);
-    console.info(`[뉴스 균형] ${row.year}: 금리·통화정책 ${row.rate}건 → ${aft?.rate??row.rate}건 / 총 ${row.total}건`);
+  console.info(`[금리 뉴스 조정 3.5.14] 변경 전 ${report.originalRateTotal}건 → 변경 후 ${report.finalRateTotal}건`+
+    (report.targetTotalRates!==null?` / 목표 ${report.targetTotalRates}건`:""));
+  for(const row of report.before){
+    const after=report.after.find(x=>x.year===row.year);
+    console.info(`[금리 뉴스 조정] ${row.year}년 ${row.rate} → ${after?.rate??row.rate}건 (전체 기사 ${row.total}건)`);
   }
-  for(const row of report.changed)console.info(`[뉴스 균형] ${row.id}: ${row.originalTitle} → ${row.title}`);
+  for(const x of report.changed)
+    console.info(`[금리 뉴스 교체] ${x.year} ${x.id}: ${x.originalTitle} → ${x.title}`);
+  if(!report.targetReached)console.warn("[금리 뉴스 조정] 목표 미달:",report.reason);
   return report;
 }

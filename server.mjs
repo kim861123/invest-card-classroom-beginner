@@ -49,7 +49,8 @@ const beginnerLessons = JSON.parse(fs.readFileSync(path.join(__dirname, "data/be
 const rateNewsV359Report = applyNewsRatePatch(newsSource, {
   allowedYears:[2020,2021,2022,2023],
   protectedIds:beginnerLessons.map(x=>x.quiz?.newsId).filter(Boolean),
-  maxRatesPerYear:1
+  maxRatesPerYear:1,
+  targetTotalRates:3
 });
 const lessonMap = new Map(beginnerLessons.map(x=>[`${x.year}:${x.stage}`,x]));
 function currentLesson() { return lessonMap.get(`${currentYear()}:${publicStage()}`) || null; }
@@ -759,8 +760,16 @@ function staticFile(req,res,pathname) {
       res.end(fs.readFileSync(file));return true;
     }
   }
+  // Optimized industry cards (separate 480px thumbnail and high-resolution artwork).
+  if (/^\/cards\/(XLE|XLB|XLI|XLF|XLY|XLP|XLV|XLK|XLC|XLU|XLRE)(?:-thumb)?\.webp$/i.test(pathname)) {
+    const file=path.join(__dirname,"public",pathname.slice(1));
+    if(!fs.existsSync(file))return false;
+    res.writeHead(200,{"Content-Type":"image/webp","Cache-Control":"public, max-age=2592000"});
+    res.end(fs.readFileSync(file));
+    return true;
+  }
   // V3.5.3: responsive news images; exact whitelist prevents arbitrary file access.
-  if (/^\/art\/article-(rates|geopolitics|energy|trade|health|tech|inflation-rise|inflation-cool|banks|midterm-stocks|market)-(640|1200)\.webp$/.test(pathname)) {
+  if (/^\/art\/article-(rates|geopolitics|energy|trade|health|tech|inflation-rise|inflation-cool|banks|midterm-stocks|market|yen-carry)-(640|1200)\.webp$/.test(pathname)) {
     const file=path.join(__dirname,"public",pathname.slice(1));
     if(!fs.existsSync(file)) return false;
     res.writeHead(200,{"Content-Type":"image/webp","Cache-Control":"public, max-age=86400"});
@@ -794,6 +803,7 @@ function staticFile(req,res,pathname) {
     "/art/article-banks.webp":["art/article-banks.webp","image/webp"],
     "/art/article-midterm-stocks.webp":["art/article-midterm-stocks.webp","image/webp"],
     "/art/article-market.webp":["art/article-market.webp","image/webp"],
+    "/art/article-yen-carry.webp":["art/article-yen-carry.webp","image/webp"],
     "/app.js":["app.js","text/javascript; charset=utf-8"],
     "/style.css":["style.css","text/css; charset=utf-8"],
     "/manifest.webmanifest":["manifest.webmanifest","application/manifest+json"],
