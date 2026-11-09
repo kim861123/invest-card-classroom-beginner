@@ -550,6 +550,7 @@ function articleTopic(x){
   const explicit=String(x?.image_topic||x?.image_key||"");
   const title=String(x?.title||"");
   const normalized=normalizedArticleTitle(title);
+  if(x?.editorial_replacement && ARTICLE_IMAGE_KEYS.has(explicit))return explicit;
   // 대표 이미지 선택 시 본문·교육 주제보다 실제 기사 제목과 사건을 우선합니다.
   // 데이터에 과거 image_topic='trade'가 남아 있어도 주식시장 기사에 선박을 띄우지 않습니다.
   const semanticTitle=title.replace(/美(?=\s*증시|\s*주가|\s*중간선거)/g,"미국");

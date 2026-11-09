@@ -1,3 +1,4 @@
+import { applyNewsRatePatch } from "./news_rate_balancer.mjs";
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
@@ -44,6 +45,12 @@ const newsSource = JSON.parse(fs.readFileSync(path.join(__dirname, "data/histori
 const lessonConcepts = JSON.parse(fs.readFileSync(path.join(__dirname,"data/news_concepts_2019_2026.json"),"utf8"));
 // EASY V2 lesson content is server-only: quiz answer and reveal are never sent before allowed.
 const beginnerLessons = JSON.parse(fs.readFileSync(path.join(__dirname, "data/beginner_lessons.json"), "utf8")).lessons;
+// 금리 뉴스 편중 완화: 초급 퀴즈가 참조하는 기사는 절대 교체하지 않습니다.
+const rateNewsV359Report = applyNewsRatePatch(newsSource, {
+  allowedYears:[2020,2021,2022,2023],
+  protectedIds:beginnerLessons.map(x=>x.quiz?.newsId).filter(Boolean),
+  maxRatesPerYear:1
+});
 const lessonMap = new Map(beginnerLessons.map(x=>[`${x.year}:${x.stage}`,x]));
 function currentLesson() { return lessonMap.get(`${currentYear()}:${publicStage()}`) || null; }
 function lessonKey() { return `${currentYear()}-${publicStage()}`; }
@@ -218,8 +225,9 @@ function currentlyVisibleNews(role) {
 }
 function eventView(ev, revealAnalysis) {
   return { id:ev.id,year:ev.year,date:ev.date,title:ev.title,fact:ev.fact,
+    ...(ev._replacementId ? {editorial_replacement:true,image_topic:ev._editorialImageTopic} : {}),
     discussion_question:ev.discussion_question,source:ev.source,source_ko:ev.source_ko||null,source_ko_search:ev.source_ko_search||null,
-    learning_concept:lessonConcepts[ev.id]||null,
+    learning_concept:ev._editorialConcept||lessonConcepts[ev.id]||null,
     easy_summary: ev.easy_summary || "", easy_term: ev.easy_term || "", easy_question: ev.easy_question || "",
     ...(revealAnalysis ? {analysis:ev.analysis} : {}) };
 }

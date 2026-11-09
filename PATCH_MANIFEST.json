@@ -1,7 +1,7 @@
 {
   "project": "INVEST PLAY",
-  "release": "비기너 V3.5.8",
-  "based_on": "비기너 V3.5.7",
+  "release": "비기너 V3.5.9",
+  "based_on": "비기너 V3.5.8",
   "format": "GitHub overwrite patch",
   "rollback": "Restore previous patch if live deployment fails",
   "changes": [
@@ -23,21 +23,25 @@
     "Responsive 1600/1200/640 WebP files and photo-v356 cache-busting; original uploaded news JSON still needed for full ID-based review",
     "New image matching regression tests and source JSON audit tool",
     "Confirmed actual full-resolution WebP image files and repaired stale trade-tag override for midterm stock rebound headlines",
-    "Updated browser cache versions and added separate event-mapping tests, including 美 shorthand"
+    "Updated browser cache versions and added separate event-mapping tests, including 美 shorthand",
+    "Apply a verified historic-news balancing overlay in server memory: reduce duplicate policy-rate stories where a safe alternate exists",
+    "Keep quiz-reference articles in beginner version, retain article IDs/stages and unchanged prices/card data",
+    "Ship 21 dated/source-backed alternative events, independent report tool, and 9 regression tests",
+    "Serve new concept, question, source and image topic together when an article is replaced",
+    "Bump service worker and app cache to v3.5.9 / v9.5.9"
   ],
   "limitations": [
-    "actual historical news data not supplied: headlines, count, rate weight, quizzes, stage returns unchanged",
-    "some news images still derive from earlier generated source; sharpening cannot restore absent true detail",
-    "no live Render deployment or physical mobile device verification",
-    "existing V3.5.2 mobile audio test failure remains and is outside this patch scope",
-    "Render live server and physical iPhone/iPad were not verified for this replay-only change",
-    "No pricing calculation, trade functionality or historical data was changed",
-    "Existing deployed/DB saved sessions are normalized in UI, not rewritten or reset",
-    "No full database-backed integration test without original data/storage.mjs",
-    "Live Render server and physical Safari not verified",
-    "Original news JSON unavailable; cannot certify all article IDs or live Render display."
+    "Original historical_news_2019_2026.json is NOT included in previous patch uploads; real replacement counts cannot be stated until running in the original GitHub project",
+    "Safeguards skip missing/invalid dates, duplicate candidates, years other than four events, quiz-linked articles, and events without a past published candidate",
+    "The rate share target of one per year is a guideline and is not guaranteed if safeguards block replacement",
+    "No 2026 replacements have been curated",
+    "Render deployment and real iPhone/iPad integration tests have not been run"
   ],
-  "verification": "New V3.5.8 article-matching tests 6/6 passed, JS syntax passed. Production Safari/Render deployment not verified.",
+  "verification": [
+    "node --test tests/news-rate-v359.test.mjs (9 passed per variant)",
+    "node --check server.mjs and public/app.js passed",
+    "Safety fixture verification: ID, chronology, quiz guards, duplicate guard, rollback"
+  ],
   "image_quality_hotfix": "v3.5.8",
   "note": "Previous patch reverified with actual image assets. Image sources reused, not all regenerated."
 }
