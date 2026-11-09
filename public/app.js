@@ -66,9 +66,17 @@ async function refresh(force=false){
       (next.room.phase!=="trade"||next.role!=="team"))document.querySelector("#trade-modal").close();
     if(!game||game.version!==next.version||game.role!==next.role||force){
       const oldRole=game?.role, oldPhase=game?.room?.phase;
-      if(oldPhase && oldPhase!==next.room.phase && ["result","finished"].includes(next.room.phase)){
-        document.querySelector("#info-modal")?.close();
-        document.querySelector("#asset-modal")?.close();
+      if(oldPhase && oldPhase!==next.room.phase){
+        // Any previous result belongs to the completed round, not the new news.
+        if(["news","trade","result","finished"].includes(next.room.phase)){
+          document.querySelector("#info-modal")?.close();
+          document.querySelector("#draw-dialog")?.close();
+          document.querySelector("#game-confirm-dialog")?.close();
+          if(next.room.phase==="news")document.querySelector("#trade-modal")?.close();
+        }
+        if(["result","finished"].includes(next.room.phase)){
+          document.querySelector("#asset-modal")?.close();
+        }
       }
       game=next;
       render();
@@ -400,7 +408,7 @@ function prefetchCardArtwork(sectors){
   urls.forEach(url=>warmCardUrls.add(url));
   let cursor=0,active=0;
   function loadNext(){
-    while(active<4&&cursor<urls.length){
+    while(active<(navigator.connection?.saveData?1:2)&&cursor<urls.length){
       const url=urls[cursor++];active++;
       let image;
       try{
@@ -435,7 +443,10 @@ function scheduleCardWarmup(g){
   try{
     const ordered=[...g.sectors].sort((a,b)=>
       Number(g.team?.holdings?.[b.id]||0)-Number(g.team?.holdings?.[a.id]||0));
-    prefetchCardArtwork(ordered);
+    // Do not download all 11 large PNG originals on slow mobile networks.
+    // Warm a few cards the team actually owns; remaining assets load on collection open.
+    const owned=ordered.filter(s=>Number(g.team?.holdings?.[s.id]||0)>0);
+    prefetchCardArtwork(owned.slice(0,4));
   }catch(error){console.warn("카드 이미지 사전 로딩 실패",error);}
 }
 
@@ -524,7 +535,7 @@ function teamLobbyPanel(g){
 // 미분류 기사는 관세/무역으로 오분류하지 않고 중립 시장 사진을 사용합니다.
 const ARTICLE_IMAGE_KEYS=new Set([
   "rates","geopolitics","energy","trade","health","tech",
-  "inflation-rise","inflation-cool","banks","midterm-stocks","market"
+  "inflation-rise","inflation-cool","banks","midterm-stocks","market","yen-carry"
 ]);
 const ARTICLE_IMAGE_BY_ID=Object.freeze({
   // 뉴스 원본 JSON에 고유 id가 확인되면 여기에 "기사ID": "이미지키"를 추가합니다.
@@ -550,12 +561,26 @@ function articleTopic(x){
   const explicit=String(x?.image_topic||x?.image_key||"");
   const title=String(x?.title||"");
   const normalized=normalizedArticleTitle(title);
+  // Event-specific story overrides inconsistent legacy category labels.
+  if(/WTI|서부텍사스산원유|원유.{0,15}마이너스|유가.{0,12}(?:폭락|마이너스)/i.test(title))return "energy";
+  if(/우크라이나|러시아.{0,15}침공|전면\\s*침공|전쟁\\s*발발/i.test(title))return "geopolitics";
+  // V3.5.12: Japanese-yen carry unwind is a FX/market shock, never a Fed-rate stock image.
+  // Prioritize the story itself over stale image_topic="rates" or editor metadata.
+  if(/엔\\s*캐리|엔화.{0,12}캐리|캐리\\s*(?:트레이드|거래)|yen[ -]*carry|carry[ -]*trade/i.test(title)
+    && /청산|해소|급락|급변|충격|변동|불안|폭락|쇼크|거래|시장/i.test(title))
+    return "yen-carry";
+  // Specific yen carry unwind headline always outranks stale rate category metadata.
+  if(/엔\s*캐리|엔캐리|yen\s*carry|캐리\s*거래\s*청산/i.test(title)
+     && /청산|급변|급락|변동|쇼크|불안|해소|거래/i.test(title))return "yen-carry";
   if(x?.editorial_replacement && ARTICLE_IMAGE_KEYS.has(explicit))return explicit;
   // 대표 이미지 선택 시 본문·교육 주제보다 실제 기사 제목과 사건을 우선합니다.
   // 데이터에 과거 image_topic='trade'가 남아 있어도 주식시장 기사에 선박을 띄우지 않습니다.
   const semanticTitle=title.replace(/美(?=\s*증시|\s*주가|\s*중간선거)/g,"미국");
   // 실제 기사 사건을 먼저 확인합니다. 이전 데이터의 오래된 image_topic=trade보다 우선합니다.
   if(ARTICLE_IMAGE_KEYS.has(ARTICLE_IMAGE_BY_TITLE[normalized]))return ARTICLE_IMAGE_BY_TITLE[normalized];
+  // Yen carry-trade unwind is a currency/volatility shock, not a US Fed rate announcement.
+  if(/엔\s*캐리|엔캐리|yen\s*carry|캐리\s*거래\s*청산/i.test(semanticTitle) &&
+     /청산|급변|급락|변동|쇼크|불안|해소|전개|위기|거래/i.test(semanticTitle))return "yen-carry";
   // "미국 중간선거 후 증시 반등"처럼 어순이 다른 기사도 주식시장으로 고정합니다.
   if(/중간\s*선거|midterm/i.test(semanticTitle) &&
      /증시|주식|주가|월가|주식시장|지수|반등|상승/i.test(semanticTitle))return "midterm-stocks";
@@ -620,11 +645,11 @@ function articleHistoricalNote(x,g){
   const yr=Number(x.year);
   let titleText="",message="",question="";
   if(yr===2022 && /소비자물가|물가상승|물가 상승|인플레이션|CPI/i.test(title)){
-    titleText="2022년 물가 흐름을 읽는 법";
+    titleText="2022년 물가 흐름: 급등 후 상승률 둔화";
     const later=/둔화|완화|진정|하락|안정|낮아|꺾|내려/.test(title);
     message=later?
-      "물가 상승률이 이전보다 낮아졌다는 뜻이지, 물가 자체가 내려갔다는 뜻은 아닙니다. 통계 기준월과 실제 발표 날짜는 다를 수 있습니다.":
-      "당시에는 물가 상승 압력이 컸습니다. 이후 발표된 지표의 둔화 여부는 그 지표가 실제로 공개된 시점부터 판단에 반영해야 합니다.";
+      "이 뉴스는 앞선 급등 뉴스보다 뒤에 발표된 지표일 수 있습니다. 대표적으로 2022년 10월 CPI 상승률은 7.7%(11월 10일 발표)로, 6월 9.1%(7월 13일 발표)보다 낮았습니다. 물가가 내려간 것이 아니라 오르는 속도가 느려진 것입니다. 지금 기사 발표일을 확인하세요.":
+      "물가 급등 뉴스가 공개된 시점에서는 아직 이후 둔화 지표를 알 수 없습니다. 대표적으로 2022년 6월 CPI 상승률은 9.1%였고 7월 13일 발표됐습니다. 지금 알려진 정보만으로 판단하세요.";
     question=later?
       "물가 상승 속도가 느려진다면 앞으로 금리 기대와 산업별 부담은 어떻게 달라질까요?":
       "물가 상승 압력이 커지면 금리와 기업 비용에 어떤 영향을 줄까요?";
@@ -644,6 +669,15 @@ function inflationHistoryBridge(g,current){
   if(Number(g.room.year)!==2022)return "";
   const titles=current.map(x=>String(x.title||"")).join(" ");
   if(!/소비자물가|물가 상승|인플레이션|CPI/i.test(titles))return "";
+  // Even when both 2022 CPI headlines are shown in one stage, distinguish
+  // monthly data dates and the article publication sequence.
+  if(current.length>=2 && current.every(x=>/소비자물가|물가 상승|인플레이션|CPI/i.test(String(x.title||"")))){
+    return `<aside class="news-history-bridge" aria-label="물가 기사 시점 안내">
+      <strong>기사 1·2는 같은 시점의 발표가 아닙니다</strong>
+      <p>2022년 6월 CPI 상승률 9.1%는 7월 13일, 10월 CPI 상승률 7.7%는 11월 10일 발표됐습니다. 물가 수준이 떨어진 것이 아니라 상승률이 둔화된 것입니다.</p>
+      <p>기사가 공개된 순서대로 정보를 확인하고 투자 판단이 어떻게 변했는지 비교하세요.</p>
+    </aside>`;
+  }
   const prior=(g.news||[]).filter(x=>Number(x.year)===2022 &&
     !current.some(c=>c.id===x.id)&&/소비자물가|물가 상승|인플레이션|CPI/i.test(String(x.title||"")) &&
     String(x.date||"")<=String(current[current.length-1]?.date||""));
@@ -664,7 +698,7 @@ function newsList(g){
   activeArticleIndex=Math.min(activeArticleIndex,Math.max(0,current.length-1));
   const renderNews=(x,i,isPast=false)=>{
     const concept=x.learning_concept;
-    const topic=articleTopic(x), imageBase=`/art/article-${topic}`, image=`${imageBase}.webp?v=photo-v358`;
+    const topic=articleTopic(x), imageBase=`/art/article-${topic}`, image=`${imageBase}.webp?v=photo-v3512`;
     const question=x.easy_question||concept?.question||x.discussion_question;
     const summary=x.easy_summary||x.fact;
     const detail=x.fact||"";
@@ -674,7 +708,7 @@ function newsList(g){
       <div class="news-readable-meta"><span>${ico("newspaper",16)} ${isPast?"지난 뉴스":"시장 뉴스"}</span><time>${h(x.date)}</time></div>
       <h3 class="news-readable-title">${h(x.title)}</h3>
       <figure class="news-readable-image" data-image-topic="${topic}">
-        <img src="${image}" srcset="${imageBase}-640.webp?v=photo-v358 640w, ${imageBase}-1200.webp?v=photo-v358 1200w, ${imageBase}.webp?v=photo-v358 1600w" sizes="(max-width:480px) calc(100vw - 64px), (max-width:900px) 85vw, 740px" width="1600" height="900" loading="${isPast?"lazy":"eager"}" fetchpriority="${isPast?"low":"high"}" decoding="async" alt="${h(x.title)} 관련 ${topic==="geopolitics"?"전쟁 상황 재현":topic==="rates"?"중앙은행":"경제 주제"} 이미지"/>
+        <img src="${image}" srcset="${imageBase}-640.webp?v=photo-v3512 640w, ${imageBase}-1200.webp?v=photo-v3512 1200w, ${imageBase}.webp?v=photo-v3512 1600w" sizes="(max-width:480px) calc(100vw - 64px), (max-width:900px) 85vw, 740px" width="1600" height="900" loading="${isPast?"lazy":"eager"}" fetchpriority="${isPast?"low":"high"}" decoding="async" alt="${h(x.title)} 관련 ${topic==="geopolitics"?"전쟁 상황 재현":topic==="rates"?"중앙은행":"경제 주제"} 이미지"/>
         <figcaption>${topic.startsWith("inflation")?"물가 흐름을 설명하는 AI 생성 이미지 · 실제 통계 그래프가 아니며, 상승률 둔화는 물가 하락과 다릅니다.":topic==="market"?"경제 시장을 표현한 일반 AI 생성 이미지 · 사건 현장 사진이 아닙니다.":"기사 이해를 위한 AI 생성 재현 이미지 · 실제 현장 사진이 아닙니다."}</figcaption>
       </figure>
       <div class="news-readable-summary"><b>한 줄 요약</b><p>${h(summary)}</p></div>
@@ -1320,7 +1354,7 @@ function predictionPanel(g){
    "<span>가격 발표 후 예상과 결과를 비교할 수 있어요.</span>"}</div>`:
  open?`<form id="prediction-form" class="prediction-form">
   <label>상승할 것으로 예상하는 산업
-   <select name="sectorId" required>${g.sectors.map(s=>`<option value="${s.id}">${h(s.name)} · ${h(s.ticker)}</option>`).join("")}</select></label>
+   <select name="sectorId" required>${g.sectors.map(s=>`<option value="${s.id}">${h(s.name)}</option>`).join("")}</select></label>
   <label>선택한 이유 (4자 이상)
    <textarea name="reason" maxlength="160" minlength="4" required placeholder="예: 유가가 오르면 에너지 산업에 도움이 될 것 같아요."></textarea></label>
   <button class="btn gold" type="submit">우리 팀 예상 제출</button>
@@ -1417,7 +1451,7 @@ function finalPodium(g){
   const mine=scores.find(x=>g.team&&x.id===g.team.id);
   const winner=scores.find(x=>Number(x.rank)===1);
   const maxStages=Number(g.room.totalRounds||0)*2;
-  return `<section class="panel final-awards final-awards-v355" id="final-awards" aria-labelledby="final-awards-title">
+  return `<section class="panel final-awards final-awards-v355 awards-celebration" id="final-awards" aria-labelledby="final-awards-title">
     <div class="final-awards-heading">
       <span class="final-awards-kicker">${ico("trophy",20)} GAME COMPLETE · 최종 시상식</span>
       <h2 id="final-awards-title">우리들의 투자 올림픽</h2>
