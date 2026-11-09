@@ -241,3 +241,60 @@
   .news-pair-context,.news-history-bridge{padding:11px 12px!important}
   .news-context-note{padding:11px!important}
 }
+
+
+/* V3.5.10 / V9.5.10 — 지난 뉴스 대비 복구
+ * 기존 style.css의 .newsroom .archive-news .news-card.news-past
+ * 강제 다크 배경이 라이트 뉴스 카드와 충돌하므로 더 구체적인 선택자로 보정합니다.
+ */
+.readable-newsroom .archive-news .archive-list > .news-card.news-readable.news-past {
+  background:linear-gradient(145deg,#fffdf8,#f7f3eb) !important;
+  color:#172940 !important;
+  border:1px solid #cedae5 !important;
+  border-left:4px solid #d4a75b !important;
+  opacity:1 !important;
+  box-shadow:0 8px 25px rgba(4,17,33,.16) !important;
+}
+.readable-newsroom .archive-news .archive-list .news-card.news-readable.news-past .news-readable-title,
+.readable-newsroom .archive-news .archive-list .news-card.news-readable.news-past h3 {
+  color:#172940 !important;
+}
+.readable-newsroom .archive-news .archive-list .news-card.news-readable.news-past .news-readable-meta,
+.readable-newsroom .archive-news .archive-list .news-card.news-readable.news-past time {
+  color:#4f6478 !important;
+}
+.readable-newsroom .archive-news .archive-list .news-card.news-readable.news-past .news-readable-summary {
+  background:#fff0ce !important;
+  border-left-color:#d6a13e !important;
+  color:#20354b !important;
+}
+.readable-newsroom .archive-news .archive-list .news-card.news-readable.news-past .news-readable-summary b {
+  color:#77511e !important;
+}
+.readable-newsroom .archive-news .archive-list .news-card.news-readable.news-past .news-readable-summary p,
+.readable-newsroom .archive-news .archive-list .news-card.news-readable.news-past .news-readable-body p,
+.readable-newsroom .archive-news .archive-list .news-card.news-readable.news-past .news-readable-body h4,
+.readable-newsroom .archive-news .archive-list .news-card.news-readable.news-past .news-readable-term,
+.readable-newsroom .archive-news .archive-list .news-card.news-readable.news-past .news-learn {
+  color:#20354b !important;
+}
+.readable-newsroom .archive-news .archive-list .news-card.news-readable.news-past .news-readable-image figcaption {
+  color:#526579 !important;
+  background:#edf1f5 !important;
+}
+.readable-newsroom .archive-news .archive-list .news-card.news-readable.news-past .news-readable-source a {
+  background:#eef4fa !important;
+  color:#16466c !important;
+  border-color:#abc3d8 !important;
+}
+.readable-newsroom .archive-news .archive-list .news-card.news-readable.news-past .news-readable-title {
+  font-size:clamp(20px,4.3vw,29px) !important;
+  line-height:1.38 !important;
+}
+@media (max-width:640px) {
+  .readable-newsroom .archive-news .archive-list {padding:0 8px 10px;gap:14px}
+  .readable-newsroom .archive-news .archive-list > .news-card.news-readable.news-past {
+    padding:17px 14px !important;
+    border-radius:16px !important;
+  }
+}
