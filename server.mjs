@@ -769,7 +769,7 @@ function staticFile(req,res,pathname) {
     return true;
   }
   // V3.5.3: responsive news images; exact whitelist prevents arbitrary file access.
-  if (/^\/art\/article-(rates|geopolitics|energy|trade|health|tech|inflation-rise|inflation-cool|banks|midterm-stocks|market|yen-carry)-(640|1200)\.webp$/.test(pathname)) {
+  if (/^\/art\/article-(rates|geopolitics|energy|trade|health|tech|inflation-rise|inflation-cool|banks|midterm-stocks|market|yen-carry|hormuz)-(640|1200)\.webp$/.test(pathname)) {
     const file=path.join(__dirname,"public",pathname.slice(1));
     if(!fs.existsSync(file)) return false;
     res.writeHead(200,{"Content-Type":"image/webp","Cache-Control":"public, max-age=86400"});
@@ -804,6 +804,7 @@ function staticFile(req,res,pathname) {
     "/art/article-midterm-stocks.webp":["art/article-midterm-stocks.webp","image/webp"],
     "/art/article-market.webp":["art/article-market.webp","image/webp"],
     "/art/article-yen-carry.webp":["art/article-yen-carry.webp","image/webp"],
+    "/art/article-hormuz.webp":["art/article-hormuz.webp","image/webp"],
     "/app.js":["app.js","text/javascript; charset=utf-8"],
     "/style.css":["style.css","text/css; charset=utf-8"],
     "/manifest.webmanifest":["manifest.webmanifest","application/manifest+json"],

@@ -300,7 +300,10 @@ function headLine(g,title,desc=""){
 function stat(label,num,hint="",cls=""){
   return `<div class="stat"><small>${h(label)}</small><strong class="${cls}">${num}</strong>${hint?`<div class="hint">${h(hint)}</div>`:""}</div>`;
 }
-const cardPath = ticker => `/cards/${encodeURIComponent(ticker)}.png`;
+// Optimized original card artwork: 480px previews (~50 KB each) and full-size WebP for zoom.
+const CARD_ASSET_VERSION="v3.5.13-card-webp";
+const cardPath = ticker => `/cards/${encodeURIComponent(ticker)}-thumb.webp?v=${CARD_ASSET_VERSION}`;
+const cardFullPath = ticker => `/cards/${encodeURIComponent(ticker)}.webp?v=${CARD_ASSET_VERSION}`;
 const DRAW_TOTAL=110;
 // 초급 전용: 경제 경험이 없는 학습자를 위한 단순한 4단계 안내
 function beginnerGuide(g) {
@@ -425,7 +428,7 @@ function prefetchCardArtwork(sectors){
         image.onload=finish;
         image.onerror=finish;
         image.decoding="async";
-        image.fetchPriority="high";
+        image.fetchPriority="low";
         image.src=url;
         if(image.complete)Promise.resolve().then(finish);
       }catch(error){
@@ -446,7 +449,7 @@ function scheduleCardWarmup(g){
     // Do not download all 11 large PNG originals on slow mobile networks.
     // Warm a few cards the team actually owns; remaining assets load on collection open.
     const owned=ordered.filter(s=>Number(g.team?.holdings?.[s.id]||0)>0);
-    prefetchCardArtwork(owned.slice(0,4));
+    prefetchCardArtwork(navigator.connection?.saveData ? owned.slice(0,4) : owned);
   }catch(error){console.warn("카드 이미지 사전 로딩 실패",error);}
 }
 
@@ -535,7 +538,7 @@ function teamLobbyPanel(g){
 // 미분류 기사는 관세/무역으로 오분류하지 않고 중립 시장 사진을 사용합니다.
 const ARTICLE_IMAGE_KEYS=new Set([
   "rates","geopolitics","energy","trade","health","tech",
-  "inflation-rise","inflation-cool","banks","midterm-stocks","market","yen-carry"
+  "inflation-rise","inflation-cool","banks","midterm-stocks","market","yen-carry","hormuz"
 ]);
 const ARTICLE_IMAGE_BY_ID=Object.freeze({
   // 뉴스 원본 JSON에 고유 id가 확인되면 여기에 "기사ID": "이미지키"를 추가합니다.
@@ -561,17 +564,19 @@ function articleTopic(x){
   const explicit=String(x?.image_topic||x?.image_key||"");
   const title=String(x?.title||"");
   const normalized=normalizedArticleTitle(title);
-  // Event-specific story overrides inconsistent legacy category labels.
-  if(/WTI|서부텍사스산원유|원유.{0,15}마이너스|유가.{0,12}(?:폭락|마이너스)/i.test(title))return "energy";
-  if(/우크라이나|러시아.{0,15}침공|전면\\s*침공|전쟁\\s*발발/i.test(title))return "geopolitics";
-  // V3.5.12: Japanese-yen carry unwind is a FX/market shock, never a Fed-rate stock image.
-  // Prioritize the story itself over stale image_topic="rates" or editor metadata.
-  if(/엔\\s*캐리|엔화.{0,12}캐리|캐리\\s*(?:트레이드|거래)|yen[ -]*carry|carry[ -]*trade/i.test(title)
-    && /청산|해소|급락|급변|충격|변동|불안|폭락|쇼크|거래|시장/i.test(title))
-    return "yen-carry";
+  // The Strait of Hormuz is an oil shipping chokepoint, not a WTI well or generic war image.
+  if(/호르무즈|hormuz/i.test(title) ||
+     (/(중동|이란|페르시아만)/i.test(title)&&/(유조선|해협|원유.{0,8}(수송|흐름|차질|급감))/i.test(title)))
+    return "hormuz";
   // Specific yen carry unwind headline always outranks stale rate category metadata.
   if(/엔\s*캐리|엔캐리|yen\s*carry|캐리\s*거래\s*청산/i.test(title)
      && /청산|급변|급락|변동|쇼크|불안|해소|거래/i.test(title))return "yen-carry";
+  // 실제 사건 제목을 오래된 이미지 분류값보다 우선하여 매칭.
+  // 금리라는 표현이 엔캐리 청산 기사 본문에 있어도 연준 사진으로 바뀌지 않게 합니다.
+  if(/엔\\s*캐리|엔캐리|엔화.*캐리|yen[ -]*carry|캐리\\s*트레이드/i.test(title)
+     && /청산|급락|급변|폭락|쇼크|변동|불안|위기|매도|되돌림|시장/i.test(title))return "yen-carry";
+  if(/WTI|서부\\s*텍사스|원유\\s*선물|유가.*마이너스|원유.*마이너스/i.test(title))return "energy";
+  if(/우크라이나|러시아.*침공|전면\\s*침공|전쟁|지정학.*갈등/i.test(title))return "geopolitics";
   if(x?.editorial_replacement && ARTICLE_IMAGE_KEYS.has(explicit))return explicit;
   // 대표 이미지 선택 시 본문·교육 주제보다 실제 기사 제목과 사건을 우선합니다.
   // 데이터에 과거 image_topic='trade'가 남아 있어도 주식시장 기사에 선박을 띄우지 않습니다.
@@ -698,7 +703,7 @@ function newsList(g){
   activeArticleIndex=Math.min(activeArticleIndex,Math.max(0,current.length-1));
   const renderNews=(x,i,isPast=false)=>{
     const concept=x.learning_concept;
-    const topic=articleTopic(x), imageBase=`/art/article-${topic}`, image=`${imageBase}.webp?v=photo-v3512`;
+    const topic=articleTopic(x), imageBase=`/art/article-${topic}`, image=`${imageBase}.webp?v=photo-v3515`;
     const question=x.easy_question||concept?.question||x.discussion_question;
     const summary=x.easy_summary||x.fact;
     const detail=x.fact||"";
@@ -708,7 +713,7 @@ function newsList(g){
       <div class="news-readable-meta"><span>${ico("newspaper",16)} ${isPast?"지난 뉴스":"시장 뉴스"}</span><time>${h(x.date)}</time></div>
       <h3 class="news-readable-title">${h(x.title)}</h3>
       <figure class="news-readable-image" data-image-topic="${topic}">
-        <img src="${image}" srcset="${imageBase}-640.webp?v=photo-v3512 640w, ${imageBase}-1200.webp?v=photo-v3512 1200w, ${imageBase}.webp?v=photo-v3512 1600w" sizes="(max-width:480px) calc(100vw - 64px), (max-width:900px) 85vw, 740px" width="1600" height="900" loading="${isPast?"lazy":"eager"}" fetchpriority="${isPast?"low":"high"}" decoding="async" alt="${h(x.title)} 관련 ${topic==="geopolitics"?"전쟁 상황 재현":topic==="rates"?"중앙은행":"경제 주제"} 이미지"/>
+        <img src="${image}" srcset="${imageBase}-640.webp?v=photo-v3515 640w, ${imageBase}-1200.webp?v=photo-v3515 1200w, ${imageBase}.webp?v=photo-v3515 1600w" sizes="(max-width:480px) calc(100vw - 64px), (max-width:900px) 85vw, 740px" width="1600" height="900" loading="${isPast?"lazy":"eager"}" fetchpriority="${isPast?"low":"high"}" decoding="async" alt="${h(x.title)} 관련 ${topic==="geopolitics"?"전쟁 상황 재현":topic==="rates"?"중앙은행":"경제 주제"} 이미지"/>
         <figcaption>${topic.startsWith("inflation")?"물가 흐름을 설명하는 AI 생성 이미지 · 실제 통계 그래프가 아니며, 상승률 둔화는 물가 하락과 다릅니다.":topic==="market"?"경제 시장을 표현한 일반 AI 생성 이미지 · 사건 현장 사진이 아닙니다.":"기사 이해를 위한 AI 생성 재현 이미지 · 실제 현장 사진이 아닙니다."}</figcaption>
       </figure>
       <div class="news-readable-summary"><b>한 줄 요약</b><p>${h(summary)}</p></div>
@@ -911,7 +916,7 @@ function tradeCardModal(s,g){
         <span class="trade-form-step">02 · 받고 싶은 카드</span>
         <label class="field">받을 산업<select name="wantId" required>${options.map(x=>`
           <option value="${x.id}" ${x.id===preferred.id?"selected":""} ${availableOther(g,x.id)<1?"disabled":""}>
-          ${h(x.name)} · ${h(x.ticker)} (상대팀 최대 ${availableOther(g,x.id)}장)</option>`).join("")}</select></label>
+          ${h(x.name)} (상대팀 최대 ${availableOther(g,x.id)}장)</option>`).join("")}</select></label>
         <label class="field">받을 수량<input name="wantQty" type="number" min="1" max="${counterpartMax}" value="1" required></label>
         <div class="counterparty-available" data-counterparty-max>다른 팀에서 실제로 교환 가능한 최대 ${counterpartMax}장</div>
        </div>
@@ -1461,6 +1466,10 @@ function finalPodium(g){
         <span>전체 <b>${maxStages}단계 완료</b></span>
         ${winner?`<span>우승 <b>${h(winner.name)}</b></span>`:""}
       </div>
+      ${winner?`<div class="final-awards-celebrate-title" aria-label="${h(winner.name)} 팀 우승 축하">
+        <span class="awards-spotlight-cup" aria-hidden="true">🏆</span>
+        <div><strong>축하합니다!</strong><span>투자 챔피언 · ${h(winner.name)}</span></div>
+      </div>`:""}
     </div>
     ${top.length?`<div class="final-podium count-${top.length}" role="group" aria-label="최종 상위 ${top.length}개 팀 시상대">
       ${order.map(podiumSlot).join("")}
@@ -1609,8 +1618,17 @@ document.addEventListener("load",event=>{
     event.target.closest(".sector-image")?.classList.add("is-loaded");
 },true);
 document.addEventListener("error",event=>{
-  if(event.target?.matches?.(".sector-image img"))
-    event.target.closest(".sector-image")?.classList.add("is-error");
+  const img=event.target;
+  // If a partial deployment lacks optimized WebP, keep the game usable with its original PNG.
+  const source=img?.getAttribute?.("src")||"";
+  const cardMatch=/^\/cards\/(XLE|XLB|XLI|XLF|XLY|XLP|XLV|XLK|XLC|XLU|XLRE)(?:-thumb)?\.webp(?:\?.*)?$/i.exec(source);
+  if(cardMatch&&img.dataset.cardPngFallback!=="1"){
+    img.dataset.cardPngFallback="1";
+    img.src=`/cards/${cardMatch[1].toUpperCase()}.png`;
+    return;
+  }
+  if(img?.matches?.(".sector-image img"))
+    img.closest(".sector-image")?.classList.add("is-error");
 },true);
 document.addEventListener("submit",async e=>{
   const form=e.target;if(!form.id)return;
@@ -1772,7 +1790,7 @@ document.addEventListener("click",async e=>{
       <h2 id="card-detail-title">${h(s.name)} 산업 카드 · 원본 상세보기</h2></div><button type="button" class="modal-close" data-action="close-card" aria-label="닫기">${ico("close",21)}</button></div>
       <div class="card-detail-layout">
         <div class="card-detail-image-wrap" id="card-image-wrap">
-          <img id="card-detail-image" decoding="async" fetchpriority="high" data-action="card-zoom" data-zoom-level="1" src="${cardPath(s.ticker)}" alt="${h(s.name)} 카드 원본. 대표산업, 산업설명, 티커가 이미지에 적혀 있습니다.">
+          <img id="card-detail-image" decoding="async" fetchpriority="high" data-action="card-zoom" data-zoom-level="1" src="${cardFullPath(s.ticker)}" alt="${h(s.name)} 카드 원본. 대표산업, 산업설명, 티커가 이미지에 적혀 있습니다.">
         </div>
         <aside class="card-detail-sidebar">
           <span class="eyebrow">CARD INTELLIGENCE</span>
