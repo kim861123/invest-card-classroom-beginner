@@ -642,6 +642,7 @@ function settle() {
   state.turnTrade=null;
 }
 async function processTimer() {
+  if (!state) return; // Timer may fire before asynchronous storage initialization finishes.
   if(state.phase==="trade" && state.deadline && Date.now()>=state.deadline){
     const t=activeTurn();
     if(t?.status==="proposal")finishProposalTurn();
