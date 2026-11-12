@@ -37,7 +37,7 @@ test("VNext: 신문형 뉴스·공개된 경제 개념·접이식 카드·교환
  assert.match(news,/newsroom readable-newsroom/);
  const trade={...game,room:{...game.room,phase:"trade"}};
  const html=ctx.ux.studentView(trade);
- assert.ok(html.indexOf("공개된 카드 교환 제안")<html.indexOf("나의 산업 카드 컬렉션"));
+ assert.ok(html.indexOf("순차 카드 교환")<html.indexOf("나의 산업 카드 컬렉션"));
  assert.match(html,/collection-dropdown/);
  assert.match(html,/data-action="toggle-ambient"/);
  assert.doesNotMatch(html,/data-classroom-pane="collection"/);
