@@ -58,7 +58,7 @@ test("서버가 새로운 이미지의 실제 파일 경로를 제공",()=>{
   assert.match(server,/\/art\/article-market\.webp/);
 });
 test("브라우저 캐시 갱신·이미지별 표시·교육용 출처 표기",()=>{
-  assert.match(app,/photo-v358/);
+  assert.match(app,/photo-v3515/);
   assert.match(app,/data-image-topic/);
   assert.match(app,/AI 생성 재현 이미지/);
   assert.ok(!app.includes('return "trade";\n}\nfunction articleMainTopic'));

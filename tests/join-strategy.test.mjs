@@ -29,7 +29,7 @@ test("학생 링크 분리, 중복 참가 방지, 팀명 변경, 110장 카드 �
     assert.ok(ready,errors);
     const page=await fetch(url+"/join");
     assert.equal(page.status,200);
-    assert.match(await page.text(),/src="\/app.js\?v=classroom-v9-editorial"/);
+    assert.match(await page.text(),/src="\/app.js\?v=easy-v4.2"/);
     for(const illustration of ["market-horizon","news-signal","exchange-handshake","victory-market"]){
       const response=await fetch(url+"/art/"+illustration+".webp");
       assert.equal(response.status,200,illustration+" should be published");

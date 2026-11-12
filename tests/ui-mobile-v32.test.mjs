@@ -19,7 +19,7 @@ test("기사 주제별 이미지가 패치에 포함되고 정적 서버가 제�
  assert.match(css,/\.news-readable-title/);
 });
 test("기사: 2개 탭·주제별 이미지·기사 뒤 접힌 개념만 제공",()=>{
- const start=app.indexOf("function articleTopic(x){");
+ const start=app.indexOf("const ARTICLE_IMAGE_KEYS=");
  const end=app.indexOf("function tradeCardModal(",start)>0 ?
     app.indexOf("function tradeCardModal(",start): app.indexOf("// EASY V2:",start);
  assert.ok(start>=0 && end>start);

@@ -8,7 +8,7 @@ const load=p=>fs.readFileSync(path.join(dir,p),"utf8");
 const app=load("public/app.js"),css=load("public/mobile-v32.css");
 test("전쟁 기사 이미지 분류 및 출처 성격 표시",()=>{
   assert.match(app,/러시아\|우크라이나\|침공\|전쟁/);
-  assert.match(app,/article-\$\{topic\}\.webp/);
+  assert.match(app,/imageBase=`\/art\/article-\$\{topic\}`/); assert.match(app,/\$\{imageBase\}\.webp/);
   assert.match(app,/AI 생성 재현 이미지/);
   assert.ok(fs.statSync(path.join(dir,"public/art/article-geopolitics.webp")).size>10000);
   assert.match(load("server.mjs"),/article-geopolitics\.webp/);

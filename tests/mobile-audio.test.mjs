@@ -46,7 +46,7 @@ test("휴대기기 터치 시 오디오 시작과 시험 재생이 실행된다"
   const sandbox={
     window:{AudioContext:FakeCtx},
     Audio:FakeAudio,
-    document:{hidden:false,addEventListener(){},querySelector(){return null;}},
+    document:{hidden:false,addEventListener(){},querySelector(){return null;},createElement(tag){assert.equal(tag,"audio");const el=new FakeAudio();el.style={};el.setAttribute=()=>{};return el;},body:{appendChild(){}}},
     audioContext:null,timerSoundEnabled:true,ambientEnabled:false,ambientTimer:null,
     ico(){return"";},toast(){},
     setInterval(){return 123;},clearInterval(){},
