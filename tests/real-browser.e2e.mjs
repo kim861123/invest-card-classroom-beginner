@@ -181,6 +181,7 @@ async function run(){
  const secondOffer=s.listings.find(x=>x.offerId===3);no(secondOffer,"second offer missing");
  pass("multiple card offers queued",{count:s.room.turnTrade.proposedCount});
  await proposer.page.locator('[data-action="skip-proposal"]').tap();
+ await proposer.page.locator('[data-confirm="ok"]').tap();
  s=await until(teacherCtx,x=>x.room.turnTrade?.status==="response","start responses");
  const firstResponder=teams.find(t=>t.id===s.room.turnTrade.responderId);no(firstResponder,"first responder unknown");
  const firstSeconds=clock(s);
