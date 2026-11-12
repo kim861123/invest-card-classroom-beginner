@@ -43,3 +43,5 @@ jobs:
           grep -E '^([[:space:]]*(✔|✖|ℹ (tests|pass|fail)))' /tmp/main-baseline.log | tail -n 10 || true
           echo "BASELINE_MAIN_FAIL_COUNT=$(grep -c '✖ ' /tmp/main-baseline.log || true)"
           echo "BASELINE_MAIN_PASS_COUNT=$(grep -c '✔ ' /tmp/main-baseline.log || true)"
+          echo 'BASELINE FAILED TEST NAMES:'
+          grep '✖ ' /tmp/main-baseline.log | sed -E 's/^.*✖ /BASELINE_FAIL: /' | head -n 120 || true
