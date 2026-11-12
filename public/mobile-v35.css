@@ -515,3 +515,110 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
  .final-awards-celebrate-title,.final-awards-celebrate-title .awards-spotlight-cup,
  .final-awards-v355 .final-podium-slot{animation:none!important}
 }
+
+
+/* V4.0 / V10.0: 강사 주도형 수업. 학생은 보유 카드와 교환 기능만 본다. */
+.student-trading-shell {max-width:1120px;margin:0 auto;min-width:0}
+.classroom-phase-status {
+  border:1px solid rgba(221,183,98,.35);
+  background:linear-gradient(135deg,#192746,#10213b 70%,#152b45);
+  padding:clamp(17px,3vw,28px);border-radius:20px;
+  margin:12px 0 18px;display:grid;gap:10px;min-width:0;
+}
+.classroom-phase-status h2 {font-size:clamp(17px,3.7vw,24px);font-weight:750;line-height:1.48;color:#f7f5ec;margin:0}
+.classroom-phase-status p {margin:0;color:#f4dca7;font-size:1rem}
+.classroom-phase-status small {color:#c0cee0}
+.classroom-phase-status .pill {justify-self:start}
+.classroom-owned-cards {border:1px solid rgba(188,207,233,.26);border-radius:20px;
+ background:#13223a;overflow:hidden;margin:18px 0;min-width:0}
+.classroom-owned-cards>summary {padding:17px 20px;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;cursor:pointer;list-style:none;min-width:0}
+.classroom-owned-cards>summary::-webkit-details-marker {display:none}
+.classroom-owned-cards>summary span {display:flex;align-items:center;gap:9px;min-width:0}
+.classroom-owned-cards>summary strong {color:#fff;font-size:clamp(14px,2.8vw,18px);white-space:nowrap}
+.classroom-owned-cards>summary em {font-style:normal;color:#f0d79b;font-size:clamp(12px,2.3vw,15px);
+  white-space:nowrap;flex-shrink:0;word-break:keep-all}
+.classroom-owned-cards[open]>summary {border-bottom:1px solid rgba(190,209,233,.2)}
+.classroom-card-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,225px),1fr));
+ gap:12px;padding:16px;min-width:0}
+.class-card-item {border:1px solid rgba(193,206,227,.24);border-radius:15px;padding:12px;
+ background:#1d2f4b;display:flex;gap:12px;align-items:center;min-width:0}
+.class-card-item img {width:78px;height:111px;flex:0 0 78px;object-fit:contain;border-radius:8px;background:#14213a}
+.class-card-item>div {display:flex;flex:1;flex-direction:column;align-items:flex-start;gap:7px;min-width:0}
+.class-card-item strong {font-size:15px;color:#f9f7ef;word-break:keep-all}
+.class-card-item span {color:#d1dfef}
+.class-card-item .btn {width:100%;min-height:42px;padding:8px 10px;white-space:normal;word-break:keep-all}
+.student-trading-shell .listing-board {margin-top:14px}
+@media(max-width:400px) {
+  .classroom-owned-cards>summary {padding:14px 11px;gap:6px}
+  .classroom-card-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px}
+  .class-card-item {display:flex;flex-direction:column;padding:9px;text-align:center}
+  .class-card-item img {width:min(100%,112px);height:141px;flex:auto}
+  .class-card-item>div {width:100%;align-items:center}
+  .class-card-item strong {font-size:13px}
+  .class-card-item span {font-size:12px}
+  .class-card-item .btn {font-size:12px}
+}
+@media(prefers-reduced-motion:reduce) {
+ .student-trading-shell *, .classroom-owned-cards * {animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+
+.student-room-heading {margin:16px 0 10px;display:grid;gap:8px}
+.student-room-heading h1 {font-size:clamp(22px,5vw,32px);color:#faf7ef;margin:0;line-height:1.28}
+.student-room-heading p {font-size:clamp(13px,2.8vw,16px);color:#d1ddee;margin:0;line-height:1.6}
+
+
+/* V4.1/V10.1 순차 카드 교환 UI */
+.turn-mode-picker,.turn-teacher-status,.turn-board{
+  border-radius:18px;
+}
+.turn-mode-picker{
+  margin:16px 0;padding:16px;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;
+  background:linear-gradient(145deg,#223656,#16243a);
+  border:1px solid #566b87;
+}
+.turn-mode-picker>strong,.turn-mode-picker>p{grid-column:1/-1;margin:0}
+.turn-mode-picker>strong{color:#faf1cf;font-size:16px}
+.turn-mode-picker>p{color:#cbd9ed;font-size:13px;line-height:1.5}
+.turn-mode-picker .btn{min-width:0;white-space:normal;min-height:49px;line-height:1.3;
+  font-size:clamp(12px,2.7vw,14px);padding:8px}
+.turn-mode-picker .btn[aria-pressed="true"]{outline:2px solid #f1d58a;outline-offset:1px}
+.turn-teacher-status{margin:10px 0;padding:14px;
+  background:rgba(15,37,68,.88);border:1px solid rgba(253,218,135,.36)}
+.turn-teacher-status strong{color:#f8df98}
+.turn-teacher-status p{margin:7px 0;color:#edf3ff}
+.turn-teacher-status .btn{min-height:40px}
+.turn-board{max-width:100%;min-width:0;overflow-wrap:break-word;
+  background:linear-gradient(140deg,#243858,#12233c);border:1px solid #4d627e;
+  box-shadow:0 14px 30px rgba(0,0,0,.13);padding:clamp(15px,3vw,24px)}
+.turn-board .section-title{gap:12px}
+.turn-board .section-title h2{color:#fff8e8}
+.turn-order-pill{display:inline-block;padding:7px 12px;background:#182f50;
+  border:1px solid #637b98;border-radius:999px;color:#f6e7be;
+  font-size:12px;font-weight:700;margin:5px 0 14px}
+.turn-current-teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;margin-bottom:12px}
+.turn-current-teams>div{padding:12px;border-radius:12px;
+  border:1px solid rgba(218,232,255,.24);background:rgba(10,23,41,.56);
+  min-width:0;display:grid;gap:5px}
+.turn-current-teams small{color:#b1c7e5;font-size:12px}
+.turn-current-teams strong{color:#fff;line-height:1.35;word-break:keep-all;font-size:16px}
+.turn-clock{font-size:13px;color:#d6e7ff;margin:12px 0}
+.turn-clock b{font-variant-numeric:tabular-nums;color:#ffdf89;font-size:20px}
+.turn-offer-detail{margin:14px 0;padding:14px;display:grid;gap:9px;
+  background:#f5f0e3;border:1px solid #ded4bb;border-radius:14px;color:#15273c}
+.turn-offer-detail strong{font-size:clamp(15px,4vw,19px);line-height:1.55;word-break:keep-all}
+.turn-offer-detail small{color:#415368;line-height:1.55}
+.turn-buttons{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.turn-buttons .btn{flex:1 1 128px;min-width:0;min-height:48px;
+  white-space:nowrap;padding:10px 12px;font-size:clamp(13px,3.5vw,15px)}
+.turn-my-notice,.turn-wait-msg{font-size:14px;line-height:1.6;margin:11px 0;color:#f0f3fc}
+.turn-my-notice{padding:11px;background:#1c3b5e;border-left:3px solid #ecd18a;border-radius:8px}
+.turn-board .listing-unavailable{color:#ffd1c9}
+@media(max-width:360px){
+  .turn-mode-picker{grid-template-columns:1fr}
+  .turn-current-teams{gap:6px}
+  .turn-current-teams strong{font-size:14px}
+  .turn-buttons .btn{flex-basis:100%}
+}

@@ -98,9 +98,9 @@ function newState() {
   return {
     version: 1, phase: "lobby", pausedFrom: null, secondsRemaining: null,
     yearIndex: 0, stageIndex: 0, deadline: null, pin: randomPin(),
-    config: { newsSeconds: 75, tradeSeconds: 90 },
+    config: { newsSeconds: 75, tradeSeconds: 90, responseSeconds: 20, turnMode: "A" },
     prices: Object.fromEntries(sectors.map(x => [x.id, BASE_PRICE])),
-    participants: [], listings: [], completedTrades: [], priceHistory: [],
+    participants: [], listings: [], turnTrade: null, completedTrades: [], priceHistory: [],
     lastMoves: [], results: [], stageStartSnapshots: null, sessions: {}, createdAt: new Date().toISOString()
   };
 }
@@ -409,12 +409,11 @@ function view(req) {
     l.year===currentYear() && l.stageIndex===state.stageIndex);
   const latestResult=state.results.at(-1);
   const canTrade=state.phase==="trade";
-  return {
+  const payload = {
     version:state.version, role:role==="team" && !team ? "guest" : role,
     team:team ? {id:team.id,name:team.name,members:team.members,drawMode:team.drawMode||null,
       drawComplete: Boolean(team.drawMode)||state.phase!=="lobby",
       holdings:team.holdings,cash:0,cardCount:holdingCount(team),initialAsset:initialAsset(team),
-      total:announcedScores().find(row=>row.id===team.id)?.total ?? valuation(team),returnPct:announcedScores().find(row=>row.id===team.id)?.returnPct ?? (valuation(team)/initialAsset(team)-1)*100,
       practiceDone:Boolean(team.practiceDone),
       practiceReceipt:team.practiceReceipt||null} : null,
     room: {phase:state.phase,pausedFrom:state.pausedFrom,
@@ -422,29 +421,15 @@ function view(req) {
       deadline:state.deadline,secondsRemaining:state.secondsRemaining,
       teamCount:state.participants.length,undrawnTeams:state.phase==="lobby"?state.participants.filter(p=>!p.drawMode).length:0,config:state.config,
       ...(role==="teacher"?{pin:state.pin,
-        joinUrl:joinUrl(req)}:{}),canTrade},
+        joinUrl:joinUrl(req)}:{}),canTrade,turnTrade:turnPublic(role,team?.id)},
     sectors:sectors.map(x=>({...x,price:state.prices[x.id]})),
     ...(team?{tradeAvailability:Object.fromEntries(sectors.map(x=>[x.id,{
       mineAvailable:availableFor(team,x.id),
       maxOtherAvailable:maxCounterpartyAvailable(team.id,x.id)
     }]))}:{}),
-    scores:announcedScores(), news:currentlyVisibleNews(role),
-    ...(team?{myPrediction:team.predictions?.[classroomPredictionKey()]||null,
-     predictionHistory:Object.entries(team.predictions||{}).map(([key,entry])=>({key,...entry}))}:{}),
+    scores:role==="teacher"?announcedScores():[], news:role==="teacher"?currentlyVisibleNews(role):[],
     ...(role==="teacher"?{predictionBoard:classroomPredictions()}:{}),
-    ...(role!=="guest"?{beginnerLesson:lessonView(role,team)}:{}),
-    ...(team?{quizReviews:quizReviewHistory(team)}:{}),
-    ...(team && state.phase==="finished"?{tradeReport:finalTradeReport(team)}:{}),
-    ...(team?{
-      stageTradeHistory:state.results.map(result=>({
-        year:result.year,stage:result.stageIndex+1,at:result.at,
-        report:result.teamTradeReports?.find(x=>x.teamId===team.id)?.report ||
-          {ready:false,reason:"해당 단계의 교환 분석 기록이 없습니다."}
-      })),
-      ...(state.phase==="result"?{stageTradeReport:
-        latestResult?.teamTradeReports?.find(x=>x.teamId===team.id)?.report ||
-          {ready:false,reason:"이번 단계의 교환 분석을 확인할 수 없습니다."}}:{})
-    }:{}),
+    ...(role==="teacher"?{beginnerLesson:lessonView(role,null)}:{}),
     listings:role!=="guest"?currentListings.map(l=>({
       id:l.id,sellerId:l.sellerId,sellerName:l.sellerName,
       offerId:l.offerId,offerQty:l.offerQty,wantId:l.wantId,wantQty:l.wantQty,createdAt:l.createdAt
@@ -463,14 +448,38 @@ function view(req) {
         (publicStage()===1?Number(ev.id.slice(-2))<=2:Number(ev.id.slice(-2))>2)).map(ev=>eventView(ev,true))
     }:{}),
     priceHistory:state.priceHistory,
-    recentTrades:role!=="guest" ? state.completedTrades.slice(-15).reverse() : [],
+    recentTrades:role==="teacher" ? state.completedTrades.slice(-15).reverse()
+      : team ? state.completedTrades.filter(t=>t.sellerId===team.id||t.buyerId===team.id).slice(-10).reverse() : [],
     ...(role==="teacher"?{teacherMembers:state.participants.map(p=>({id:p.id,name:p.name,members:p.members,
         drawMode:p.drawMode||null,cardCount:holdingCount(p),holdings:p.holdings}))}:{}),
     course:{edition:"beginner",years:YEARS,newsCount:16},
     explanation:"가격 변화는 실측 '사건 직후' 수익률이 아니라, ETF 연간 수익률을 두 단계로 배분한 교육용 모델입니다."
   };
+  // 학생 API에 강사용 뉴스·산업별 가격·순위·결과를 보내지 않습니다.
+  // 학생에게는 카드 보유량, 교환 가능 수량 및 거래 현황만 전달합니다.
+  if (role!=="teacher") {
+    payload.news=[];
+    payload.scores=[];
+    payload.lastResult=null;
+    payload.priceHistory=[];
+    payload.sectors=payload.sectors.map(({id,name,ticker})=>({id,name,ticker}));
+    if(payload.team) {
+      delete payload.team.total;
+      delete payload.team.returnPct;
+    }
+    delete payload.stageTradeHistory;
+    delete payload.stageTradeReport;
+    delete payload.predictionHistory;
+    delete payload.myPrediction;
+    delete payload.tradeReport;
+    delete payload.beginnerLesson;
+    delete payload.quizReviews;
+    delete payload.explanation;
+    payload.recentTrades=team ? state.completedTrades.filter(
+      trade=>trade.sellerId===team.id||trade.buyerId===team.id).slice(-10).reverse() : [];
+  }
+  return payload;
 }
-
 function classroomPredictionKey(){return `${currentYear()}-${state.stageIndex+1}`;}
 function classroomPredictions(){
  const key=classroomPredictionKey();
@@ -510,6 +519,75 @@ function projectorData(){
       .map(([id,count])=>({sector:sectors.find(s=>s.id===Number(id))?.name||"기타",count}))}
  };
 }
+
+// 강사 주도형 순차 카드 교환: 제안은 직전 확정 수익률 오름차순,
+// 응답은 강사가 정한 A(상위 우선) / B(하위 우선) 순서로 진행합니다.
+function tradeMode() { return state.config?.turnMode === "B" ? "B" : "A"; }
+function proposalSeconds() { return Math.min(600, Math.max(20,Number(state.config?.tradeSeconds)||90)); }
+function responseSeconds() { return Math.min(120, Math.max(10,Number(state.config?.responseSeconds)||20)); }
+function activeTurn() { return state.turnTrade || null; }
+function namedTeam(id) { return state.participants.find(p=>p.id===id)?.name||"팀 연결 대기"; }
+function turnPublic(role, teamId) {
+  const t=activeTurn();
+  if(!t)return null;
+  const proposerId=t.proposalOrder?.[t.offerIndex]||null;
+  const respondentId=t.status==="response" ? t.responders?.[t.responderIndex]||null : null;
+  return {status:t.status,mode:t.mode,proposerId,proposerName:proposerId?namedTeam(proposerId):null,
+    responderId:respondentId,responderName:respondentId?namedTeam(respondentId):null,
+    step:Math.min(t.proposalOrder.length,t.offerIndex+1),total:t.proposalOrder.length,
+    isMyProposal:role==="team"&&teamId===proposerId&&t.status==="proposal",
+    isMyResponse:role==="team"&&teamId===respondentId&&t.status==="response",
+    ...(role==="teacher"?{
+      order:t.proposalOrder.map((id,i)=>({id,name:namedTeam(id),done:i<t.offerIndex})),
+      responderOrder:(t.responders||[]).map((id,i)=>({id,name:namedTeam(id),done:i<t.responderIndex}))
+    }:{})};
+}
+function startProposerTurn(){
+  const t=activeTurn();
+  if (!t)return;
+  t.currentListingId=null;t.responders=[];t.responderIndex=0;
+  if(t.offerIndex>=t.proposalOrder.length){
+    t.status="complete";state.deadline=null;
+  } else {
+    t.status="proposal";state.deadline=Date.now()+proposalSeconds()*1000;
+  }
+}
+function moveToNextProposer(){
+  const t=activeTurn();
+  if(!t)return;
+  const listing=state.listings.find(l=>l.id===t.currentListingId);
+  if(listing?.status==="open")listing.status="expired";
+  t.offerIndex++;startProposerTurn();
+}
+function moveToNextResponder(){
+  const t=activeTurn();
+  bad(!t||t.status!=="response","응답할 거래가 없습니다.");
+  t.responderIndex++;
+  if(t.responderIndex>=t.responders.length)moveToNextProposer();
+  else state.deadline=Date.now()+responseSeconds()*1000;
+}
+function skipProposal(sess){
+  ensureTrade(sess.role);
+  const t=activeTurn();
+  restricted(!t||t.status!=="proposal"||t.proposalOrder[t.offerIndex]!==sess.teamId,
+    "현재 팀의 제안 차례가 아닙니다.");
+  moveToNextProposer();
+}
+function passResponse(sess){
+  ensureTrade(sess.role);
+  const t=activeTurn();
+  restricted(!t||t.status!=="response"||t.responders[t.responderIndex]!==sess.teamId,
+    "현재 팀의 수락·패스 차례가 아닙니다.");
+  moveToNextResponder();
+}
+function skipCurrentTurn(){
+  bad(state.phase!=="trade","교환 단계에서만 건너뛸 수 있습니다.");
+  const t=activeTurn();
+  bad(!t||t.status==="complete","이미 모든 팀의 제안이 종료됐습니다.");
+  if(t.status==="proposal")moveToNextProposer();
+  else moveToNextResponder();
+}
+
 function expireListings() {
   for (const l of state.listings) if (l.status==="open") l.status="expired";
 }
@@ -532,17 +610,40 @@ function settle() {
   state.lastMoves=changes;
   state.priceHistory.push({year,stageIndex:step,prices:{...state.prices}});
   state.phase="result";state.deadline=null;state.secondsRemaining=null;state.pausedFrom=null;
+  state.turnTrade=null;
 }
 async function processTimer() {
-  if (!state.deadline || Date.now() < state.deadline) return;
-  if (state.phase==="news") {
-    state.phase="trade";state.deadline=Date.now()+state.config.tradeSeconds*1000;await commit();
-  } else if (state.phase==="trade") {settle();await commit();}
+  if(state.phase==="trade" && state.deadline && Date.now()>=state.deadline){
+    const t=activeTurn();
+    if(t?.status==="proposal")moveToNextProposer();
+    else if(t?.status==="response")moveToNextResponder();
+    else state.deadline=null;
+    await commit();
+  }
 }
 function beginNews() {
+  state.turnTrade=null;
   captureStageBaseline();
-  state.phase="news";state.deadline=Date.now()+state.config.newsSeconds*1000;
+  state.phase="news";state.deadline=null;
   state.secondsRemaining=null;state.pausedFrom=null;
+}
+function openTrade() {
+  bad(state.phase!=="news","강사 뉴스 설명 단계에서만 교환을 열 수 있습니다.");
+  const previous=announcedScores();
+  const lowestFirst=previous.slice().reverse().map(x=>x.id);
+  // 동점 순서는 팀 ID 기준으로 고정해 재접속·새로고침에도 유지합니다.
+  state.turnTrade={
+    mode:tradeMode(),proposalOrder:lowestFirst,offerIndex:0,
+    status:"proposal",currentListingId:null,responders:[],responderIndex:0,
+    highestFirst:previous.map(x=>x.id)
+  };
+  state.phase="trade";
+  state.secondsRemaining=null;state.pausedFrom=null;
+  startProposerTurn();
+}
+function closeTrade() {
+  bad(state.phase!=="trade","카드 교환 중에만 마감할 수 있습니다.");
+  settle();
 }
 function start() {
   bad(state.phase!=="lobby","대기실 상태에서만 시작할 수 있습니다.");
@@ -571,14 +672,14 @@ function next() {
 }
 function pause() {
   bad(!["news","trade"].includes(state.phase),"진행 중에만 일시정지할 수 있습니다.");
-  state.secondsRemaining=Math.max(1,Math.ceil((state.deadline-Date.now())/1000));
+  state.secondsRemaining=state.phase==="news"?null:Math.max(1,Math.ceil((state.deadline-Date.now())/1000));
   state.pausedFrom=state.phase;state.phase="paused";state.deadline=null;
 }
 function resume() {
   bad(state.phase!=="paused","일시정지 중이 아닙니다.");
   state.phase=state.pausedFrom;
   state.pausedFrom=null;
-  state.deadline=Date.now()+Math.max(1,state.secondsRemaining)*1000;
+  state.deadline=state.phase==="trade"?Date.now()+Math.max(1,state.secondsRemaining||1)*1000:null;
   state.secondsRemaining=null;
 }
 function ensureTrade(role) {
@@ -599,6 +700,12 @@ function maxCounterpartyAvailable(teamId, sectorId) {
 }
 function postTrade(sess, body) {
   ensureTrade(sess.role);
+  // 접속 재시도 시 이미 접수된 요청은 차례가 지나도 중복 등록하지 않습니다.
+  const requestId=typeof body.requestId==="string" ? body.requestId.slice(0,80) : "";
+  if(requestId && state.listings.some(x=>x.sellerId===sess.teamId && x.requestId===requestId))return;
+  const t=activeTurn();
+  restricted(!t||t.status!=="proposal"||t.proposalOrder[t.offerIndex]!==sess.teamId,
+    "지금은 우리 팀의 제안 차례가 아닙니다.");
   const offerId=Number(body.offerId),wantId=Number(body.wantId),offerQty=Number(body.offerQty),wantQty=Number(body.wantQty);
   bad(![offerId,wantId].every(id=>sectors.some(x=>x.id===id)),"카드 종류가 잘못되었습니다.");
   bad(!Number.isSafeInteger(offerQty)||!Number.isSafeInteger(wantQty)||offerQty<1||wantQty<1||offerQty>30||wantQty>30,"수량은 1~30장입니다.");
@@ -611,10 +718,19 @@ function postTrade(sess, body) {
   bad(state.listings.filter(x=>x.sellerId===seller.id&&x.status==="open").length>=5,"팀당 동시에 최대 5개까지 제안할 수 있습니다.");
   state.listings.push({id:crypto.randomUUID(),sellerId:seller.id,sellerName:seller.name,
     offerId,offerQty,wantId,wantQty,year:currentYear(),stageIndex:state.stageIndex,
-    status:"open",createdAt:new Date().toISOString()});
+    status:"open",requestId,createdAt:new Date().toISOString()});
+  t.currentListingId=state.listings.at(-1).id;
+  t.responders=t.highestFirst.filter(id=>id!==seller.id);
+  if(t.mode==="B")t.responders.reverse();
+  t.responderIndex=0;
+  t.status="response";
+  state.deadline=Date.now()+responseSeconds()*1000;
 }
 function acceptTrade(sess, id) {
   ensureTrade(sess.role);
+  const t=activeTurn();
+  restricted(!t||t.status!=="response"||t.responders[t.responderIndex]!==sess.teamId||
+    t.currentListingId!==id,"현재 팀의 교환 수락 차례가 아닙니다.");
   const listing=state.listings.find(x=>x.id===id);
   bad(!listing||listing.status!=="open"||listing.year!==currentYear()||listing.stageIndex!==state.stageIndex,"이미 마감된 제안입니다.");
   restricted(listing.sellerId===sess.teamId,"자기 팀의 제안은 수락할 수 없습니다.");
@@ -634,6 +750,7 @@ function acceptTrade(sess, id) {
     stage:state.stageIndex+1,sellerId:seller.id,buyerId:buyer.id,
     sellerName:seller.name,buyerName:buyer.name,
     offerId:listing.offerId,offerQty:listing.offerQty,wantId:listing.wantId,wantQty:listing.wantQty});
+  moveToNextProposer();
 }
 /**
  * 강의 전체 초기화:
@@ -688,6 +805,14 @@ async function resetGame(req, body) {
 function applyAction(body) {
   switch (body.action) {
     case "start":start();break;
+    case "openTrade":openTrade();break;
+    case "skipTurn":skipCurrentTurn();break;
+    case "turnMode": {
+      bad(!["lobby","news"].includes(state.phase),"교환 진행 중에는 응답 순서를 바꿀 수 없습니다.");
+      bad(!["A","B"].includes(body.mode),"A 또는 B를 선택하세요.");
+      state.config={...state.config,turnMode:body.mode};break;
+    }
+    case "closeTrade":closeTrade();break;
     case "next":next();break;
     case "pause":pause();break;
     case "resume":resume();break;
@@ -700,7 +825,9 @@ function applyAction(body) {
       const n=Number(body.newsSeconds),t=Number(body.tradeSeconds);
       bad(!Number.isInteger(n)||n<15||n>300||!Number.isInteger(t)||t<20||t>600,
         "뉴스 시간은 15~300초, 거래 시간은 20~600초입니다.");
-      state.config={newsSeconds:n,tradeSeconds:t};break;
+      const rs=Number(body.responseSeconds||20);
+      bad(!Number.isInteger(rs)||rs<10||rs>120,"응답 시간은 10~120초입니다.");
+      state.config={...state.config,newsSeconds:n,tradeSeconds:t,responseSeconds:rs};break;
     }
     case "kick": {
       bad(state.phase!=="lobby","참가팀 제거는 시작 전에만 가능합니다.");
@@ -757,7 +884,7 @@ function staticFile(req,res,pathname) {
     if (fs.existsSync(file)) {
       res.writeHead(200,{"Content-Type":pathname.endsWith(".svg")?"image/svg+xml":"image/png",
         "Cache-Control":"public, max-age=604800"});
-      res.end(fs.readFileSync(file));return true;
+      fs.createReadStream(file).on("error",()=>res.destroy()).pipe(res);return true;
     }
   }
   // Optimized industry cards (separate 480px thumbnail and high-resolution artwork).
@@ -765,7 +892,7 @@ function staticFile(req,res,pathname) {
     const file=path.join(__dirname,"public",pathname.slice(1));
     if(!fs.existsSync(file))return false;
     res.writeHead(200,{"Content-Type":"image/webp","Cache-Control":"public, max-age=2592000"});
-    res.end(fs.readFileSync(file));
+    fs.createReadStream(file).on("error",()=>res.destroy()).pipe(res);
     return true;
   }
   // V3.5.3: responsive news images; exact whitelist prevents arbitrary file access.
@@ -830,12 +957,14 @@ function staticFile(req,res,pathname) {
 }
 const server=http.createServer((req,res)=>{
   secureHeaders(res);
-  serial(async () => {
-    await processTimer();
+  // 읽기 요청은 Supabase 쓰기 대기열을 막지 않습니다.
+  // 상태 변경(POST)은 직렬 처리하여 수량 초과·이중 수락을 방지합니다.
+  const dispatch = async () => {
+    if(req.method!=="GET") await processTimer();
     const url=new URL(req.url,`http://${req.headers.host||"localhost"}`);
     const pathname=url.pathname;
     if (req.method==="GET" && staticFile(req,res,pathname)) return;
-    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"invest-play-easy-v3.5.6-news-photo-match"});
+    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"invest-play-easy-v4.0-instructor-led"});
     if (pathname==="/api/state" && req.method==="GET") return send(res,200,view(req));
     if(pathname==="/api/presentation" && req.method==="GET"){
       restricted(sessionFor(req)?.role!=="teacher","발표 화면은 강사 로그인 후 이용하세요.");
@@ -999,6 +1128,14 @@ const server=http.createServer((req,res)=>{
       restricted(!sess);
       postTrade(sess,body);await commit();return send(res,200,view(req));
     }
+    if (pathname==="/api/pass") {
+      restricted(!sess);
+      passResponse(sess);await commit();return send(res,200,view(req));
+    }
+    if (pathname==="/api/skip-proposal") {
+      restricted(!sess);
+      skipProposal(sess);await commit();return send(res,200,view(req));
+    }
     if (pathname==="/api/accept") {
       restricted(!sess);
       acceptTrade(sess,String(body.id||""));await commit();return send(res,200,view(req));
@@ -1008,12 +1145,19 @@ const server=http.createServer((req,res)=>{
       ensureTrade(sess.role);
       const l=state.listings.find(x=>x.id===String(body.id||""));
       restricted(!l || l.sellerId!==sess.teamId || l.status!=="open","취소 가능한 제안이 아닙니다.");
-      l.status="cancelled";await commit();return send(res,200,view(req));
+      const t=activeTurn();
+      restricted(!t||t.status!=="response"||t.currentListingId!==l.id,
+        "현재 차례의 제안만 취소할 수 있습니다.");
+      l.status="cancelled";moveToNextProposer();
+      await commit();return send(res,200,view(req));
     }
     return error(res,404,"해당 경로가 없습니다.");
-  }).catch(e => {
+  };
+  const pending=req.method==="GET" ? Promise.resolve().then(dispatch) : serial(dispatch);
+  pending.catch(e => {
     console.error(e.status ? "요청 거절: " + e.message : e);
     if (!res.headersSent) error(res, e.status || 503, e.status ? e.message : "저장소 연결 또는 서버 처리 오류입니다. 잠시 후 다시 시도하세요.");
+    else if(!res.writableEnded)res.end();
   });
 });
 setInterval(() => {
