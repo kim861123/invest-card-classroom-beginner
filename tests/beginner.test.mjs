@@ -103,7 +103,7 @@ test("왕초보 코스: 강사 진행 8단계, 균등 카드, 연습, 퀴즈, �
   assert.ok(listing?.id);
   assert.equal((await proposer("/api/skip-proposal",{})).status,200);
   assert.equal((await responder("/api/accept",{id:listing.id})).status,200);
-  assert.equal((await responder("/api/accept",{id:listing.id})).status,400);
+  assert.equal((await responder("/api/accept",{id:listing.id})).status,403,"already completed exchange cannot be accepted out of turn");
   assert.equal((await proposer("/api/state")).data.team.holdings[8],11);
   assert.equal((await responder("/api/state")).data.team.holdings[8],9);
   assert.equal((await teacher("/api/teacher",{action:"closeTrade"})).status,200);
