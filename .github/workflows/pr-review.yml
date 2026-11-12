@@ -1,0 +1,23 @@
+name: Investment game PR verification (no deployment)
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Validate Node syntax
+        run: |
+          node --version
+          node --check server.mjs
+          node --check public/app.js
+          node --check public/present.js
+      - name: Run regression suite (no secrets, no deploy)
+        run: npm test
