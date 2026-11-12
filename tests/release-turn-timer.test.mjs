@@ -12,7 +12,7 @@ const presentationJs=fs.readFileSync(new URL("../public/present.js",import.meta.
 function turnHarness(){
  const turn=server.slice(server.indexOf("function tradeMode()"),server.indexOf("function expireListings()"));
  const offer=server.slice(server.indexOf("function postTrade(sess, body)"),server.indexOf("function acceptTrade(sess, id)"));
- const accept=server.slice(server.indexOf("function acceptTrade(sess, id)"),server.indexOf("/**\n * 강의 전체 초기화:"));
+ const accept=server.slice(server.indexOf("function acceptTrade(sess, id)"),server.indexOf("/**",server.indexOf("function acceptTrade(sess, id)")));
  assert.ok(turn.startsWith("function tradeMode()") && offer.startsWith("function postTrade(") && accept.startsWith("function acceptTrade("));
  const state={
   phase:"trade",deadline:null,stageIndex:0,config:{tradeSeconds:60,responseSeconds:20,turnMode:"A"},
