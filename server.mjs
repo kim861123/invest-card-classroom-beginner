@@ -534,6 +534,8 @@ function turnPublic(role, teamId) {
   const respondentId=t.status==="response" ? t.responders?.[t.responderIndex]||null : null;
   return {status:t.status,mode:t.mode,proposerId,proposerName:proposerId?namedTeam(proposerId):null,
     responderId:respondentId,responderName:respondentId?namedTeam(respondentId):null,
+    currentListingId:t.currentListingId||null,proposedCount:t.proposedCount||0,
+    pendingProposalCount:t.pendingListingIds?.length||0,
     step:Math.min(t.proposalOrder.length,t.offerIndex+1),total:t.proposalOrder.length,
     isMyProposal:role==="team"&&teamId===proposerId&&t.status==="proposal",
     isMyResponse:role==="team"&&teamId===respondentId&&t.status==="response",
@@ -546,6 +548,7 @@ function startProposerTurn(){
   const t=activeTurn();
   if (!t)return;
   t.currentListingId=null;t.responders=[];t.responderIndex=0;
+  t.pendingListingIds=[];t.proposedCount=0;
   if(t.offerIndex>=t.proposalOrder.length){
     t.status="complete";state.deadline=null;
   } else {
@@ -559,19 +562,44 @@ function moveToNextProposer(){
   if(listing?.status==="open")listing.status="expired";
   t.offerIndex++;startProposerTurn();
 }
+function startNextListing(){
+  const t=activeTurn();
+  if(!t)return;
+  const id=(t.pendingListingIds||[]).shift();
+  if(!id){moveToNextProposer();return;}
+  const listing=state.listings.find(x=>x.id===id);
+  if(!listing||listing.status!=="open"){startNextListing();return;}
+  t.currentListingId=id;
+  t.responders=t.highestFirst.filter(teamId=>teamId!==listing.sellerId);
+  if(t.mode==="B")t.responders.reverse();
+  t.responderIndex=0;
+  if(!t.responders.length){listing.status="expired";startNextListing();return;}
+  t.status="response";
+  // Each respondent begins a full independent response timer.
+  state.deadline=Date.now()+responseSeconds()*1000;
+}
+function finishProposalTurn(){
+  const t=activeTurn();
+  if(!t||t.status!=="proposal")return;
+  if(t.pendingListingIds?.length)startNextListing();
+  else moveToNextProposer();
+}
 function moveToNextResponder(){
   const t=activeTurn();
   bad(!t||t.status!=="response","응답할 거래가 없습니다.");
   t.responderIndex++;
-  if(t.responderIndex>=t.responders.length)moveToNextProposer();
-  else state.deadline=Date.now()+responseSeconds()*1000;
+  if(t.responderIndex>=t.responders.length){
+    const listing=state.listings.find(x=>x.id===t.currentListingId);
+    if(listing?.status==="open")listing.status="expired";
+    startNextListing();
+  }else state.deadline=Date.now()+responseSeconds()*1000;
 }
 function skipProposal(sess){
   ensureTrade(sess.role);
   const t=activeTurn();
   restricted(!t||t.status!=="proposal"||t.proposalOrder[t.offerIndex]!==sess.teamId,
     "현재 팀의 제안 차례가 아닙니다.");
-  moveToNextProposer();
+  finishProposalTurn();
 }
 function passResponse(sess){
   ensureTrade(sess.role);
@@ -584,7 +612,7 @@ function skipCurrentTurn(){
   bad(state.phase!=="trade","교환 단계에서만 건너뛸 수 있습니다.");
   const t=activeTurn();
   bad(!t||t.status==="complete","이미 모든 팀의 제안이 종료됐습니다.");
-  if(t.status==="proposal")moveToNextProposer();
+  if(t.status==="proposal")finishProposalTurn();
   else moveToNextResponder();
 }
 
@@ -615,7 +643,7 @@ function settle() {
 async function processTimer() {
   if(state.phase==="trade" && state.deadline && Date.now()>=state.deadline){
     const t=activeTurn();
-    if(t?.status==="proposal")moveToNextProposer();
+    if(t?.status==="proposal")finishProposalTurn();
     else if(t?.status==="response")moveToNextResponder();
     else state.deadline=null;
     await commit();
@@ -719,12 +747,10 @@ function postTrade(sess, body) {
   state.listings.push({id:crypto.randomUUID(),sellerId:seller.id,sellerName:seller.name,
     offerId,offerQty,wantId,wantQty,year:currentYear(),stageIndex:state.stageIndex,
     status:"open",requestId,createdAt:new Date().toISOString()});
-  t.currentListingId=state.listings.at(-1).id;
-  t.responders=t.highestFirst.filter(id=>id!==seller.id);
-  if(t.mode==="B")t.responders.reverse();
-  t.responderIndex=0;
-  t.status="response";
-  state.deadline=Date.now()+responseSeconds()*1000;
+  // Keep the proposer clock; separate card offers will be answered sequentially.
+  if(!Array.isArray(t.pendingListingIds))t.pendingListingIds=[];
+  t.pendingListingIds.push(state.listings.at(-1).id);
+  t.proposedCount=(t.proposedCount||0)+1;
 }
 function acceptTrade(sess, id) {
   ensureTrade(sess.role);
@@ -750,7 +776,7 @@ function acceptTrade(sess, id) {
     stage:state.stageIndex+1,sellerId:seller.id,buyerId:buyer.id,
     sellerName:seller.name,buyerName:buyer.name,
     offerId:listing.offerId,offerQty:listing.offerQty,wantId:listing.wantId,wantQty:listing.wantQty});
-  moveToNextProposer();
+  startNextListing();
 }
 /**
  * 강의 전체 초기화:
@@ -964,7 +990,7 @@ const server=http.createServer((req,res)=>{
     const url=new URL(req.url,`http://${req.headers.host||"localhost"}`);
     const pathname=url.pathname;
     if (req.method==="GET" && staticFile(req,res,pathname)) return;
-    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"invest-play-easy-v4.0-instructor-led"});
+    if (pathname==="/api/health" && req.method==="GET") return send(res,200,{ok:true,year:currentYear(),build:"invest-play-easy-v4.2-review"});
     if (pathname==="/api/state" && req.method==="GET") return send(res,200,view(req));
     if(pathname==="/api/presentation" && req.method==="GET"){
       restricted(sessionFor(req)?.role!=="teacher","발표 화면은 강사 로그인 후 이용하세요.");
