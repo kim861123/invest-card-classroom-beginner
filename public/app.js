@@ -870,7 +870,8 @@ function availableMine(g,sectorId){
   if(Number.isFinite(supplied))return Math.max(0,Math.floor(supplied));
   const qty=Number(g?.team?.holdings?.[key]||0);
   const reserved=(g?.listings||[]).filter(l=>
-    String(l.sellerId)===String(g?.team?.id)&&String(l.offerId)===key
+    String(l.sellerId)===String(g?.team?.id)&&String(l.offerId)===key&&
+    (!l.status||l.status==="open")
   ).reduce((sum,l)=>sum+Number(l.offerQty||0),0);
   return Math.max(0,Math.floor(qty-reserved));
 }
@@ -887,6 +888,9 @@ function syncTradePreview(form){
   if(!select||!qty)return;
   const max=Math.min(30,availableOther(game,Number(select.value)));
   qty.max=String(max);
+  // Limit an existing number to the actual counterparty capacity. Preserve an empty field while typing.
+  const entered=String(qty.value??"").trim();
+  if(entered!==""&&max>0&&Number(entered)>max)qty.value=String(max);
   // 편집 중 값이 빈 문자열이어도 1로 되돌리지 않습니다.
   // 수량 유효성은 제출할 때 검증합니다.
   const hint=form.querySelector("[data-counterparty-max]");
@@ -1557,7 +1561,7 @@ function studentView(g){
     <section class="panel classroom-phase-status" role="status">
       <span class="pill ${phase==="trade"?"green":"gold"}">${h(phaseText[phase])}</span>
       <h2>${h(notices[phase]||notices.news)}</h2>
-      ${phase==="trade"?`<p>남은 교환 시간 <strong data-countdown>${countdown(g)}</strong></p>`:""}
+      ${phase==="trade"?`<p>${g.room.turnTrade?.status==="response"?`현재 응답팀 ${h(g.room.turnTrade.responderName||"")}의 남은 시간`:`현재 제안팀 ${h(g.room.turnTrade?.proposerName||"")}의 남은 시간`} <strong data-countdown>${countdown(g)}</strong></p>`:""}
       <small>진행 ${g.room.round}/${g.room.totalRounds}턴 · ${g.room.teamCount}팀 참가</small>
     </section>
     ${phase==="lobby"?`${teamLobbyPanel(g)}`:""}
