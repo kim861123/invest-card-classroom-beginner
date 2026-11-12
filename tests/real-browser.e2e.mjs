@@ -167,7 +167,7 @@ async function run(){
  }
  const proposer=teams.find(x=>x.id===opened.room.turnTrade.proposerId);no(proposer,"proposer missing");
  await proposer.page.locator('[data-action="open-trade-picker"]').tap();
- await proposer.page.locator('[data-action="trade-card"][data-id="XLE"]').tap();
+ await proposer.page.locator('.trade-picker-choice[data-action="trade-card"][data-id="XLE"]').tap();
  await proposer.page.locator("#trade-card-form").waitFor();
  await proposer.page.locator('#trade-card-form input[name="offerQty"]').fill("2");
  await proposer.page.locator('#trade-card-form select[name="wantId"]').selectOption("8");
