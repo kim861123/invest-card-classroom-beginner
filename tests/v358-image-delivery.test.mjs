@@ -42,6 +42,6 @@ test('모든 대표 이미지 11종이 1600px 원본과 모바일 소형 파일 
   }
 });
 test('실제 뉴스 카드가 수정된 이미지 캐시 버전을 호출',()=>{
-  assert(app.includes('photo-v358'));
+  assert(app.includes('photo-v3515'));
   assert(app.includes('article-${topic}'));
 });
