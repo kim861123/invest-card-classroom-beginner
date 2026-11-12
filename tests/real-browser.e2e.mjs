@@ -132,6 +132,7 @@ async function run(){
  pass("desktop instructor buttons",await instructorLayout(teacher));
  await capture(teacher,"desktop-teacher-lobby");
  await teacher.locator('[data-action="start"]').click();
+ await teacher.locator('[data-confirm="ok"]').click();
  await until(teacherCtx,s=>s.room.phase==="news","teacher starts");
  await capture(teacher,"desktop-teacher-news");
  const presentation=await teacherCtx.newPage();
@@ -153,6 +154,7 @@ async function run(){
  no(full,"Fullscreen API did not open in headless Chromium");
  pass("teacher full news presentation and real fullscreen",{fullscreen:full,tabs:await tabs.count()});
  await teacher.locator('[data-action="openTrade"]').click();
+ await teacher.locator('[data-confirm="ok"]').click();
  const opened=await until(teacherCtx,s=>s.room.phase==="trade"&&s.room.turnTrade?.status==="proposal","open trade");
  assert.equal(opened.room.config.responseSeconds,20);
  await capture(teacher,"desktop-teacher-trade");
