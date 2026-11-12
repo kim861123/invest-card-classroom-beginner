@@ -7,7 +7,7 @@ import {fileURLToPath} from "node:url";
 const dir=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const app=fs.readFileSync(path.join(dir,"public/app.js"),"utf8");
 const server=fs.readFileSync(path.join(dir,"server.mjs"),"utf8");
-const code=app.slice(app.indexOf("function articleTopic(x){"),app.indexOf("let activeArticleIndex="));
+const code=app.slice(app.indexOf("const ARTICLE_IMAGE_KEYS="),app.indexOf("let activeArticleIndex="));
 const ctx={h:s=>String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;")};
 vm.createContext(ctx);vm.runInContext(code+";globalThis.api={articleTopic,articlePairContext,articleHistoricalNote,inflationHistoryBridge}",ctx);
 const {articleTopic,articlePairContext,articleHistoricalNote,inflationHistoryBridge}=ctx.api;
@@ -36,7 +36,7 @@ test("시점이 다른 별개 이슈는 동일 시점으로 혼동하지 않는�
 test("기사별 오해 방지: CPI/WHO/SVB 판단 질문",()=>{
  for(const x of [
   {year:2022,title:"소비자물가 급등",needle:/금리와 기업 비용/},
-  {year:2022,title:"CPI 상승률 둔화",needle:/물가 자체가 내려갔다는 뜻은 아닙니다/},
+  {year:2022,title:"CPI 상승률 둔화",needle:/물가가 내려간 것이 아니라 오르는 속도가 느려진 것입니다/},
   {year:2023,title:"WHO, 코로나19 국제공중보건 비상사태 종료",needle:/코로나19가 사라졌다는 뜻이 아닙니다/},
   {year:2023,title:"실리콘밸리은행(SVB) 폐쇄",needle:/한 은행의 폐쇄/}
  ]){

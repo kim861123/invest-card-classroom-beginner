@@ -49,10 +49,10 @@ test("card assets are cacheable and Safari collection requests become eager",()=
   assert.match(server,/Cache-Control":"public, max-age=604800"/);
   assert.match(app,/function prioritizeCollectionImages\(details\)/);
   assert.match(app,/img\.loading="eager"/);
-  assert.match(app,/image\.fetchPriority="high"/);
+  assert.match(app,/image\.fetchPriority="low"/); assert.match(app,/fetchpriority="auto"/);
   assert.match(CSS,/sector-image\.is-loaded::after/);
 });
 test("new version is used for script, css, and service worker",()=>{
-  assert.match(html,/v3\.5\.2/);
-  assert.match(sw,/v3\.5\.2-card-trade/);
+  assert.match(html,/EASY V4\.2/);
+  assert.match(sw,/easy-v420-classroom-review/);
 });

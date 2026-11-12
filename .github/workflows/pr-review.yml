@@ -1,0 +1,81 @@
+name: Investment game PR verification (no deployment)
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Validate Node syntax
+        run: |
+          node --version
+          node --check server.mjs
+          node --check public/app.js
+          node --check public/present.js
+      - name: Validate V10.2/V4.2 trade and presentation changes
+        run: node --test tests/release-turn-timer.test.mjs
+      - name: Run complete regression suite (no secrets, no deploy)
+        run: npm test
+      - name: Checkout unmodified main for baseline (read only)
+        if: always()
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          path: main-baseline
+          persist-credentials: false
+      - name: Compare existing main regression baseline
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          (cd main-baseline && npm test) > /tmp/main-baseline.log 2>&1
+          baseline_code=$?
+          set -e
+          echo "BASELINE_MAIN_EXIT_CODE=${baseline_code}"
+          grep -E '^([[:space:]]*(✔|✖|ℹ (tests|pass|fail)))' /tmp/main-baseline.log | tail -n 10 || true
+          echo "BASELINE_MAIN_FAIL_COUNT=$(grep -c '✖ ' /tmp/main-baseline.log || true)"
+          echo "BASELINE_MAIN_PASS_COUNT=$(grep -c '✔ ' /tmp/main-baseline.log || true)"
+          echo 'BASELINE FAILED TEST NAMES:'
+          grep '✖ ' /tmp/main-baseline.log | sed -E 's/^.*✖ /BASELINE_FAIL: /' | head -n 120 || true
+
+  browser-integration:
+    name: Real Chromium E2E / isolated 1 instructor + 3 teams
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      STORAGE_BACKEND: local
+      SUPABASE_URL: ""
+      SUPABASE_SERVICE_ROLE_KEY: ""
+      SUPABASE_ANON_KEY: ""
+      DATABASE_URL: ""
+      RENDER_EXTERNAL_URL: ""
+    steps:
+      - name: Checkout exact PR branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install Playwright Chromium browser (runner only)
+        run: |
+          node --version
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run actual browser login, trading, countdown and mobile checks
+        run: node tests/real-browser.e2e.mjs
+      - name: Preserve browser screenshot/report artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-browser-e2e
+          path: test-artifacts/browser/
+          retention-days: 14
+          if-no-files-found: warn

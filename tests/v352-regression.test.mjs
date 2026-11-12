@@ -40,7 +40,7 @@ test("all nine article images are locally bundled and nontrivial",()=>{
   }
 });
 test("original cards use stable cacheable URL, fallback is readable immediately",()=>{
-  assert.match(app,/const cardPath = ticker => `\/cards\/\$\{encodeURIComponent\(ticker\)\}\.png`;/);
+  assert.match(app,/ticker==="XLC"\?"png":"svg"/); assert.ok(fs.statSync(new URL("../public/cards/XLE.svg",import.meta.url)).size>300);
   assert.match(app,/class="sector-card-fallback"/);
   assert.match(css,/\.sector-card-fallback\{/);
 });
@@ -51,6 +51,6 @@ test("results include a plotted industry change and detailed table",()=>{
   assert.match(app,/function finalPodium\(g\)/);
 });
 test("service worker uses a new cache bucket",()=>{
-  assert.match(sw,/hotfix-2/);
+  assert.match(sw,/easy-v420-classroom-review/);
   assert.match(sw,/\/audio\/ambient\.mp3/);
 });

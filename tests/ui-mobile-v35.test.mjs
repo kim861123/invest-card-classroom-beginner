@@ -41,8 +41,8 @@ test("escaped names are safe and ties remain server-sourced",()=>{
   assert.ok(text.includes("&lt;script&gt;"));
   assert.ok(!text.includes("<script>"));
 });
-test("finished banner uses actual icon interpolation, not literal text",()=>{
-  assert.match(js,/\?`<div class="result-banner"><h3>\$\{ico\("trophy",20\)\} 게임 종료/);
+test("finished phase explicitly directs students to teacher-led results",()=>{
+  assert.match(js,/finished:"게임이 끝났습니다\. 최종 시상식은 강사 화면에서 진행합니다\."/);
   assert.doesNotMatch(js,/\?'<div class="result-banner"><h3>\$\{ico/);
   assert.match(js,/\$\{finalPodium\(g\)\}/);
 });

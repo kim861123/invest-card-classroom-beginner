@@ -19,7 +19,9 @@ test("2022년: 퀴즈 보호가 없을 경우 금리 기사 1개만 유지하고
  assert.equal(report.after[0].rate,1);
  assert.equal(report.changed.length,3);
  assert.deepEqual(src.events.map(x=>x.id),["2022-1","2022-2","2022-3","2022-4"]);
- assert.ok(src.events.slice(1).every(x=>x._editorialConcept && x.source?.url && x._editorialImageTopic));
+ const changedIds=new Set(report.changed.map(x=>x.id));
+ assert.equal(changedIds.size,3,"교체 건수만큼 서로 다른 기사만 변경");
+ assert.ok(src.events.filter(x=>changedIds.has(x.id)).every(x=>x._replacementId && x._editorialConcept && /^https:\/\//.test(x.source?.url||"") && x._editorialImageTopic), "실제로 교체된 세 기사 모두 출처, 개념 및 이미지 주제를 보존");
 });
 test("퀴즈에서 참조하는 기사는 내용·출처까지 보존한다",()=>{
  const src=fixture();

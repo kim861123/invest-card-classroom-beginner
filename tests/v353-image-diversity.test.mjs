@@ -22,7 +22,7 @@ test("9 article subjects each have 640/1200/1600 responsive images",()=>{
 test("client requests a proper srcset with sizes and retains alt text",()=>{
  assert.match(app,/srcset="\$\{imageBase\}-640\.webp/);
  assert.match(app,/width="1600" height="900"/);
- assert.match(app,/v=photo-v353/);
+ assert.match(app,/v=photo-v3515/);
  assert.match(app,/loading="\$\{isPast\?"lazy":"eager"\}"/);
 });
 test("server only exposes whitelisted article sizes and main images",()=>{
@@ -31,11 +31,11 @@ test("server only exposes whitelisted article sizes and main images",()=>{
  assert.match(server,/article-health\.webp/);
 });
 test("service worker does not eager-download every photo at install",()=>{
- assert.match(sw,/v(?:3|9)\.5\.3/);
+ assert.match(sw,/easy-v420-classroom-review/);
  assert.doesNotMatch(sw,/"\/art\/article-rates\.webp"/);
 });
 test("html references new version",()=>{
- assert.match(html,/v3\.5\.3|v9\.5\.3/);
+ assert.match(html,/EASY V4\.2/);
 });
 test("headline classification keeps rate distinct from inflation",()=>{
  assert.equal(topic("연준 기준금리 인상"),"기준금리·통화정책");

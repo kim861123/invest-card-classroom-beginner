@@ -39,7 +39,7 @@ test("V3/V9: 예측 저장·중복제출 차단·학생별 비공개·강사용 
    assert.equal((await teacher("/api/teacher",{action:"start"})).status,200);
    assert.equal((await alpha("/api/predict",{sectorId:1,reason:"경제활동 변화가 산업에 영향을 미칠 것 같습니다"})).status,200);
    assert.equal((await alpha("/api/predict",{sectorId:2,reason:"다시 제출"})).status,400);
-   assert.equal((await beta("/api/state")).data.myPrediction,null);
+   assert.equal((await beta("/api/state")).data.myPrediction,undefined,"student does not receive prediction analytics");
    assert.equal((await beta("/api/state")).data.predictionBoard,undefined);
    const ta=(await teacher("/api/state")).data;
    assert.equal(ta.predictionBoard.answered,1);

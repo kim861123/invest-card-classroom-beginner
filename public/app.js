@@ -278,8 +278,10 @@ document.addEventListener("visibilitychange",()=>{
 function tickCountdown(){
   if(!game)return;
   const r=game.room;
-  const el=document.querySelector("[data-countdown]");
-  if(el)el.textContent=countdown(game);
+  const cells=document.querySelectorAll?.("[data-countdown]")||[];
+  const el=cells[0]||document.querySelector("[data-countdown]");
+  if(cells.length){for(const cell of cells)cell.textContent=countdown(game);}
+  else if(el)el.textContent=countdown(game);
   const active=["news","trade"].includes(r.phase),sec=active?remainingSeconds(game):null;
   const key=`${r.round}:${r.stage}:${r.phase}:${r.deadline||""}`;
   if(key!==timerAlertKey){timerAlertKey=key;timerAlerted.clear();}
@@ -287,10 +289,11 @@ function tickCountdown(){
   const statEl=el?.closest(".stat");
   if(statEl){statEl.classList.toggle("timer-warning-stat",state==="warning");statEl.classList.toggle("timer-critical-stat",state==="critical");}
   const bar=document.querySelector("[data-timer-alert]");
-  const label=r.phase==="news"?"뉴스 분석":"카드 교환";
+  const turn=r.turnTrade;
+  const label=r.phase==="news"?"뉴스 분석":turn?.status==="response"?`응답팀 ${turn.responderName||""}`:turn?.status==="proposal"?`제안팀 ${turn.proposerName||""}`:"카드 교환";
   if(bar){
     bar.className=`timer-alert-bar ${state?"visible "+state:""}`;
-    bar.textContent=state?`${label} 종료까지 ${sec}초 · ${r.phase==="trade"?"교환 제안을 마무리하세요.":"핵심 뉴스를 확인하세요."}`:"";
+    bar.textContent=state?`${label} 선택 종료까지 ${sec}초 · ${r.phase==="trade"?(turn?.status==="response"?"수락 또는 패스를 선택하세요.":"추가 제안을 제출하거나 응답을 시작하세요."):"핵심 뉴스를 확인하세요."}`:"";
   }
   const threshold=state==="critical"?10:state==="warning"?30:null;
   if(threshold&&!timerAlerted.has(threshold)){
@@ -309,8 +312,8 @@ function stat(label,num,hint="",cls=""){
 }
 // Optimized original card artwork: 480px previews (~50 KB each) and full-size WebP for zoom.
 const CARD_ASSET_VERSION="v3.5.13-card-webp";
-const cardPath = ticker => `/cards/${encodeURIComponent(ticker)}-thumb.webp?v=${CARD_ASSET_VERSION}`;
-const cardFullPath = ticker => `/cards/${encodeURIComponent(ticker)}.webp?v=${CARD_ASSET_VERSION}`;
+const cardPath = ticker => `/cards/${encodeURIComponent(ticker)}.${ticker==="XLC"?"png":"svg"}?v=${CARD_ASSET_VERSION}`;
+const cardFullPath = ticker => `/cards/${encodeURIComponent(ticker)}.png?v=${CARD_ASSET_VERSION}`;
 const DRAW_TOTAL=110;
 // 초급 전용: 경제 경험이 없는 학습자를 위한 단순한 4단계 안내
 function beginnerGuide(g) {
@@ -418,7 +421,7 @@ function prefetchCardArtwork(sectors){
   urls.forEach(url=>warmCardUrls.add(url));
   let cursor=0,active=0;
   function loadNext(){
-    while(active<(navigator.connection?.saveData?1:2)&&cursor<urls.length){
+    while(active<4&&active<(navigator.connection?.saveData?1:4)&&cursor<urls.length){
       const url=urls[cursor++];active++;
       let image;
       try{
@@ -455,7 +458,7 @@ function scheduleCardWarmup(g){
       Number(g.team?.holdings?.[b.id]||0)-Number(g.team?.holdings?.[a.id]||0));
     // Do not download all 11 large PNG originals on slow mobile networks.
     // Warm a few cards the team actually owns; remaining assets load on collection open.
-    const owned=ordered.filter(s=>Number(g.team?.holdings?.[s.id]||0)>0);
+    const owned=ordered.filter(s=>s.ticker!=="XLC"&&Number(g.team?.holdings?.[s.id]||0)>0);
     prefetchCardArtwork(navigator.connection?.saveData ? owned.slice(0,4) : owned);
   }catch(error){console.warn("카드 이미지 사전 로딩 실패",error);}
 }
@@ -867,7 +870,8 @@ function availableMine(g,sectorId){
   if(Number.isFinite(supplied))return Math.max(0,Math.floor(supplied));
   const qty=Number(g?.team?.holdings?.[key]||0);
   const reserved=(g?.listings||[]).filter(l=>
-    String(l.sellerId)===String(g?.team?.id)&&String(l.offerId)===key
+    String(l.sellerId)===String(g?.team?.id)&&String(l.offerId)===key&&
+    (!l.status||l.status==="open")
   ).reduce((sum,l)=>sum+Number(l.offerQty||0),0);
   return Math.max(0,Math.floor(qty-reserved));
 }
@@ -884,6 +888,9 @@ function syncTradePreview(form){
   if(!select||!qty)return;
   const max=Math.min(30,availableOther(game,Number(select.value)));
   qty.max=String(max);
+  // Limit an existing number to the actual counterparty capacity. Preserve an empty field while typing.
+  const entered=String(qty.value??"").trim();
+  if(entered!==""&&max>0&&Number(entered)>max)qty.value=String(max);
   // 편집 중 값이 빈 문자열이어도 1로 되돌리지 않습니다.
   // 수량 유효성은 제출할 때 검증합니다.
   const hint=form.querySelector("[data-counterparty-max]");
@@ -956,17 +963,17 @@ function listingBoard(g){
     <div class="section-title"><div><span class="eyebrow">순차 카드 교환</span>
       <h2>${ico("exchange",20)} 턴제 카드 교환</h2></div>
       <span class="pill gold">${t.step}/${t.total}팀 제안</span></div>
-    <div class="turn-order-pill">${h(orderLabel)}</div>
+    <div class="turn-order-pill">${h(orderLabel)} · ${t.status==="proposal"?`등록한 제안 ${t.proposedCount||0}/5건`:"응답팀별 독립 제한시간"}</div>
     <div class="turn-current-teams">
       <div><small>교환 제안팀</small><strong>${h(t.proposerName||"완료")}</strong></div>
       <div><small>${t.status==="response"?"현재 응답팀":"진행 상태"}</small>
        <strong>${t.status==="response"?h(t.responderName||"대기"):t.status==="complete"?"전체 종료":"제안 작성 중"}</strong></div>
     </div>
-    ${t.status!=="complete"?`<div class="turn-clock">남은 선택 시간 <b data-countdown>${countdown(g)}</b></div>`:""}
+    ${t.status!=="complete"?`<div class="turn-clock" role="timer">${t.status==="proposal"?"제안팀":"응답팀"} 선택 시간 · <b data-countdown>${countdown(g)}</b></div>`:""}
     ${t.status==="proposal" && t.isMyProposal?
-     `<p class="turn-my-notice">우리 팀의 차례입니다. 보유 카드 중 하나를 골라 교환을 제안하거나 제안을 건너뛸 수 있습니다.</p>
+     `<p class="turn-my-notice">우리 팀 제안 차례 · ${t.proposedCount||0}/5건 등록. 시간이 남아 있으면 다른 카드로 추가 제안할 수 있습니다.</p>
       <div class="turn-buttons"><button class="btn gold" data-action="open-trade-picker">교환 제안 작성</button>
-      <button class="btn" data-action="skip-proposal">이번 제안 패스</button></div>`:""}
+      <button class="btn" data-action="skip-proposal">${t.proposedCount?"제안 마치고 응답 시작":"제안 없이 패스"}</button></div>`:""}
     ${t.status==="response" && current?
       `<div class="turn-offer-detail"><span class="label-pill">${h(current.sellerName)}의 제안</span>
         <strong>${h(sector(current.offerId).name)} ${current.offerQty}장 ⇄ ${h(sector(current.wantId).name)} ${current.wantQty}장</strong>
@@ -982,7 +989,7 @@ function listingBoard(g){
       ${availableMine(g,current.wantId)<current.wantQty?
         `<p class="listing-unavailable">필요한 카드가 부족해 수락할 수 없습니다. 패스를 선택하세요.</p>`:""}`:""}
     ${!t.isMyProposal&&!t.isMyResponse?
-      `<p class="turn-wait-msg">${waiting}</p>`:""}
+      `<p class="turn-wait-msg" role="status" aria-live="polite">${waiting}</p>`:""}
   </section>`;
 }
 function recentTrades(g){
@@ -1235,8 +1242,8 @@ function teacherActions(g){
     ${r.phase==="trade"&&r.turnTrade?`<div class="turn-teacher-status" role="status">
       <strong>현재 ${r.turnTrade.step}/${r.turnTrade.total}팀 · ${r.turnTrade.mode}형 응답 순서</strong>
       <p>${r.turnTrade.status==="complete"?"모든 팀의 제안이 종료되었습니다. 결과를 발표할 수 있습니다.":
-        r.turnTrade.status==="proposal"?`제안: ${h(r.turnTrade.proposerName)} · 남은 시간 ${countdown(g)}`:
-        `제안: ${h(r.turnTrade.proposerName)} / 응답: ${h(r.turnTrade.responderName)} · 남은 시간 ${countdown(g)}`}</p>
+        r.turnTrade.status==="proposal"?`제안팀: ${h(r.turnTrade.proposerName)} · 등록 ${r.turnTrade.proposedCount||0}건 · 남은 시간 ${countdown(g)}`:
+        `제안팀: ${h(r.turnTrade.proposerName)} / 현재 응답팀: ${h(r.turnTrade.responderName)} · 이 팀의 남은 시간 ${countdown(g)}`}</p>
       ${r.turnTrade.status!=="complete"?`<button type="button" class="btn tiny" data-action="skip-turn">현재 차례 건너뛰기</button>`:""}
       </div>`:""}
     <div class="button-area">
@@ -1309,7 +1316,7 @@ function statusStats(g){
   return `<div class="stat-grid">
     ${stat(r.phase==="finished"?"최종 턴":"현재 턴",r.phase==="finished"?`${r.totalRounds} / ${r.totalRounds}`:`${r.round} / ${r.totalRounds}`,r.phase==="finished"?`전체 ${r.totalRounds*2}단계 완료`:`${r.year}년 ${r.stage}단계`)}
     ${r.phase==="news"?stat("뉴스 설명","시간 제한 없음","강사가 교환 시작을 결정합니다."):
-       stat("남은 시간","<span data-countdown>"+countdown(g)+"</span>",phaseText[r.phase])}
+       stat(r.turnTrade?.status==="response"?"응답팀 남은 시간":r.turnTrade?.status==="proposal"?"제안팀 남은 시간":"남은 시간","<span data-countdown>"+countdown(g)+"</span>",r.turnTrade?.status==="response"?r.turnTrade.responderName||"":r.turnTrade?.status==="proposal"?r.turnTrade.proposerName||"":phaseText[r.phase])}
     ${stat("참가팀",`${r.teamCount}팀`,"실시간 동기화")}
     ${stat(my?"우리 팀 수익률":"현재 최고 수익률",my?pct(my.returnPct):pct(g.scores[0]?.returnPct||0),my?format(my.total)+"원 · 마지막 가격 발표 기준":g.scores[0]?.name||"대기 중",my?buyClass(my.returnPct):"")}
   </div><div class="timer-tools">
@@ -1354,7 +1361,7 @@ function teacherView(g){
        <span>뉴스·경제개념·학습 퀴즈는 강사의 설명 화면에서 함께 다룹니다.</span>
        <span>학생 화면에는 카드 보유량과 교환 기능만 제공됩니다.</span></div>
     <div class="editorial-teacher-actions">
- <a class="btn gold" href="/present" target="_blank" rel="noopener">▣ 발표 전용 화면</a>
+ <a class="btn gold" href="/present?mode=news" target="_blank" rel="noopener">▣ 뉴스 크게 보기 · 설명 모드</a>
  <a class="btn" href="/report" target="_blank" rel="noopener">▤ 수업 리포트 · PDF 인쇄</a>
  </div>${predictionTeacherPanel(g)}${quickPanels(g)}${teacherTradeReports(g)}
     <div class="instructor-command-layout"><div class="instructor-primary">${teacherReveal(g)}</div>
@@ -1554,7 +1561,7 @@ function studentView(g){
     <section class="panel classroom-phase-status" role="status">
       <span class="pill ${phase==="trade"?"green":"gold"}">${h(phaseText[phase])}</span>
       <h2>${h(notices[phase]||notices.news)}</h2>
-      ${phase==="trade"?`<p>남은 교환 시간 <strong data-countdown>${countdown(g)}</strong></p>`:""}
+      ${phase==="trade"?`<p>${g.room.turnTrade?.status==="response"?`현재 응답팀 ${h(g.room.turnTrade.responderName||"")}의 남은 시간`:`현재 제안팀 ${h(g.room.turnTrade?.proposerName||"")}의 남은 시간`} <strong data-countdown>${countdown(g)}</strong></p>`:""}
       <small>진행 ${g.room.round}/${g.room.totalRounds}턴 · ${g.room.teamCount}팀 참가</small>
     </section>
     ${phase==="lobby"?`${teamLobbyPanel(g)}`:""}
@@ -1786,15 +1793,15 @@ document.addEventListener("click",async e=>{
   if(action==="set-turn-mode")
     return mutate("/api/teacher",{action:"turnMode",mode:id},`응답 방식 ${id}형이 선택됐습니다.`);
   if(action==="skip-turn"){
-    if(await gameConfirm("응답 중이면 현재 팀을 패스 처리하고, 제안 중이면 다음 팀으로 넘어갑니다. 진행할까요?",{
+    if(await gameConfirm("응답 중이면 현재 응답팀을 패스 처리합니다. 제안 중이면 등록된 제안들의 응답 단계로 진행합니다. 계속할까요?",{
       title:"현재 차례 건너뛰기",confirmText:"건너뛰기"}))
       return mutate("/api/teacher",{action:"skipTurn"},"다음 팀으로 진행했습니다.");
     return;
   }
   if(action==="skip-proposal"){
-    if(await gameConfirm("이번 제안권을 사용하지 않고 다음 팀으로 넘어갈까요?",{
+    if(await gameConfirm(game?.room?.turnTrade?.proposedCount?"등록한 제안의 응답 단계로 진행할까요?":"제안 없이 다음 팀으로 넘어갈까요?",{
       title:"교환 제안 건너뛰기",confirmText:"제안 패스"}))
-      return mutate("/api/skip-proposal",{},"교환 제안을 패스했습니다.");
+      return mutate("/api/skip-proposal",{},"제안 단계를 마쳤습니다.");
     return;
   }
   if(action==="pass-response")
