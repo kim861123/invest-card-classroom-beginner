@@ -33,8 +33,8 @@ test("VNext: 신문형 뉴스·공개된 경제 개념·접이식 카드·교환
  assert.match(concept,/수입품에 관세 부과/);
  assert.doesNotMatch(concept,/생성형 AI/);
  const news=ctx.ux.newsList(active);
- assert.match(news,/news-theme-trade/);
- assert.match(news,/newspaper-feature/);
+ assert.match(news,/data-image-topic="trade"/);
+ assert.match(news,/newsroom readable-newsroom/);
  const trade={...game,room:{...game.room,phase:"trade"}};
  const html=ctx.ux.studentView(trade);
  assert.ok(html.indexOf("공개된 카드 교환 제안")<html.indexOf("나의 산업 카드 컬렉션"));
@@ -46,7 +46,7 @@ test("VNext: 신문형 뉴스·공개된 경제 개념·접이식 카드·교환
  assert.match(prediction,/유가와 비용을 살펴봤습니다/);
  assert.match(code,/id="accept-dialog"/);
  assert.match(code,/function playSceneCue/);
- assert.match(code,/function playAmbient/);
+ assert.match(code,/function setAmbient/);
  assert.doesNotMatch(code,/if\(!confirm\(message\)\)return/);
  const table=ctx.ux.resultTable({changes:s.map(x=>({...x,previous:10000,price:10200,gameModelPct:2})),endingYear:false});
  assert.match(table,/전\(원\)/);

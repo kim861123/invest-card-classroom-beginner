@@ -64,7 +64,7 @@ test("학생 링크 분리, 중복 참가 방지, 팀명 변경, 110장 카드 �
     const team=even.data.team;
     assert.equal(team.drawMode,"even");
     assert.equal(Object.values(team.holdings).reduce((sum,x)=>sum+x,0),110);
-    assert.equal(team.total,1100000);
+    assert.equal(team.total,undefined,"학생에게 평가자산은 공개하지 않습니다.");
     assert.ok(Object.values(team.holdings).every(x=>x===10));
     assert.equal((await a("/api/team",{action:"draw",mode:"random"})).status,400,"1회 뽑기");
     const random=await b("/api/team",{action:"draw",mode:"random"});
@@ -72,14 +72,15 @@ test("학생 링크 분리, 중복 참가 방지, 팀명 변경, 110장 카드 �
     assert.equal(random.data.team.drawMode,"random");
     assert.equal(Object.values(random.data.team.holdings).reduce((sum,x)=>sum+x,0),110);
     assert.ok(Object.values(random.data.team.holdings).every(x=>x>=1));
-    assert.equal(random.data.team.total,1100000);
+    assert.equal(random.data.team.total,undefined,"학생 평가자산 비공개");
     assert.equal((await teacher("/api/teacher",{action:"start"})).status,200);
     assert.equal((await a("/api/team",{action:"draw",mode:"even"})).status,400);
     assert.equal((await b("/api/team",{action:"rename",name:"변경불가"})).status,400);
     const s=(await a("/api/state")).data;
     assert.equal(s.teacherBrief,undefined);
     assert.equal(s.resultHistory,undefined);
-    assert.ok(s.news[0].source_ko?.url);
+    assert.equal(s.news.length,0,"학생에게 강사용 뉴스가 공개되지 않습니다.");
+    assert.ok((await teacher("/api/state")).data.news[0]?.source_ko?.url);
   }finally{
     child.kill("SIGTERM");await Promise.race([new Promise(r=>child.once("exit",r)),delay(2000)]);
     if(child.exitCode===null)child.kill("SIGKILL");
