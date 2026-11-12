@@ -622,3 +622,10 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
   .turn-current-teams strong{font-size:14px}
   .turn-buttons .btn{flex-basis:100%}
 }
+
+/* EASY V4.2: instructor controls, clear turn waiting, responsive small screens */
+.turn-board,.turn-teacher-status{min-width:0;overflow-wrap:anywhere}
+.turn-wait-msg{padding:18px 20px;border:2px solid #e8be6d;border-radius:14px;background:#544023;color:#fff3d0;font-weight:850;font-size:clamp(16px,2.5vw,21px);line-height:1.55;box-shadow:0 0 0 3px #e8be6d20}
+.turn-clock{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+@media(min-width:900px){.control-panel .button-area{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch}.control-panel .button-area>.btn{min-height:55px;white-space:normal;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px 16px}.turn-teacher-status .btn{min-height:44px}}
+@media(max-width:760px){html,body,.shell,#app{max-width:100%;overflow-x:hidden!important}.shell,#app,.panel,.turn-board,.two-col-main,.instructor-command-layout,.instructor-sidebar{min-width:0}.instructor-command-layout,.instructor-sidebar{grid-template-columns:minmax(0,1fr)!important}.turn-current-teams{min-width:0;flex-wrap:wrap}.turn-current-teams>*{min-width:0;overflow-wrap:anywhere}.turn-buttons{flex-wrap:wrap}.turn-buttons>.btn{max-width:100%;min-width:0}.table-wrap{max-width:100%;overflow-x:auto!important}}
