@@ -1,4 +1,11 @@
 let lastPresentationResult="";
+let newsMode=new URLSearchParams(location.search).get("mode")==="news",activeNewsIndex=0,activeNewsStage="";
+function setPresentationMode(value){newsMode=Boolean(value);document.body.classList.toggle("news-mode",newsMode);$("news-focus").hidden=!newsMode;$("mode-news").setAttribute("aria-pressed",String(newsMode));$("mode-overview").setAttribute("aria-pressed",String(!newsMode));}
+$("mode-news").addEventListener("click",()=>setPresentationMode(true));
+$("mode-overview").addEventListener("click",()=>setPresentationMode(false));
+$("fullscreen").addEventListener("click",()=>document.documentElement.requestFullscreen?.().catch(()=>{}));
+$("news-tabs").addEventListener("click",event=>{const n=event.target.closest("button[data-index]");if(n){activeNewsIndex=Number(n.dataset.index);refresh();}});
+setPresentationMode(newsMode);
 const $=id=>document.getElementById(id);
 const h=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 async function refresh(){try{
@@ -9,6 +16,12 @@ async function refresh(){try{
  let rem=g.room.deadline?Math.max(0,Math.ceil((g.room.deadline-Date.now())/1000)):null;
  $("stage").textContent=`${g.room.year}년 · ${g.room.stage}차 뉴스 | ${phases[g.room.phase]||g.room.phase} ${rem!==null?"· "+rem+"초":""}`;
  $("news").innerHTML=g.news.length?g.news.map(x=>`<article><small>${h(x.date)}</small><h3>${h(x.title)}</h3><p>${h(x.easy_summary||x.fact).slice(0,210)}</p></article>`).join(""):"<p>강사가 뉴스를 공개하면 이곳에 표시됩니다.</p>";
+ const stageId=String(g.room.year)+"-"+g.room.stage;
+ if(stageId!==activeNewsStage){activeNewsStage=stageId;activeNewsIndex=0;}
+ activeNewsIndex=Math.min(activeNewsIndex,Math.max(0,g.news.length-1));
+ $("news-tabs").innerHTML=g.news.map((x,i)=>'<button type="button" data-index="'+i+'" aria-pressed="'+(i===activeNewsIndex)+'">기사 '+(i+1)+'</button>').join("");
+ const selected=g.news[activeNewsIndex];
+ $("focus-article").innerHTML=selected?'<small>'+h(selected.date)+'</small><h2>'+h(selected.title)+'</h2><p class="large-fact">'+h(selected.easy_summary||selected.fact)+'</p>'+(selected.easy_term?'<p><b>핵심 개념 · '+h(selected.easy_term)+'</b></p>':'')+(selected.discussion_question||selected.easy_question?'<div class="large-question">생각해 볼 질문 · '+h(selected.easy_question||selected.discussion_question)+'</div>':''):'<h2>현재 공개된 뉴스가 없습니다.</h2><p>수업이 시작되면 기사가 표시됩니다.</p>';
  let changes=g.lastResult?.changes||[];
  const resultKey=g.lastResult?`${g.lastResult.year}-${g.lastResult.stageIndex}-${g.lastResult.at}`:"";
  const animate=resultKey&&resultKey!==lastPresentationResult;

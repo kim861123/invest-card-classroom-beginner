@@ -510,8 +510,9 @@ function projectorData(){
   room:{phase:state.phase,year:currentYear(),stage:publicStage(),
     teamCount:state.participants.length,deadline:state.deadline,totalRounds:YEARS.length},
   news:currentlyVisibleNews("team").filter(x=>x.year===currentYear() &&
-    Number(x.id.split("-").at(-1))>(state.stageIndex===0?0:2)),
-  scores:scores(),
+    Number(x.id.split("-").at(-1))>(state.stageIndex===0?0:2) &&
+    Number(x.id.split("-").at(-1))<=(state.stageIndex===0?2:4)),
+  scores:announcedScores(),
   lastResult:latest && ["result","finished"].includes(state.phase)?publicResult(latest):null,
   predictions:{total:state.participants.length,answered:classroomPredictions().answered,
     counts:Object.entries(classroomPredictions().entries.reduce((memo,p)=>{
