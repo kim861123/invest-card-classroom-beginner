@@ -1,4 +1,5 @@
 let lastPresentationResult="";
+const $=id=>document.getElementById(id);
 let newsMode=new URLSearchParams(location.search).get("mode")==="news",activeNewsIndex=0,activeNewsStage="";
 function setPresentationMode(value){newsMode=Boolean(value);document.body.classList.toggle("news-mode",newsMode);$("news-focus").hidden=!newsMode;$("mode-news").setAttribute("aria-pressed",String(newsMode));$("mode-overview").setAttribute("aria-pressed",String(!newsMode));}
 $("mode-news").addEventListener("click",()=>setPresentationMode(true));
@@ -6,7 +7,6 @@ $("mode-overview").addEventListener("click",()=>setPresentationMode(false));
 $("fullscreen").addEventListener("click",()=>document.documentElement.requestFullscreen?.().catch(()=>{}));
 $("news-tabs").addEventListener("click",event=>{const n=event.target.closest("button[data-index]");if(n){activeNewsIndex=Number(n.dataset.index);refresh();}});
 setPresentationMode(newsMode);
-const $=id=>document.getElementById(id);
 const h=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 async function refresh(){try{
  let r=await fetch("/api/presentation",{credentials:"same-origin",cache:"no-store"});
