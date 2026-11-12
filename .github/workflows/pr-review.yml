@@ -19,5 +19,22 @@ jobs:
           node --check server.mjs
           node --check public/app.js
           node --check public/present.js
-      - name: Run regression suite (no secrets, no deploy)
+      - name: Validate V10.2/V4.2 trade and presentation changes
+        run: node --test tests/release-turn-timer.test.mjs
+      - name: Run complete regression suite (no secrets, no deploy)
         run: npm test
+      - name: Compare existing main regression baseline
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin main
+          git worktree add --detach .baseline FETCH_HEAD
+          set +e
+          (cd .baseline && npm test) > /tmp/main-baseline.log 2>&1
+          baseline_code=$?
+          set -e
+          echo "BASELINE_MAIN_EXIT_CODE=${baseline_code}"
+          grep -E '^([[:space:]]*(✔|✖|ℹ (tests|pass|fail)))' /tmp/main-baseline.log | tail -n 10 || true
+          echo "BASELINE_MAIN_FAIL_COUNT=$(grep -c '✖ ' /tmp/main-baseline.log || true)"
+          echo "BASELINE_MAIN_PASS_COUNT=$(grep -c '✔ ' /tmp/main-baseline.log || true)"
