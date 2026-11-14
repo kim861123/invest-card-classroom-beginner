@@ -51,6 +51,6 @@ test("results include a plotted industry change and detailed table",()=>{
   assert.match(app,/function finalPodium\(g\)/);
 });
 test("service worker uses a new cache bucket",()=>{
-  assert.match(sw,/easy-v420-classroom-review/);
+  assert.match(sw,/easy-v500-softlight/);
   assert.match(sw,/\/audio\/ambient\.mp3/);
 });

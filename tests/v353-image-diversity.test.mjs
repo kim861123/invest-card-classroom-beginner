@@ -31,11 +31,11 @@ test("server only exposes whitelisted article sizes and main images",()=>{
  assert.match(server,/article-health\.webp/);
 });
 test("service worker does not eager-download every photo at install",()=>{
- assert.match(sw,/easy-v420-classroom-review/);
+ assert.match(sw,/easy-v500-softlight/);
  assert.doesNotMatch(sw,/"\/art\/article-rates\.webp"/);
 });
 test("html references new version",()=>{
- assert.match(html,/EASY V4\.2/);
+ assert.match(html,/EASY V5\.0/);
 });
 test("headline classification keeps rate distinct from inflation",()=>{
  assert.equal(topic("연준 기준금리 인상"),"기준금리·통화정책");

@@ -68,7 +68,7 @@ test("main industry price chart and expandable detail table remain", () => {
 });
 
 test("cache-busted script and service worker versions match the release", () => {
-  assert.match(html,/EASY V4\.2/);
-  assert.match(sw,/easy-v420-classroom-review/);
+  assert.match(html,/EASY V5\.0/);
+  assert.match(sw,/easy-v500-softlight/);
   assert.doesNotMatch(html, /app\.js\?v=(beginner-v3\.5\.3|general-v9\.5\.3)/);
 });

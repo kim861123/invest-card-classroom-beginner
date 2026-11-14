@@ -153,7 +153,7 @@ test("초급 UI 및 데이터 파일 확인",()=>{
   assert.match(app,/function beginnerGuide/);
   assert.match(app,/한 줄 요약/);
   assert.match(app,/산업 카드/);
-  assert.match(index,/EASY V4\.2/);
+  assert.match(index,/EASY V5\.0/);
   assert.match(app,/function beginnerCoach/);
   assert.match(app,/function beginnerQuiz/);
   assert.match(app,/function beginnerPractice/);

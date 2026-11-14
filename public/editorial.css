@@ -1,221 +1,359 @@
-
-/* Shared premium editorial design — EASY V3 / ADV V9 */
-:root{--paper:#fffaf0;--paper-ink:#172741;--paper-gold:#cba769}
+/* ================================================================
+   EASY V5.0 · 뉴스룸 에디토리얼 (소프트 라이트 페이퍼 룩)
+   신문 마스트헤드 · 기사 카드 · 초급자 안내 박스를 밝은 종이 위에
+   파스텔 민트/스카이/소프트옐로우로 정리합니다.
+   ================================================================ */
+:root{
+  --paper:#ffffff;
+  --paper-2:#fbfcfe;
+  --paper-ink:#0f172a;
+  --paper-sub:#5c7085;
+  --paper-rule:#e3eaf3;
+  --mint:#eafaf3;
+  --mint-line:#c3ead9;
+  --mint-ink:#046c52;
+  --sky:#eef6ff;
+  --sky-line:#d3e6fb;
+  --sky-ink:#17527f;
+  --lemon:#fff8e4;
+  --lemon-line:#f7e0ae;
+  --lemon-ink:#8a5a06;
+}
 html,body{max-width:100%;overflow-x:clip}
-.newsroom .news-card.news-current{position:relative;isolation:isolate;background:linear-gradient(145deg,#fffefa,#f5eddc)!important;color:var(--paper-ink)!important;border:1px solid #d9c7a3!important;box-shadow:0 20px 55px #010b1b80,0 0 0 5px #bb9a5514!important;border-radius:13px!important;overflow:hidden;padding:clamp(18px,4vw,34px)!important}
-.newsroom .news-current h3,.newsroom .news-current p,.newsroom .news-current b,.newsroom .news-current strong{color:var(--paper-ink)}
-.newspaper-masthead{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:4px double #987b48;padding-bottom:13px;margin-bottom:12px}
-.newspaper-masthead span{font-family:Georgia,"Noto Serif KR",serif;font-size:clamp(23px,4.3vw,38px);font-weight:900;letter-spacing:-1.4px;color:#172742}
-.newspaper-masthead small{font-size:9px;letter-spacing:.12em;color:#876c41}
+
+/* ---------- 기사 카드(현재 기사) : 종이 느낌 ---------- */
+.newsroom .news-card.news-current{
+  position:relative;isolation:isolate;
+  background:linear-gradient(180deg,#ffffff 0%,#fcfdff 100%) !important;
+  color:var(--paper-ink) !important;
+  border:1px solid var(--paper-rule) !important;
+  border-top:4px solid #1e3a5f !important;
+  border-radius:20px !important;
+  padding:clamp(18px,3vw,32px) !important;
+  box-shadow:0 18px 45px -30px rgba(15,23,42,.5) !important;
+  overflow:hidden;
+}
+.newsroom .news-current h3,.newsroom .news-current p,.newsroom .news-current b,.newsroom .news-current strong{
+  color:var(--paper-ink);
+}
+.newsroom .news-current .news-readable-meta span{
+  background:#eef2f7 !important;color:#2b4a6b !important;
+}
+.newsroom .news-current .news-readable-meta time{color:#7c8ea6 !important}
+
+/* 마스트헤드 (레거시 마크업도 라이트로) */
+.newspaper-masthead{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  border-bottom:3px double #c8d6e4;padding-bottom:12px;margin-bottom:12px;
+}
+.newspaper-masthead span{
+  font-family:Georgia,"Noto Serif KR",serif;font-size:clamp(23px,4.3vw,38px);
+  font-weight:900;letter-spacing:-1.2px;color:#132a44;
+}
+.newspaper-masthead small{font-size:9px;letter-spacing:.14em;color:#7c8ea6}
 .news-past .newspaper-masthead,.news-past .newspaper-editorial-banner{display:none}
-.newspaper-editorial-banner{height:clamp(120px,28vw,215px);margin:8px 0 16px;border-radius:6px;background:linear-gradient(0deg,#11213c77,#10213b44),url("/art/news-signal.webp") center/cover;position:relative}
-.newspaper-editorial-banner span,.newspaper-editorial-banner strong{position:absolute;color:white!important;text-shadow:0 2px 8px #07101d}
+.newspaper-editorial-banner{
+  height:clamp(120px,28vw,215px);margin:8px 0 16px;border-radius:10px;
+  background:linear-gradient(0deg,rgba(9,23,40,.35),rgba(9,23,40,.05)),
+    url("/art/news-signal.webp") center/cover;position:relative;
+  border:1px solid var(--paper-rule);
+}
+.newspaper-editorial-banner span,.newspaper-editorial-banner strong{
+  position:absolute;color:#fff!important;text-shadow:0 2px 8px rgba(7,16,29,.7);
+}
 .newspaper-editorial-banner span{left:14px;top:12px;font-size:10px;letter-spacing:.12em}
 .newspaper-editorial-banner strong{left:14px;bottom:13px;font-size:13px}
-.newsroom .news-current .newspaper-headline{font-family:Georgia,"Noto Serif KR",serif!important;font-size:clamp(25px,4vw,42px)!important;line-height:1.4!important;letter-spacing:-.04em!important;margin:14px 0 10px!important}
-.newspaper-byline{font-size:11px;color:#77684d;border-bottom:1px solid #d4c5a8;padding:0 0 14px;margin-bottom:14px}
-.newsroom .news-current .news-meta,.newsroom .news-current .news-date,.newsroom .news-current .news-index{color:#6b5c3b!important}
-.newsroom .news-current .beginner-summary,.newsroom .news-current .beginner-term,.newsroom .news-current .news-question,.newsroom .news-current .beginner-source{background:#fffaf0!important;color:#1b2c43!important;border:1px solid #e6d7b9!important}
-.newsroom .news-current .beginner-summary *,.newsroom .news-current .beginner-term *,.newsroom .news-current .news-question *,.newsroom .news-current .beginner-source *{color:#1b2c43!important}
-.newsroom .news-current .news-sources a{color:#315a85!important}
-.editorial-stage-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:20px 0 12px;position:sticky;top:0;z-index:10;background:#0e1a2bea;padding:9px;border:1px solid #364a61;border-radius:16px;backdrop-filter:blur(14px)}
-.editorial-stage-nav button{border:1px solid #334a63;border-radius:11px;background:#172740;color:#bfcee0;padding:12px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-size:clamp(11px,2.8vw,14px);min-width:0}
-.editorial-stage-nav button small{font-size:10px;color:#b1a17b}
-.editorial-stage-nav button.active{background:linear-gradient(135deg,#aa8a4b,#f1d08b);color:#13243b;border-color:#e5bf6b;box-shadow:0 4px 18px #dab56735}
-.editorial-stage-nav button.active small{color:#4a3c22}
-.classroom-pane{display:none;animation:classroomFade .32s ease both}.classroom-pane.is-active{display:block}
-@keyframes classroomFade{from{opacity:.5;transform:translateY(8px)}to{opacity:1;transform:none}}
-.prediction-panel{background:linear-gradient(125deg,#1b2e49,#16243b);border-color:#4d6b7d}
-.prediction-form{display:grid;grid-template-columns:1fr 1.5fr;gap:12px}.prediction-form label{min-width:0;display:flex;flex-direction:column;gap:7px}
-.prediction-form select,.prediction-form textarea{max-width:100%;width:100%;font:inherit;background:#f9f5e8;color:#15233a;border:1px solid #aa9878;border-radius:9px;padding:12px;min-height:45px}
-.prediction-form textarea{min-height:85px}.prediction-form button{grid-column:1/-1}
-.prediction-commit{border:1px solid #4fb5a5;background:#163a41;border-radius:12px;padding:16px}.prediction-commit p{margin:9px 0}
-.prediction-teacher-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:11px;border-top:1px solid #30435b}.prediction-teacher-row small{grid-column:1/-1;color:#bfd0de}
-.editorial-teacher-actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
-.classroom-action-note{padding:15px;color:#d8c699;border:1px dashed #826a43;border-radius:12px;margin-bottom:18px}
-.round-replay .replay-movers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.replay-mover,.replay-history-item{padding:11px;border:1px solid #344a60;border-radius:9px;display:flex;justify-content:space-between;gap:8px;min-width:0}
-.replay-mover span{font-size:12px}.replay-mover strong{white-space:nowrap}.replay-history-item{margin:8px 0}
-@media(max-width:620px){.prediction-form{grid-template-columns:minmax(0,1fr)}.newspaper-masthead small{display:none}.editorial-stage-nav{gap:4px;padding:5px}.editorial-stage-nav button{padding:12px 2px}.newsroom .news-card.news-current{padding:17px!important}.newsroom .news-current .newspaper-headline{font-size:26px!important}.round-replay .replay-movers{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){.classroom-pane{animation:none!important}*{scroll-behavior:auto!important}}
+.newsroom .news-current .newspaper-headline{
+  font-family:Georgia,"Noto Serif KR",serif!important;
+  font-size:clamp(24px,3.4vw,38px)!important;line-height:1.42!important;
+  letter-spacing:-.035em!important;margin:14px 0 10px!important;
+  color:#10243c !important;
+}
+.newspaper-byline{font-size:11px;color:#7c8ea6;border-bottom:1px solid var(--paper-rule);padding:0 0 14px;margin-bottom:14px}
+.newsroom .news-current .news-meta,.newsroom .news-current .news-date,.newsroom .news-current .news-index{color:#5c7085!important}
 
-/* Economic relationship infographic and tactile collectible cards */
-.industry-relationship{border:1px solid #7b6844;background:linear-gradient(125deg,#1d2c45,#132136)}
+/* ---------- 초급자 3대 안내 박스 : 민트 · 스카이 · 레몬 ---------- */
+.newsroom .news-current .beginner-summary,
+.newsroom .news-current .beginner-term,
+.newsroom .news-current .news-question,
+.newsroom .news-current .beginner-source{
+  border-radius:14px !important;border:1px solid var(--paper-rule) !important;
+  background:var(--paper-2) !important;color:var(--paper-ink) !important;
+}
+.newsroom .news-current .beginner-summary *,
+.newsroom .news-current .beginner-term *,
+.newsroom .news-current .news-question *,
+.newsroom .news-current .beginner-source *{color:var(--paper-ink)!important}
+.newsroom .news-current .news-sources a{color:#17527f!important}
+
+/* 한 줄 요약 — 파스텔 민트 + 배지 */
+.beginner-summary,.news-readable-summary{
+  background:linear-gradient(120deg,#eafaf3,#f4fdf9) !important;
+  border:1px solid var(--mint-line) !important;
+  border-radius:16px !important;padding:16px 18px !important;margin:16px 0 14px !important;
+  box-shadow:inset 0 1px #fff;
+}
+.beginner-summary span,.news-readable-summary b{
+  display:inline-flex!important;align-items:center;gap:6px;
+  background:#d6f3e6!important;color:var(--mint-ink)!important;
+  border-radius:999px!important;padding:5px 12px!important;
+  font-size:11.5px!important;font-weight:850!important;letter-spacing:.02em;
+  margin:0 0 9px!important;
+}
+.beginner-summary strong,.news-readable-summary p{
+  color:#0d3f33!important;font-size:16px!important;line-height:1.7!important;font-weight:750!important;
+  margin:0!important;display:block;
+}
+
+/* 어려운 말 풀이 — 파스텔 스카이 + 배지 */
+.beginner-term,.news-readable-term{
+  background:linear-gradient(120deg,#eef6ff,#f6fbff) !important;
+  border:1px solid var(--sky-line) !important;
+  border-radius:16px !important;padding:15px 18px !important;margin:0 0 14px !important;
+  color:var(--sky-ink) !important;
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;
+}
+.beginner-term strong,.news-readable-term strong{
+  background:#d9eaff!important;color:var(--sky-ink)!important;
+  border-radius:999px!important;padding:5px 12px!important;
+  font-size:11.5px!important;font-weight:850!important;letter-spacing:.02em;
+}
+.beginner-term b,.news-readable-term span{color:#1b4b73!important;font-size:14px!important;line-height:1.65!important}
+.news-readable-term span{flex:1;min-width:0}
+
+/* 생각해 보기 — 소프트옐로우 + 배지 */
+.news-question,.news-readable-question{
+  background:linear-gradient(120deg,#fff8e4,#fffdf6) !important;
+  border:1px solid var(--lemon-line) !important;
+  border-radius:16px !important;padding:15px 18px !important;margin:14px 0 0 !important;
+  color:#6b4703 !important;
+}
+.news-question b{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#ffedc2!important;color:var(--lemon-ink)!important;
+  border-radius:999px!important;padding:5px 12px!important;
+  font-size:11.5px!important;font-weight:850!important;
+}
+.news-question p,.news-readable-question{color:#6b4703!important}
+.news-question p{font-size:14px!important;line-height:1.7!important}
+
+.news-readable-body{color:#334155}
+.news-readable-body h4{color:#1e3a5f}
+
+.beginner-source,.news-readable-source a{
+  color:#17527f!important;border-color:#cfe0f2!important;background:#f7fbff!important;
+}
+
+/* 기사 본문의 출처 링크 */
+.newsroom .news-current .news-sources{border-top:1px solid var(--paper-rule) !important;padding-top:14px}
+.newsroom .news-current .news-sources a{
+  background:#f4f9ff !important;border:1px solid #d6e7fb !important;color:#17527f !important;
+  border-radius:10px !important;font-weight:750;
+}
+.newsroom .news-current .news-sources a.secondary-link{background:#fff !important;border-color:#e3eaf3 !important;color:#5c7085 !important}
+.newsroom .archive-news .news-card.news-past{
+  background:#fbfcfe !important;border-left-color:#c8d6e4 !important;opacity:1;
+}
+
+/* ---------- 단계 탭 (라이트) ---------- */
+.editorial-stage-nav{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;
+  margin:20px 0 12px;position:sticky;top:0;z-index:10;
+  background:rgba(255,255,255,.92);padding:9px;
+  border:1px solid var(--paper-rule);border-radius:18px;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  box-shadow:0 10px 26px -20px rgba(15,23,42,.5);
+}
+.editorial-stage-nav button{
+  border:1px solid #e3eaf3;border-radius:12px;background:#f8fafc;color:#5c7085;
+  padding:12px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;font-size:clamp(11px,2.8vw,14px);min-width:0;font-weight:750;
+  transition:background .16s,border-color .16s,color .16s,transform .16s;
+}
+.editorial-stage-nav button small{font-size:10px;color:#9aabbe}
+.editorial-stage-nav button:hover{background:#f2f8ff;border-color:#cfe2f9;color:#1f6fe0}
+.editorial-stage-nav button.active{
+  background:linear-gradient(135deg,#4a94fb,#3182f6);color:#fff;
+  border-color:#2f7ef0;box-shadow:0 10px 22px -12px rgba(49,130,246,.95);
+}
+.editorial-stage-nav button.active small{color:rgba(255,255,255,.85)}
+
+.classroom-pane{display:none;animation:classroomFade .32s ease both}
+.classroom-pane.is-active{display:block}
+@keyframes classroomFade{from{opacity:.5;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------- 산업 예측 ---------- */
+.prediction-panel{background:#ffffff;border:1px solid #e8eef6}
+.prediction-form{display:grid;grid-template-columns:1fr 1.5fr;gap:12px}
+.prediction-form label{min-width:0;display:flex;flex-direction:column;gap:7px;color:#475569}
+.prediction-form select,.prediction-form textarea{
+  max-width:100%;width:100%;font:inherit;background:#ffffff;color:#0f172a;
+  border:1px solid #dbe5f1;border-radius:12px;padding:12px;min-height:45px;
+}
+.prediction-form select:focus,.prediction-form textarea:focus{
+  border-color:#3182f6;box-shadow:0 0 0 3px rgba(49,130,246,.16);outline:none;
+}
+.prediction-form textarea{min-height:85px}
+.prediction-form button{grid-column:1/-1}
+.prediction-commit{background:#eefaf4;border:1px solid #c3ead9;border-radius:14px;padding:16px;color:#125c47}
+.prediction-commit p{margin:9px 0;color:#125c47}
+.prediction-teacher-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:11px;border-top:1px solid #eef2f7}
+.prediction-teacher-row small{grid-column:1/-1;color:#7c8ea6}
+.editorial-teacher-actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.classroom-action-note{padding:15px;color:#8a5a06;border:1px dashed #f0d9a8;background:#fffdf5;border-radius:14px;margin-bottom:18px}
+
+/* ---------- 회차 리플레이 ---------- */
+.round-replay{background:#f8fbff;border:1px solid #e8eef6;border-radius:16px;padding:16px}
+.round-replay .replay-movers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.replay-mover,.replay-history-item{
+  padding:11px;border:1px solid #e8eef6;border-radius:10px;background:#fff;
+  display:flex;justify-content:space-between;gap:8px;min-width:0;color:#334155;
+}
+.replay-mover span{font-size:12px;color:#5c7085}
+.replay-mover strong{white-space:nowrap;color:#0f172a}
+.replay-history-item{margin:8px 0}
+
+/* ---------- 산업 인과관계 그래프 ---------- */
+.industry-relationship{background:#f8fbff;border:1px solid #e2ecf8;border-radius:16px}
 .relationship-flow{display:flex;align-items:stretch;gap:8px;margin:15px 0}
-.relation-node{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:6px;background:linear-gradient(140deg,#1e3c58,#12243b);border:1px solid #637887;border-radius:13px;padding:17px;text-align:center}
-.relation-node small{font-size:11px;color:#e0c087}.relation-node b{font-size:clamp(12px,2.2vw,18px);overflow-wrap:anywhere}
-.relation-arrow{display:grid;place-items:center;color:#f7ce81;font-size:25px}
+.relation-node{
+  flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:6px;
+  background:#fff;border:1px solid #dbe7f4;border-radius:14px;padding:17px;text-align:center;
+  box-shadow:0 8px 20px -18px rgba(15,23,42,.4);
+}
+.relation-node small{font-size:11px;color:#b45309}
+.relation-node b{font-size:clamp(12px,2.2vw,18px);overflow-wrap:anywhere;color:#0f172a}
+.relation-arrow{display:grid;place-items:center;color:#b9c9db;font-size:25px}
+
+/* 카드 타일 3D 햅틱 */
 .asset-tile{perspective:1000px}
 .asset-tile .sector-image{transition:transform .3s ease,filter .3s ease;transform-style:preserve-3d;will-change:transform}
-@media(hover:hover){.asset-tile:hover .sector-image{transform:translateY(-6px) rotateY(-4deg) rotateX(3deg) scale(1.03);filter:drop-shadow(0 18px 15px #030b17aa)}}
+@media(hover:hover){
+  .asset-tile:hover .sector-image{transform:translateY(-6px) rotateY(-4deg) rotateX(3deg) scale(1.03);filter:drop-shadow(0 18px 18px rgba(15,23,42,.28))}
+}
 .asset-tile .sector-image:active{transform:scale(.98)}
-@media(max-width:650px){.relationship-flow{display:grid;grid-template-columns:1fr;gap:6px}.relation-arrow{transform:rotate(90deg);font-size:17px}.relation-node{padding:13px}}
-@media(prefers-reduced-motion:reduce){.asset-tile .sector-image{transition:none!important}}
 
-
-/* ========= INVEST PLAY V10 / EASY V3.1: classroom usability & editorial refresh ========= */
-/* Keep the document locked to the viewport horizontally; preserve vertical scrolling. */
-html,body{width:100%;max-width:100%;overflow-x:clip;overscroll-behavior-x:none}
-body{margin:0}
-#app,main,.app-shell,.page-container,.classroom-pane,.section,.panel,
-.newsroom,.news-card,.newspaper-feature,.newspaper-feature-copy,.collection-dropdown,
-.collection-section,.market-card,.listing,.stat,.result-banner{min-width:0;max-width:100%}
-img,video,canvas{max-width:100%}
-.table-wrap{width:100%;max-width:100%;overscroll-behavior-x:contain}
-@media(max-width:720px){
- .editorial-stage-nav{grid-template-columns:repeat(3,minmax(0,1fr))}
- .editorial-stage-nav button{white-space:normal;overflow-wrap:anywhere}
- .prediction-panel,.industry-relationship,.section{min-width:0}
- .newsroom .news-card{width:100%;max-width:100%}
- .newsroom .news-card *{min-width:0}
- .market-card img,.newspaper-editorial-banner{max-width:100%}
+/* ---------- 카드 보관함(접이식) ---------- */
+.collection-dropdown{
+  display:block;margin:20px 0 28px;padding:0;border:1px solid #e8eef6;
+  border-radius:18px;background:#fff;overflow:hidden;
+  box-shadow:0 14px 34px -26px rgba(15,23,42,.45);
 }
-/* The mobile reader sees a newspaper, not a generic dashboard card. */
-.newsroom .news-card.news-current{
- --paper:#faf5e9;
- background:
-  repeating-linear-gradient(0deg,transparent 0px,transparent 27px,#6d55390a 28px),
-  linear-gradient(160deg,#fffdf6,#f4ead5)!important;
- border:1px solid #d5bd8b!important;
- border-top:5px solid #9b773d!important;
- border-radius:5px!important;
- box-shadow:0 21px 55px #0008,0 0 0 3px #ad894924!important;
- padding:clamp(14px,2.5vw,30px)!important;
- position:relative;
+.collection-dropdown>summary{
+  list-style:none;cursor:pointer;display:flex;align-items:center;
+  gap:12px;padding:17px 20px;color:#0f172a;min-height:68px;touch-action:manipulation;
 }
-.newsroom .news-current::before{
- content:"";pointer-events:none;position:absolute;inset:10px;
- border:1px solid #94784432;border-radius:1px;
-}
-.newspaper-folio{display:flex;justify-content:space-between;align-items:center;gap:10px;
- text-transform:uppercase;color:#66533a;font-size:10px;letter-spacing:.13em;font-weight:700;
- border-bottom:1px solid #a98d60;padding:3px 3px 9px}
-.newspaper-masthead{margin:0;padding:9px 3px 8px;border-bottom:4px double #806439!important}
-.newspaper-masthead span{font-family:Georgia,"Noto Serif KR",serif;font-size:clamp(27px,5.6vw,52px);
- color:#18243b!important;letter-spacing:-.035em;text-shadow:1px 2px #af925929}
-.newspaper-masthead small{font-weight:700;color:#786343!important;letter-spacing:.18em}
-.newspaper-section-strip{display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding:8px 3px;
- border-bottom:1px solid #b69d6d;font-size:11px;color:#4e473a;font-weight:800}
-.newspaper-section-strip b{background:#8a292f;color:#fff!important;padding:6px 9px;
- font-size:10px;letter-spacing:.09em}
-.newspaper-section-strip span{background:#e2d4b8;padding:5px 10px;border-radius:1px;color:#403622}
-.newspaper-section-strip em{font-style:normal;margin-left:auto;opacity:.78;font-size:10px}
-.newspaper-feature{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,.9fr);
- gap:clamp(15px,2.7vw,24px);align-items:stretch;padding:22px 2px 15px;
- border-bottom:2px solid #a88b60}
-.newspaper-feature-copy{display:flex;flex-direction:column;justify-content:center}
-.newsroom .news-current .news-meta{padding:0;margin-bottom:6px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.newsroom .news-current .newspaper-headline{font-family:"Noto Serif KR",Georgia,serif!important;
- font-weight:900!important;font-size:clamp(25px,3.4vw,40px)!important;
- letter-spacing:-.06em!important;line-height:1.33!important;color:#14233a!important;
- margin:12px 0 13px!important;text-wrap:pretty}
-.newspaper-feature-intro{font-family:"Noto Serif KR",Georgia,serif;font-size:clamp(13px,1.5vw,16px);
- line-height:1.85;color:#293b52!important;margin:15px 0 0}
-.newspaper-byline{color:#665c4e!important;margin:0!important;padding:0 0 11px!important}
-.newspaper-editorial-banner{
- min-height:230px;height:auto!important;margin:0!important;border-radius:3px!important;
- background:linear-gradient(0deg,#081729ba,#0f294522),url("/art/news-trade.svg") center/cover!important;
- border:4px solid #f4ead4;outline:1px solid #bba171;
- box-shadow:0 9px 25px #211b1470;position:relative}
-.news-theme-rates .newspaper-editorial-banner{background-image:linear-gradient(0deg,#081729ae,#0f29451a),url("/art/news-rates.svg")!important}
-.news-theme-energy .newspaper-editorial-banner{background-image:linear-gradient(0deg,#081729b6,#0f294512),url("/art/news-energy.svg")!important}
-.news-theme-tech .newspaper-editorial-banner{background-image:linear-gradient(0deg,#081729b6,#0f294512),url("/art/news-tech.svg")!important}
-.news-theme-banks .newspaper-editorial-banner{background-image:linear-gradient(0deg,#081729b6,#0f294512),url("/art/news-banks.svg")!important}
-.news-theme-health .newspaper-editorial-banner{background-image:linear-gradient(0deg,#081729b6,#0f294512),url("/art/news-health.svg")!important}
-.news-theme-trade .newspaper-editorial-banner{background-image:linear-gradient(0deg,#081729b6,#0f294512),url("/art/news-trade.svg")!important}
-.newsroom .newspaper-editorial-banner::before{
- content:"HISTORICAL MARKET REVIEW";position:absolute;top:15px;right:13px;
- color:#fcdf9a;font-size:10px;letter-spacing:.16em;border-bottom:1px solid #f3d99b66;
- padding-bottom:7px}
-.newsroom .news-current .news-fact{font-family:"Noto Serif KR",Georgia,serif;
- color:#253852!important;line-height:1.85;max-width:80ch;margin-top:19px}
-.newsroom .news-current .beginner-summary{margin-top:19px}
-.newsroom .news-current .news-question{background:#fff8e5!important;border-left:5px solid #af8951!important}
-.newsroom .news-current .news-sources{border-top:1px solid #c7b593;padding-top:16px}
-.newsroom .news-current .news-sources a{background:#f5edda!important;border:1px solid #c5ab7b!important;
- color:#163b60!important;border-radius:4px!important}
-.newsroom .news-past .newspaper-folio,.newsroom .news-past .newspaper-masthead,
-.newsroom .news-past .newspaper-section-strip,.newsroom .news-past .newspaper-editorial-banner{display:none!important}
-.newsroom .news-past .newspaper-feature{display:block;border:0;padding:0}
-.newsroom .news-past .newspaper-feature-intro{display:none}
-.newsroom .news-past .newspaper-headline{font-size:19px!important}
-@media(max-width:760px){
- .newspaper-feature{grid-template-columns:minmax(0,1fr);gap:12px;padding:14px 0}
- .newspaper-editorial-banner{height:clamp(170px,53vw,270px)!important;min-height:unset}
- .newspaper-masthead span{font-size:clamp(26px,8vw,39px)}
- .newspaper-folio{font-size:9px;letter-spacing:.02em}
- .newspaper-section-strip em{display:none}
- .newsroom .news-current .newspaper-headline{font-size:clamp(23px,6.5vw,32px)!important}
- .newspaper-feature-intro{margin:8px 0;line-height:1.7}
-}
-@media(max-width:370px){.newspaper-folio span:first-child{display:none}.newspaper-editorial-banner{height:155px!important}}
-/* The asset inventory is a collapsible section immediately below public orders. */
-.collection-dropdown{display:block;margin:20px 0 28px;padding:0;border:1px solid #c8a66a;
- border-radius:16px;background:linear-gradient(160deg,#162c47,#0c1c32);overflow:hidden}
-.collection-dropdown>summary{list-style:none;cursor:pointer;display:flex;align-items:center;
- gap:12px;padding:17px 20px;color:#fff0d0;min-height:68px;touch-action:manipulation}
 .collection-dropdown>summary::-webkit-details-marker{display:none}
 .collection-dropdown>summary>span{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
-.collection-dropdown>summary b{font-size:clamp(17px,4vw,23px)}
-.collection-dropdown>summary small{font-size:12px;color:#b8c7d7}
-.collection-dropdown>summary em{font-style:normal;color:#edd19a;font-size:12px;text-align:right}
-.collection-dropdown>summary>svg:last-child{transition:transform .2s ease}
+.collection-dropdown>summary b{font-size:clamp(17px,4vw,23px);color:#0f172a}
+.collection-dropdown>summary small{font-size:12px;color:#7c8ea6}
+.collection-dropdown>summary em{font-style:normal;color:#1f6fe0;font-size:12px;text-align:right;font-weight:750}
+.collection-dropdown>summary>svg:last-child{transition:transform .2s ease;color:#9aabbe}
 .collection-dropdown[open]>summary>svg:last-child{transform:rotate(90deg)}
-.collection-dropdown[open]>summary{background:#243d57;border-bottom:1px solid #80693e}
+.collection-dropdown[open]>summary{background:#f8fbff;border-bottom:1px solid #eef2f7}
 .collection-dropdown .collection-section{padding:18px;margin:0}
 .collection-dropdown .collection-section>.section-title{margin-bottom:12px}
-@media(max-width:550px){.collection-dropdown>summary{padding:13px}.collection-dropdown>summary small{font-size:10px}.collection-dropdown>summary em{max-width:86px}}
-/* Prices are compact enough to compare eleven sectors without horizontal scrolling. */
+
+/* ---------- 결과 표 ---------- */
 .table-wrap:has(.result-table){overflow-x:clip}
 .result-table{width:100%!important;min-width:0!important;table-layout:fixed;border-collapse:collapse}
-.result-table th,.result-table td{padding:10px 6px!important;font-size:clamp(10px,1.8vw,12px)!important;
- line-height:1.3!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.result-table th,.result-table td{
+  padding:10px 6px!important;font-size:clamp(10px,1.8vw,12px)!important;
+  line-height:1.3!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  border-bottom:1px solid #eef2f7;
+}
 .result-table th:first-child,.result-table td:first-child{width:29%;white-space:normal;overflow-wrap:anywhere}
 .result-table th:not(:first-child),.result-table td:not(:first-child){text-align:right}
-.result-table th{font-weight:800!important;font-size:clamp(9px,1.6vw,11px)!important}
+.result-table th{font-weight:800!important;font-size:clamp(9px,1.6vw,11px)!important;color:#7c8ea6;background:#f8fafc}
 @media(max-width:420px){
- .result-table th,.result-table td{padding:10px 2px!important;font-size:10px!important;letter-spacing:-.04em}
- .result-table th:first-child,.result-table td:first-child{width:27%}
-}
-/* Branded confirmation remains visually anchored in the app. */
-.accept-dialog{width:min(480px,calc(100vw - 24px))!important;border:1px solid #c49b59!important;
- background:linear-gradient(155deg,#203a55,#0c1a31)!important;box-shadow:0 25px 100px #000c!important;
- border-radius:18px!important;overflow-y:auto}
-.accept-dialog .modal-head{border-bottom:1px solid #405570;padding-bottom:12px}
-.accept-trade-scene{margin:16px 0;display:grid;gap:9px;
- background:linear-gradient(160deg,#172b44,#112238);padding:17px;border:1px solid #38566a;border-radius:12px}
-.accept-trade-row{display:flex;justify-content:space-between;gap:12px;align-items:center;
- padding:12px 10px;background:#1c3452;border:1px solid #375674;border-radius:9px}
-.accept-trade-row.highlight{border-color:#b99550;background:#2b3447}
-.accept-trade-row small{color:#bccbd8}.accept-trade-row strong{color:#fff;font-size:clamp(16px,4vw,20px)}
-.trade-exchange-symbol{display:grid;place-items:center;color:#dfb869}
-.accept-warning{font-size:13px;color:#e1d4bd;line-height:1.6}
-.accept-actions{display:flex;gap:10px;margin-top:17px}.accept-actions>.btn{flex:1;min-width:0}
-@media(max-width:450px){.accept-dialog{padding:15px!important}.accept-trade-row{align-items:flex-start;flex-direction:column;gap:5px}}
-/* Teacher predictions: discoverable at the top of the console. */
-.teacher-predictions{border:2px solid #b28c51!important;box-shadow:0 0 0 3px #f3cb7130}
-.teacher-forecast-bars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0}
-.teacher-forecast-bars>div{display:grid;grid-template-columns:minmax(0,110px) 1fr auto;align-items:center;gap:8px;
- font-size:12px;background:#12273e;padding:8px;border-radius:8px}
-.teacher-forecast-bars i{height:8px;border-radius:10px;background:#304159;overflow:hidden}
-.teacher-forecast-bars em{display:block;background:linear-gradient(90deg,#75d0cf,#d9b368);height:100%;border-radius:10px}
-.teacher-forecast-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.teacher-forecast-entry{min-width:0;border:1px solid #46617a;border-radius:10px;background:#14273d;padding:13px}
-.teacher-forecast-entry b{display:inline-block;margin-right:8px}.teacher-forecast-entry span{color:#f3d38a}
-.teacher-forecast-entry p{margin:8px 0 0;color:#d6e5ec;font-size:12px;overflow-wrap:anywhere}
-@media(max-width:630px){.teacher-forecast-bars,.teacher-forecast-list{grid-template-columns:minmax(0,1fr)}}
-/* Audio controls: opt in, compact on mobile. */
-.timer-tools{flex-wrap:wrap;gap:7px}
-.timer-tools .ambient-toggle{border-color:#657c81}
-.timer-sound-btn[aria-pressed="true"]{background:#22454a;color:#c9fff1;border-color:#5ec8a6}
-@media(prefers-reduced-motion:reduce){
- .collection-dropdown>summary>svg:last-child,.newspaper-feature{transition:none!important}
+  .result-table th,.result-table td{padding:10px 2px!important;font-size:10px!important;letter-spacing:-.04em}
+  .result-table th:first-child,.result-table td:first-child{width:27%}
 }
 
-/* Original sector-card photography: thematic newspaper story photos (no stock placeholders). */
-.news-theme-rates .newspaper-editorial-banner{background-image:linear-gradient(0deg,#07131eaa,transparent 48%),url("/art/news-photo-rates.webp")!important;background-position:center center!important;background-size:cover!important}
-.news-theme-banks .newspaper-editorial-banner{background-image:linear-gradient(0deg,#07131eaa,transparent 48%),url("/art/news-photo-banks.webp")!important;background-position:center center!important;background-size:cover!important}
-.news-theme-energy .newspaper-editorial-banner{background-image:linear-gradient(0deg,#07131eaa,transparent 48%),url("/art/news-photo-energy.webp")!important;background-position:center center!important;background-size:cover!important}
-.news-theme-health .newspaper-editorial-banner{background-image:linear-gradient(0deg,#07131eaa,transparent 48%),url("/art/news-photo-health.webp")!important;background-position:center center!important;background-size:cover!important}
-.news-theme-tech .newspaper-editorial-banner{background-image:linear-gradient(0deg,#07131eaa,transparent 48%),url("/art/news-photo-tech.webp")!important;background-position:center center!important;background-size:cover!important}
-.news-theme-trade .newspaper-editorial-banner{background-image:linear-gradient(0deg,#07131eaa,transparent 48%),url("/art/news-photo-trade.webp")!important;background-position:center center!important;background-size:cover!important}
+/* ---------- 교환 확인창 ---------- */
+.accept-dialog{
+  width:min(480px,calc(100vw - 24px))!important;
+  border:1px solid #e6eef9!important;
+  background:linear-gradient(160deg,#ffffff,#f9fcff)!important;
+  color:#0f172a!important;
+  box-shadow:0 30px 100px -40px rgba(15,23,42,.55)!important;
+  border-radius:20px!important;overflow-y:auto;
+}
+.accept-dialog .modal-head{border-bottom:1px solid #eef2f7;padding-bottom:12px}
+.accept-dialog .modal-head h2{color:#0f172a!important}
+.accept-trade-scene{
+  margin:16px 0;display:grid;gap:9px;background:#f8fbff;padding:17px;
+  border:1px solid #e8eef6;border-radius:14px;
+}
+.accept-trade-row{
+  display:flex;justify-content:space-between;gap:12px;align-items:center;
+  padding:12px 14px;background:#fff;border:1px solid #e2ecf8;border-radius:11px;
+}
+.accept-trade-row.highlight{border-color:#f3d9a8;background:#fffaf0}
+.accept-trade-row small{color:#7c8ea6}
+.accept-trade-row strong{color:#0f172a;font-size:clamp(16px,4vw,20px)}
+.trade-exchange-symbol{display:grid;place-items:center;color:#b9c9db}
+.accept-warning{font-size:13px;color:#475569;line-height:1.6}
+.accept-actions{display:flex;gap:10px;margin-top:17px}
+.accept-actions>.btn{flex:1;min-width:0}
+@media(max-width:450px){.accept-dialog{padding:15px!important}.accept-trade-row{align-items:flex-start;flex-direction:column;gap:5px}}
+
+/* ---------- 강사의 팀별 예측 ---------- */
+.teacher-predictions{border:2px solid #f3d9a8!important;box-shadow:0 0 0 4px rgba(245,158,11,.08);background:#fffdf7}
+.teacher-forecast-bars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0}
+.teacher-forecast-bars>div{
+  display:grid;grid-template-columns:minmax(0,110px) 1fr auto;align-items:center;gap:8px;
+  font-size:12px;background:#f8fbff;padding:8px;border-radius:9px;border:1px solid #eef2f7;color:#334155;
+}
+.teacher-forecast-bars i{height:8px;border-radius:10px;background:#e8eef6;overflow:hidden}
+.teacher-forecast-bars em{display:block;background:linear-gradient(90deg,#63b3f9,#10b981);height:100%;border-radius:10px}
+.teacher-forecast-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.teacher-forecast-entry{min-width:0;border:1px solid #e8eef6;border-radius:11px;background:#f8fbff;padding:13px}
+.teacher-forecast-entry b{display:inline-block;margin-right:8px;color:#0f172a}
+.teacher-forecast-entry span{color:#b45309}
+.teacher-forecast-entry p{margin:8px 0 0;color:#475569;font-size:12px;overflow-wrap:anywhere}
+@media(max-width:630px){.teacher-forecast-bars,.teacher-forecast-list{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- 오디오 컨트롤 ---------- */
+.timer-tools{flex-wrap:wrap;gap:7px}
+.timer-tools .ambient-toggle{border-color:#dbe5f1;color:#475569;background:#fff}
+.timer-sound-btn[aria-pressed="true"]{background:#eafaf3;color:#047857;border-color:#bfe8d8}
+
+/* ---------- 뉴스 사진 (주제별) ---------- */
+.news-theme-rates .newspaper-editorial-banner{background-image:linear-gradient(0deg,rgba(7,19,30,.55),transparent 55%),url("/art/news-photo-rates.webp")!important;background-position:center center!important;background-size:cover!important}
+.news-theme-banks .newspaper-editorial-banner{background-image:linear-gradient(0deg,rgba(7,19,30,.55),transparent 55%),url("/art/news-photo-banks.webp")!important;background-position:center center!important;background-size:cover!important}
+.news-theme-energy .newspaper-editorial-banner{background-image:linear-gradient(0deg,rgba(7,19,30,.55),transparent 55%),url("/art/news-photo-energy.webp")!important;background-position:center center!important;background-size:cover!important}
+.news-theme-health .newspaper-editorial-banner{background-image:linear-gradient(0deg,rgba(7,19,30,.55),transparent 55%),url("/art/news-photo-health.webp")!important;background-position:center center!important;background-size:cover!important}
+.news-theme-tech .newspaper-editorial-banner{background-image:linear-gradient(0deg,rgba(7,19,30,.55),transparent 55%),url("/art/news-photo-tech.webp")!important;background-position:center center!important;background-size:cover!important}
+.news-theme-trade .newspaper-editorial-banner{background-image:linear-gradient(0deg,rgba(7,19,30,.55),transparent 55%),url("/art/news-photo-trade.webp")!important;background-position:center center!important;background-size:cover!important}
+
+/* ---------- 반응형 ---------- */
+@media(max-width:760px){
+  .relationship-flow{display:grid;grid-template-columns:1fr;gap:6px}
+  .relation-arrow{transform:rotate(90deg);font-size:17px}
+  .relation-node{padding:13px}
+}
+@media(max-width:720px){
+  .editorial-stage-nav{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .editorial-stage-nav button{white-space:normal;overflow-wrap:anywhere}
+  .prediction-panel,.industry-relationship,.section{min-width:0}
+  .newsroom .news-card{width:100%;max-width:100%}
+  .newsroom .news-card *{min-width:0}
+  .market-card img,.newspaper-editorial-banner{max-width:100%}
+}
+@media(max-width:620px){
+  .prediction-form{grid-template-columns:minmax(0,1fr)}
+  .editorial-stage-nav{gap:4px;padding:6px}
+  .editorial-stage-nav button{padding:11px 3px}
+  .newsroom .news-card.news-current{padding:16px !important;border-radius:16px !important}
+  .newsroom .news-current .newspaper-headline{font-size:24px !important}
+  .round-replay .replay-movers{grid-template-columns:1fr}
+  .beginner-summary,.news-readable-summary,
+  .beginner-term,.news-readable-term,
+  .news-question,.news-readable-question{padding:14px !important;border-radius:14px !important}
+}
+@media(prefers-reduced-motion:reduce){
+  .classroom-pane{animation:none!important}
+  .asset-tile .sector-image{transition:none!important}
+  *{scroll-behavior:auto!important}
+}

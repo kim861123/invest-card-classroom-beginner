@@ -1,6 +1,7 @@
-
-/* V3.5 / V9.5: iPhone horizontal swiping, final podium and card-first loading. */
-/* Only viewport root is clipped; results tables retain intentional inner scrolling. */
+/* ================================================================
+   EASY V5.0 · 모바일/태블릿 (라이트) — 결과 발표 · 학생 화면 · 카드
+   스크롤 가드와 반응형 레이아웃은 유지하고 색만 밝게 정리합니다.
+   ================================================================ */
 html,body{
   width:100%;max-width:100%;overflow-x:hidden!important;
   overscroll-behavior-x:none;
@@ -22,15 +23,21 @@ body{position:relative}
 .collection-dropdown summary{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .collection-dropdown summary>*{min-width:0}
 .collection-dropdown .asset-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px}
-.sector-image{width:100%;max-width:100%;overflow:hidden;position:relative;background:linear-gradient(135deg,#223855,#101c32)}
-.sector-image img{display:block;width:100%;height:auto;max-width:100%;aspect-ratio:3/4;object-fit:contain;background:#14233d}
+.sector-image{
+  width:100%;max-width:100%;overflow:hidden;position:relative;
+  background:linear-gradient(135deg,#eef6ff,#dde9fa);
+  /* 카드 아트를 일정한 가로 프레임에 꽉 채워 보여 줍니다. */
+  height:auto!important;min-height:0!important;aspect-ratio:16/10;
+}
+.sector-image img{display:block;width:100%;height:100%;max-width:100%;aspect-ratio:auto;object-fit:cover;object-position:center;background:#f2f7fd}
+.sector-image .image-ticker{position:absolute!important;top:9px;right:9px;left:auto!important;z-index:3}
 .card-detail-image-wrap,.trade-card-preview{max-width:100%;min-width:0;overflow:auto}
 .card-detail-image-wrap img,.trade-card-preview img{max-width:100%;height:auto}
 @media(max-width:480px){
   .shell{padding-left:12px!important;padding-right:12px!important}
   #app,.classroom-pane,.panel{max-width:100%!important}
   .quick-panels,.stat-grid,.asset-gallery{min-width:0}
-  .result-table{min-width:420px} /* Scroll only inside its .table-wrap. */
+  .result-table{min-width:420px} /* .table-wrap 안에서만 스크롤 */
   .table-wrap{overscroll-behavior-x:contain}
   .collection-dropdown .asset-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
   .readable-newsroom .article-tabs button{min-width:0}
@@ -40,18 +47,24 @@ body{position:relative}
   .asset-card-actions{display:flex;flex-direction:column}
   .asset-card-actions button{width:100%;min-width:0;white-space:normal}
 }
-/* Final podium: ceremonial visual comes before detail/price tables. */
+
+/* ================================================================
+   시상식 · 포디움 (라이트 클래스룸)
+   ================================================================ */
 .final-awards{
-  width:100%;max-width:100%;padding:clamp(16px,4vw,30px)!important;
-  background:radial-gradient(circle at 50% -10%,#31537e 0%,#16283f 50%,#101b32 100%)!important;
-  border:1px solid #ba9854!important;border-radius:22px!important;
-  box-shadow:0 14px 35px #030c1b66,inset 0 1px #fff2!important;
+  width:100%;max-width:100%;padding:clamp(18px,4vw,32px)!important;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% -10%,#fff1d2 0%,transparent 70%),
+    radial-gradient(ellipse 50% 60% at 8% 100%,#e4f1ff 0%,transparent 72%),
+    linear-gradient(160deg,#ffffff,#f8fbff 60%,#fffaf1)!important;
+  border:1px solid #f0e2c6!important;border-radius:24px!important;
+  box-shadow:0 24px 60px -34px rgba(15,23,42,.35)!important;
   margin:18px 0 24px;
 }
-.final-awards-heading{text-align:center;max-width:100%;margin-bottom:20px}
-.final-awards-kicker{display:inline-flex;align-items:center;gap:7px;color:#f5d58e;font-size:14px;font-weight:800}
-.final-awards-heading h2{margin:10px 0 8px;font-size:clamp(24px,4.8vw,36px);line-height:1.3;color:#fff4ce}
-.final-awards-heading p{font-size:14px;color:#c8d7eb;line-height:1.6;margin:0}
+.final-awards-heading{text-align:center;max-width:100%;margin-bottom:22px}
+.final-awards-kicker{display:inline-flex;align-items:center;gap:7px;color:#b45309;font-size:14px;font-weight:800}
+.final-awards-heading h2{margin:10px 0 8px;font-size:clamp(24px,4.8vw,36px);line-height:1.3;color:#0f172a}
+.final-awards-heading p{font-size:14px;color:#64748b;line-height:1.6;margin:0}
 .final-podium{
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
   align-items:end;gap:clamp(6px,1.8vw,16px);width:100%;max-width:750px;
@@ -61,63 +74,57 @@ body{position:relative}
   min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:end;
   gap:7px;text-align:center;overflow-wrap:anywhere;
 }
-.podium-medal{font-size:clamp(27px,6.5vw,52px);line-height:1.05;filter:drop-shadow(0 3px 8px #0006)}
-.podium-team{display:block;color:#fff;font-size:clamp(12px,2.8vw,18px);line-height:1.4;word-break:keep-all}
-.podium-return{font-size:clamp(12px,2.8vw,19px);font-weight:900}
-.podium-me{display:inline-block;font-size:11px;color:#ffdc8e}
+.podium-medal{font-size:clamp(27px,6.5vw,52px);line-height:1.05;filter:drop-shadow(0 4px 10px rgba(15,23,42,.18))}
+.podium-team{display:block;color:#0f172a;font-size:clamp(12px,2.8vw,18px);line-height:1.4;word-break:keep-all}
+.podium-return{font-size:clamp(12px,2.8vw,19px);font-weight:900;color:#0f172a}
+.podium-me{display:inline-block;font-size:11px;color:#b45309;background:#fff5e6;border:1px solid #fbe0b4;border-radius:999px;padding:2px 7px}
 .podium-step{
   width:100%;display:flex;align-items:flex-start;justify-content:center;
-  padding-top:16px;border-radius:13px 13px 3px 3px;
-  border:1px solid #ddcaa9;color:#13233d;font-size:clamp(16px,4.3vw,29px);font-weight:950;
-  box-shadow:inset 0 1px 2px #fff9,0 0 18px #0003;
+  padding-top:16px;border-radius:14px 14px 5px 5px;
+  border:1px solid #e7dcc8;color:#0f172a;font-size:clamp(16px,4.3vw,29px);font-weight:950;
+  box-shadow:inset 0 1px rgba(255,255,255,.9),0 10px 24px -18px rgba(15,23,42,.5);
 }
 .podium-step span{white-space:nowrap}
-.rank-1 .podium-step{height:clamp(116px,19vw,166px);background:linear-gradient(140deg,#ffe39a,#d8a343)}
-.rank-2 .podium-step{height:clamp(88px,15vw,123px);background:linear-gradient(140deg,#f4f6fa,#aab9c9)}
-.rank-3 .podium-step{height:clamp(68px,11vw,99px);background:linear-gradient(140deg,#edbd8d,#ad7046)}
-.final-podium-slot.is-mine .podium-team{text-decoration:underline;text-decoration-color:#f8cc76;text-underline-offset:4px}
+.rank-1 .podium-step{height:clamp(116px,19vw,166px);background:linear-gradient(140deg,#ffe9b0,#f2c267 70%,#e3ad4f)}
+.rank-2 .podium-step{height:clamp(88px,15vw,123px);background:linear-gradient(140deg,#f6f8fb,#c9d5e2 70%,#b6c4d4)}
+.rank-3 .podium-step{height:clamp(68px,11vw,99px);background:linear-gradient(140deg,#f6d6bb,#dda477 70%,#c98d5f)}
+.final-podium-slot.is-mine .podium-team{text-decoration:underline;text-decoration-color:#f59e0b;text-underline-offset:4px}
 .final-podium-slot.empty-slot{visibility:hidden}
 .final-my-team{
   display:grid;gap:4px;text-align:center;
-  margin:16px auto 0;padding:13px 14px;max-width:540px;
-  border:1px solid #bca46a;border-radius:13px;background:#1c3554;
+  margin:16px auto 0;padding:14px;max-width:540px;
+  border:1px solid #e3eaf3;border-radius:14px;background:#f8fbff;
 }
-.final-my-team span{color:#efd196;font-weight:750}
-.final-my-team strong{font-size:clamp(15px,3.6vw,19px);color:#fff}
-.final-my-team small{color:#c8d6e8}
-.final-awards-footnote{text-align:center;margin:16px 0 0;font-size:12px;color:#b4c6df;line-height:1.5}
-.final-no-scores{text-align:center;color:#e8effa}
+.final-my-team span{color:#b45309;font-weight:750}
+.final-my-team strong{font-size:clamp(15px,3.6vw,19px);color:#0f172a}
+.final-my-team small{color:#7c8ea6}
+.final-awards-footnote{text-align:center;margin:16px 0 0;font-size:12px;color:#93a5bb;line-height:1.5}
+.final-no-scores{text-align:center;color:#334155}
 @media(max-width:420px){
-  .final-awards{padding:15px 10px!important}
+  .final-awards{padding:16px 10px!important}
   .final-podium{gap:6px}
   .podium-team{min-height:37px}
   .podium-me{display:block}
 }
-/* Compact image placeholder while original card art is decoded. */
-.sector-image{background-color:#192b47}
+
+/* 카드 이미지 로딩 자리 (라이트) */
+.sector-image{background-color:#eef6ff;isolation:isolate;min-height:190px}
 .sector-image img{transition:opacity .18s ease}
-@media(prefers-reduced-motion:reduce){
- .sector-image img{transition:none}
-}
-
-
-/* V3.5.2 — immediate feedback while Safari loads card artwork. */
-.sector-image{isolation:isolate;min-height:190px}
 .sector-image::after{
   content:"카드 이미지 불러오는 중";
   position:absolute;inset:0;display:grid;place-items:center;
-  padding:18px;text-align:center;color:#b6c9e4;font-size:.82rem;
-  background:linear-gradient(135deg,#1d3552,#102036);
+  padding:18px;text-align:center;color:#7c9ec6;font-size:.82rem;
+  background:linear-gradient(135deg,#eef6ff,#e3eefc);
   pointer-events:none;
 }
 .sector-image.is-loaded::after{display:none}
-.sector-image.is-error::after{content:"카드 이미지를 표시할 수 없습니다"}
+.sector-image.is-error::after{content:"카드 이미지를 표시할 수 없습니다";color:#b45309}
 .sector-image img{position:relative;z-index:1}
 .sector-image:not(.is-loaded) img{opacity:0}
 .sector-image .image-ticker{position:relative;z-index:2}
 .trade-modal .trade-submit:disabled{opacity:.5;cursor:not-allowed}
 
-/* V3.5.2 / V9.5.2 mobile stabilization */
+/* 모바일 안정화 */
 html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 .shell,#app,.section,.panel,.news-card,.news-readable,.news-readable-image,
 .collection-dropdown,.asset-gallery,.listing-board,.quick-panels{min-width:0;max-width:100%;box-sizing:border-box}
@@ -125,13 +132,17 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 .news-readable-image img{display:block;width:100%;max-width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center}
 .trade-picker-launch{min-height:52px;margin:12px 0 14px;touch-action:manipulation}
 .trade-picker-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-top:12px}
-.trade-picker-choice{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;
-  text-align:left;border:1px solid #47688c;background:#162c47;color:#f5f8fc;padding:12px;border-radius:12px;
-  font:inherit;cursor:pointer;touch-action:manipulation;min-height:64px}
-.trade-picker-choice strong{display:block;flex:1 1 100%;color:#fff}
-.trade-picker-choice small{color:#b9c8e1}
-.trade-picker-choice:focus-visible,.trade-picker-launch:focus-visible{outline:3px solid #f4c66a;outline-offset:2px}
-.trade-picker-hint,.ranking-live-note{font-size:14px;line-height:1.6;color:#cbdbed;margin:3px 0 10px}
+.trade-picker-choice{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;
+  text-align:left;border:1px solid #dbe5f1;background:#ffffff;color:#0f172a;padding:12px;border-radius:12px;
+  font:inherit;cursor:pointer;touch-action:manipulation;min-height:64px;
+  box-shadow:0 2px 8px -6px rgba(15,23,42,.4);
+}
+.trade-picker-choice strong{display:block;flex:1 1 100%;color:#0f172a}
+.trade-picker-choice small{color:#7c8ea6}
+.trade-picker-choice:hover{border-color:#bfd8fb;background:#f4f9ff}
+.trade-picker-choice:focus-visible,.trade-picker-launch:focus-visible{outline:3px solid rgba(49,130,246,.45);outline-offset:2px}
+.trade-picker-hint,.ranking-live-note{font-size:14px;line-height:1.6;color:#5b7189;margin:3px 0 10px}
 .reset-main-button,.reset-confirm-button{white-space:nowrap!important;word-break:keep-all!important;min-width:0;
   font-size:clamp(12px,3.2vw,16px);padding-inline:clamp(8px,2vw,18px)}
 .reset-btn-row{display:flex;flex-wrap:nowrap;gap:8px}
@@ -139,87 +150,90 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 .price-change-chart{display:grid;gap:9px;margin:17px 0 20px}
 .price-change-item{display:grid;grid-template-columns:minmax(65px,1.25fr) minmax(65px,2.5fr) minmax(62px,1fr);align-items:center;gap:7px;font-size:clamp(12px,3.1vw,15px)}
 .price-change-name{overflow-wrap:anywhere;color:inherit}
-.price-change-meter{height:13px;border-radius:12px;background:#203653;overflow:hidden}
+.price-change-meter{height:13px;border-radius:12px;background:#e8eef6;overflow:hidden}
 .price-change-meter i{display:block;height:100%;border-radius:10px}
-.price-change-meter i.gain{background:linear-gradient(90deg,#2e9b84,#72e3c0)}
-.price-change-meter i.loss{background:linear-gradient(90deg,#f69a9d,#c84b59)}
-.price-change-item strong{text-align:right;white-space:nowrap}
-.result-detail-table{margin-top:16px;border:1px solid #4d647e;border-radius:12px;padding:9px}
-.result-detail-table>summary{cursor:pointer;font-weight:800;touch-action:manipulation;padding:8px}
+.price-change-meter i.gain{background:linear-gradient(90deg,#34d399,#10b981)}
+.price-change-meter i.loss{background:linear-gradient(90deg,#f87171,#ef4444)}
+.price-change-item strong{text-align:right;white-space:nowrap;color:#0f172a}
+.result-detail-table{margin-top:16px;border:1px solid #e3eaf3;border-radius:14px;padding:9px;background:#fff}
+.result-detail-table>summary{cursor:pointer;font-weight:800;touch-action:manipulation;padding:8px;color:#334155}
 .result-detail-table .table-wrap{overflow:auto;max-width:100%}
 .game-dialog-fallback{display:block;position:fixed;inset:7vh 4vw;z-index:3000;overflow-y:auto}
 @media(max-width:420px){.trade-picker-grid{grid-template-columns:1fr}.reset-main-button{font-size:12px}}
 
-/* Display a lightweight, immediately readable sector placeholder while PNG downloads. */
+/* 카드 자리 표시(라이트) */
 .sector-image{position:relative;isolation:isolate}
 .sector-image::after{display:none!important}
-.sector-card-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  flex-direction:column;gap:7px;z-index:0;background:linear-gradient(130deg,#233a59,#0c213f);
-  color:#f5e1a7;text-align:center;padding:12px;pointer-events:none}
-.sector-card-fallback b{font-size:clamp(16px,3.4vw,23px);line-height:1.25;word-break:keep-all}
-.sector-card-fallback small{font-size:12px;letter-spacing:.16em;color:#bed0eb}
+.sector-card-fallback{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:7px;z-index:0;
+  background:linear-gradient(135deg,#eef6ff,#e0ecfc);
+  color:#2b4c75;text-align:center;padding:12px;pointer-events:none;
+}
+.sector-card-fallback b{font-size:clamp(16px,3.4vw,23px);line-height:1.25;word-break:keep-all;color:#20395c}
+.sector-card-fallback small{font-size:12px;letter-spacing:.16em;color:#5c7d9e}
 .sector-image.is-loaded .sector-card-fallback{display:none}
 .sector-image.is-error .sector-card-fallback{display:flex}
+.sector-image:not(.is-loaded):not(.is-error)::after{display:none!important}
+.sector-image:not(.is-loaded) .sector-card-fallback{opacity:1!important;visibility:visible!important}
+.sector-image.is-error .sector-card-fallback{opacity:1!important;visibility:visible!important}
+.sector-image img{content-visibility:auto;contain-intrinsic-size:220px 310px}
+.sector-image{overflow:hidden;contain:layout paint;touch-action:manipulation}
 
-/* V3.5.3 — responsive image resolution without stretching low-res thumbnails. */
+/* 반응형 이미지 해상도 */
 .news-readable-image img{
-  width:100%;
-  max-width:100%;
-  aspect-ratio:16 / 9;
-  height:auto;
-  object-fit:cover;
-  object-position:center;
-  image-rendering:auto;
-  display:block;
+  width:100%;max-width:100%;aspect-ratio:16/9;height:auto;
+  object-fit:cover;object-position:center;image-rendering:auto;display:block;
 }
 .news-readable-image{overflow:hidden;isolation:isolate}
 .news-readable-image img[loading="lazy"]{content-visibility:auto}
 
-
-/* V3.5.5 / V9.5.5: readable, responsive final investment award ceremony */
+/* ================================================================
+   V3.5.5 / V5.0 — 최종 투자 시상식 (라이트 + 골드 포인트)
+   ================================================================ */
 .final-awards-v355{
   position:relative;isolation:isolate;overflow:hidden;
-  padding:clamp(24px,4.5vw,52px)!important;
+  padding:clamp(24px,4.5vw,50px)!important;
   background:
-    radial-gradient(ellipse 64% 80% at 50% -15%,rgba(82,128,188,.45),transparent 75%),
-    radial-gradient(ellipse 36% 66% at 12% 65%,rgba(82,140,187,.18),transparent 86%),
-    radial-gradient(ellipse 36% 66% at 90% 65%,rgba(218,163,66,.14),transparent 86%),
-    linear-gradient(135deg,#0b1a30,#132640 53%,#0a1729)!important;
-  border:1px solid rgba(245,196,106,.7)!important;
-  border-radius:25px!important;
-  box-shadow:0 24px 58px rgba(1,9,22,.35),inset 0 1px rgba(255,255,255,.12)!important;
+    radial-gradient(ellipse 64% 80% at 50% -15%,rgba(255,214,138,.55),transparent 72%),
+    radial-gradient(ellipse 36% 66% at 8% 70%,rgba(180,214,250,.4),transparent 84%),
+    radial-gradient(ellipse 36% 66% at 92% 70%,rgba(255,226,178,.4),transparent 84%),
+    linear-gradient(150deg,#ffffff 0%,#f7fbff 54%,#fffaf0 100%)!important;
+  border:1px solid rgba(240,214,168,.9)!important;
+  border-radius:26px!important;
+  box-shadow:0 24px 60px -34px rgba(15,23,42,.35),inset 0 1px #fff!important;
 }
 .final-awards-v355::before{
   content:"";position:absolute;pointer-events:none;inset:0;z-index:-1;
-  background-image:radial-gradient(circle,#fff7d8 1px,transparent 1.5px);
-  background-size:75px 79px;opacity:.13;mask-image:linear-gradient(#000,transparent 72%);
+  background-image:radial-gradient(circle,#f3dcae 1px,transparent 1.5px);
+  background-size:75px 79px;opacity:.5;
+  -webkit-mask-image:linear-gradient(#000,transparent 78%);
+  mask-image:linear-gradient(#000,transparent 78%);
 }
 .final-awards-v355::after{
   content:"";position:absolute;pointer-events:none;top:0;left:18%;right:18%;height:3px;
-  background:linear-gradient(90deg,transparent,#fff3be,transparent);
-  filter:drop-shadow(0 0 14px #ffd373);
+  background:linear-gradient(90deg,transparent,#f7c86a,transparent);
+  filter:drop-shadow(0 0 10px #ffd37388);opacity:.9;
 }
-.final-awards-v355 .final-awards-heading{margin-bottom:clamp(26px,4vw,44px)}
+.final-awards-v355 .final-awards-heading{margin-bottom:clamp(26px,4vw,42px)}
 .final-awards-v355 .final-awards-kicker{
-  padding:8px 14px;border:1px solid #e2bb7245;border-radius:99px;
-  background:#ffda8310;color:#f5dca4;letter-spacing:.035em;font-size:12px;
+  padding:8px 15px;border:1px solid #f3d9a8;border-radius:999px;
+  background:#fff8ea;color:#b45309;letter-spacing:.035em;font-size:12px;
 }
 .final-awards-v355 .final-awards-heading h2{
-  margin:17px 0 8px;font-size:clamp(27px,4.2vw,44px);
-  letter-spacing:-.045em;line-height:1.2;
-  background:linear-gradient(180deg,#fff8df,#f6d98c);
-  color:#fce1a2;-webkit-background-clip:text;background-clip:text;
-  -webkit-text-fill-color:transparent;
+  margin:17px 0 8px;font-size:clamp(27px,4.2vw,42px);
+  letter-spacing:-.045em;line-height:1.24;
+  color:#0f172a!important;background:none;-webkit-text-fill-color:currentColor;
+  text-shadow:none;
 }
-.final-awards-v355 .final-awards-heading p{font-size:clamp(13px,1.5vw,16px);color:#cad8eb}
-.final-awards-v355 .final-awards-facts{
-  margin:17px auto 0;display:flex;justify-content:center;flex-wrap:wrap;gap:8px;
-}
+.final-awards-v355 .final-awards-heading p{font-size:clamp(13px,1.5vw,16px);color:#64748b}
+.final-awards-v355 .final-awards-facts{margin:17px auto 0;display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
 .final-awards-v355 .final-awards-facts span{
-  border:1px solid #7a99bb58;background:#dce9fc12;border-radius:99px;
-  color:#b9cbe1;font-size:12px;line-height:1.3;padding:7px 12px;
+  border:1px solid #e3eaf3;background:#ffffff;border-radius:999px;
+  color:#64748b;font-size:12px;line-height:1.3;padding:7px 13px;
+  box-shadow:0 2px 6px -4px rgba(15,23,42,.35);
 }
-.final-awards-v355 .final-awards-facts b{color:#fff4da;font-weight:850}
+.final-awards-v355 .final-awards-facts b{color:#0f172a;font-weight:850}
 .final-awards-v355 .final-podium{
   width:100%;max-width:1080px;gap:clamp(9px,2vw,22px);margin:0 auto;
   grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;
@@ -229,84 +243,60 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 .final-awards-v355 .final-podium-slot{gap:0;position:relative;min-width:0;overflow-wrap:anywhere}
 .final-awards-v355 .podium-ribbon{
   margin-bottom:11px;font-size:clamp(10px,1.4vw,13px);font-weight:900;
-  padding:6px 12px;border-radius:999px;letter-spacing:.025em;
-  color:#d8e5f4;border:1px solid #9ab1d04d;background:#d0dcec16;
+  padding:6px 13px;border-radius:999px;letter-spacing:.025em;
+  color:#5b7189;border:1px solid #e3eaf3;background:#ffffff;
 }
-.final-awards-v355 .rank-1 .podium-ribbon{
-  color:#ffe8aa;border-color:#e6bb6c9c;background:#c89e3d28;
-}
-.final-awards-v355 .podium-medal{
-  font-size:clamp(38px,6.4vw,64px);line-height:1.1;margin-bottom:10px;
-  filter:drop-shadow(0 8px 14px #030b1999);
-}
-.final-awards-v355 .rank-1 .podium-medal{filter:drop-shadow(0 0 20px #ffd97788)}
-.final-awards-v355 .podium-team{
-  margin:0 0 6px;font-size:clamp(14px,2.2vw,22px);
-  line-height:1.35;font-weight:900;color:#fff;min-height:unset;
-}
-.final-awards-v355 .podium-me{
-  margin-left:5px;padding:2px 5px;border-radius:5px;background:#fcd57430;color:#ffeaa8;font-size:10px;
-}
-.final-awards-v355 .podium-score-label{font-size:clamp(10px,1.2vw,12px);color:#acc3dc;margin-bottom:3px}
+.final-awards-v355 .rank-1 .podium-ribbon{color:#b45309;border-color:#f3d9a8;background:#fff8ea}
+.final-awards-v355 .podium-medal{font-size:clamp(38px,6.4vw,64px);line-height:1.1;margin-bottom:10px;filter:drop-shadow(0 8px 12px rgba(15,23,42,.18))}
+.final-awards-v355 .rank-1 .podium-medal{filter:drop-shadow(0 0 16px rgba(245,158,11,.45))}
+.final-awards-v355 .podium-team{margin:0 0 6px;font-size:clamp(14px,2.2vw,22px);line-height:1.35;font-weight:900;color:#0f172a;min-height:unset}
+.final-awards-v355 .podium-me{margin-left:5px;padding:2px 6px;border-radius:6px;background:#fff5e6;border:1px solid #fbe0b4;color:#b45309;font-size:10px}
+.final-awards-v355 .podium-score-label{font-size:clamp(10px,1.2vw,12px);color:#93a5bb;margin-bottom:3px}
 .final-awards-v355 .podium-return{
   font-size:clamp(17px,3.1vw,28px);line-height:1.2;font-weight:950;
-  font-variant-numeric:tabular-nums;letter-spacing:-.025em;margin-bottom:15px;
+  font-variant-numeric:tabular-nums;letter-spacing:-.025em;margin-bottom:15px;color:#0f172a;
 }
 .final-awards-v355 .podium-step{
   min-height:unset;box-sizing:border-box;width:100%;
   display:flex;align-items:center;justify-content:center;
-  padding:10px;border-radius:14px 14px 6px 6px;position:relative;
-  box-shadow:inset 0 2px 1px #fff7,0 12px 30px #020a1888;
-  border:1px solid #fff8;
+  padding:10px;border-radius:15px 15px 7px 7px;position:relative;
+  box-shadow:inset 0 2px 1px rgba(255,255,255,.85),0 14px 28px -20px rgba(15,23,42,.45);
+  border:1px solid rgba(255,255,255,.9);
 }
-.final-awards-v355 .podium-step::before{
-  content:"";position:absolute;left:10px;right:10px;top:8px;height:1px;background:#fff7;
-}
+.final-awards-v355 .podium-step::before{content:"";position:absolute;left:10px;right:10px;top:8px;height:1px;background:rgba(255,255,255,.75)}
 .final-awards-v355 .podium-step span{
-  display:flex;align-items:baseline;gap:4px;font-weight:950;
-  text-shadow:0 1px 1px #fff9;font-size:clamp(30px,5vw,56px);
+  display:flex;align-items:baseline;gap:4px;font-weight:950;color:#22364f;
+  text-shadow:0 1px 1px rgba(255,255,255,.7);font-size:clamp(30px,5vw,56px);
 }
 .final-awards-v355 .podium-step small{font-size:.46em}
-.final-awards-v355 .rank-1 .podium-step{
-  height:clamp(105px,15vw,180px);
-  background:linear-gradient(116deg,#f7d47d 0%,#ffebb0 43%,#bc853a 100%);
-  border-color:#ffe5a6;
-}
-.final-awards-v355 .rank-2 .podium-step{
-  height:clamp(84px,12vw,142px);
-  background:linear-gradient(116deg,#bcc9d9,#edf1f6 42%,#99aabc);
-}
-.final-awards-v355 .rank-3 .podium-step{
-  height:clamp(68px,10vw,120px);
-  background:linear-gradient(116deg,#c78f67,#f1c5a2 42%,#a36c49);
-}
+.final-awards-v355 .rank-1 .podium-step{height:clamp(105px,15vw,180px);background:linear-gradient(116deg,#fbe1a3 0%,#ffeec0 44%,#e5b45f 100%);border-color:#f6dfae}
+.final-awards-v355 .rank-2 .podium-step{height:clamp(84px,12vw,142px);background:linear-gradient(116deg,#e2e9f1,#f7fafd 44%,#c6d3e0)}
+.final-awards-v355 .rank-3 .podium-step{height:clamp(68px,10vw,120px);background:linear-gradient(116deg,#f3d6bd,#fbe7d6 44%,#dfb08a)}
 .final-awards-v355 .rank-1{z-index:1}
 .final-awards-v355 .final-my-team{
   display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:7px 20px;
-  margin:clamp(22px,4vw,40px) auto 0;max-width:820px;text-align:left;
+  margin:clamp(22px,4vw,38px) auto 0;max-width:820px;text-align:left;
   padding:clamp(14px,2vw,20px);border-radius:16px;
-  border:1px solid #92b8e677;background:linear-gradient(105deg,#233d5b,#1a304d);
-  box-shadow:inset 0 1px #fff2;
+  border:1px solid #e3eaf3;background:linear-gradient(105deg,#f8fbff,#ffffff);
+  box-shadow:inset 0 1px #fff,0 10px 26px -24px rgba(15,23,42,.5);
 }
-.final-awards-v355 .final-my-team>span{grid-column:1/-1;color:#efdba6;font-size:13px}
-.final-awards-v355 .final-my-team>strong{color:#fff;font-size:clamp(17px,2.5vw,24px)}
-.final-awards-v355 .final-my-team em{
-  color:#fbd48c;font-style:normal;margin-left:8px;font-size:.83em;white-space:nowrap;
-}
+.final-awards-v355 .final-my-team>span{grid-column:1/-1;color:#b45309;font-size:13px}
+.final-awards-v355 .final-my-team>strong{color:#0f172a;font-size:clamp(17px,2.5vw,24px)}
+.final-awards-v355 .final-my-team em{color:#1f6fe0;font-style:normal;margin-left:8px;font-size:.83em;white-space:nowrap}
 .final-awards-v355 .final-my-team-numbers{display:grid;gap:2px;text-align:right}
-.final-awards-v355 .final-my-team-numbers b{font-size:clamp(21px,3vw,28px);font-variant-numeric:tabular-nums}
-.final-awards-v355 .final-my-team-numbers span{font-size:12px;color:#bdcfe4}
-.final-awards-v355 .final-awards-footnote{font-size:12px;margin:21px 0 0;line-height:1.6}
+.final-awards-v355 .final-my-team-numbers b{font-size:clamp(21px,3vw,28px);font-variant-numeric:tabular-nums;color:#0f172a}
+.final-awards-v355 .final-my-team-numbers span{font-size:12px;color:#7c8ea6}
+.final-awards-v355 .final-awards-footnote{font-size:12px;margin:21px 0 0;line-height:1.6;color:#93a5bb}
 @media(max-width:540px){
-  .final-awards-v355{padding:23px 12px!important;border-radius:16px!important}
-  .final-awards-v355 .final-awards-heading{margin-bottom:26px}
+  .final-awards-v355{padding:24px 12px!important;border-radius:18px!important}
+  .final-awards-v355 .final-awards-heading{margin-bottom:24px}
   .final-awards-v355 .final-podium{gap:8px}
-  .final-awards-v355 .podium-ribbon{font-size:9px;padding:5px 7px;margin-bottom:9px}
+  .final-awards-v355 .podium-ribbon{font-size:9px;padding:5px 8px;margin-bottom:9px}
   .final-awards-v355 .podium-medal{font-size:39px;margin-bottom:7px}
   .final-awards-v355 .podium-team{font-size:13px;min-height:36px;display:flex;flex-direction:column;justify-content:center}
   .final-awards-v355 .podium-me{margin:3px auto 0}
   .final-awards-v355 .podium-return{font-size:clamp(14px,4vw,20px);margin-bottom:10px}
-  .final-awards-v355 .podium-step{border-radius:11px 11px 5px 5px}
+  .final-awards-v355 .podium-step{border-radius:12px 12px 6px 6px}
   .final-awards-v355 .rank-1 .podium-step{height:108px}
   .final-awards-v355 .rank-2 .podium-step{height:85px}
   .final-awards-v355 .rank-3 .podium-step{height:66px}
@@ -314,114 +304,24 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
   .final-awards-v355 .final-my-team>strong{font-size:17px}
   .final-awards-v355 .final-my-team-numbers{text-align:left}
 }
-@media(prefers-reduced-motion:reduce){
-  .final-awards-v355 *{animation:none!important;transition:none!important}
-}
+@media(prefers-reduced-motion:reduce){.final-awards-v355 *{animation:none!important;transition:none!important}}
 
-/* V3.5.7: 고해상도 사진을 Safari에서도 확대 없이 선명하게 표시 */
-.news-readable-image{width:100%;max-width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:14px}
-.news-readable-image>img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;image-rendering:auto}
-.news-readable-image>figcaption{font-size:11px;line-height:1.45}
-
-/* V3.5.11/V9.5.11: card collection responsiveness. */
+/* 카드 컬렉션 접이식 헤더 폭 */
 .collection-dropdown summary,
-.collection-section details summary {min-width:0;max-width:100%;box-sizing:border-box;}
+.collection-section details summary{min-width:0;max-width:100%;box-sizing:border-box}
 .collection-dropdown summary em,
-.collection-section details summary em {
+.collection-section details summary em{
   white-space:nowrap!important;flex-shrink:0;font-size:clamp(11px,2.7vw,14px);
-  letter-spacing:-.045em;word-break:keep-all;
+  letter-spacing:-.045em;word-break:keep-all;color:#1f6fe0;
 }
 .collection-dropdown summary > span,
-.collection-section details summary > span {min-width:0;flex:1 1 auto;}
+.collection-section details summary > span{min-width:0;flex:1 1 auto}
 .collection-dropdown summary > svg,
 .collection-section details summary > svg{flex-shrink:0}
-@media(max-width:390px) {
-  .collection-dropdown summary,.collection-section details summary{
-     gap:6px!important;padding-inline:10px!important;
-  }
-  .collection-dropdown summary em,.collection-section details summary em {
-    font-size:11px!important;
-  }
+@media(max-width:390px){
+  .collection-dropdown summary,.collection-section details summary{gap:6px!important;padding-inline:10px!important}
+  .collection-dropdown summary em,.collection-section details summary em{font-size:11px!important}
 }
-/* Show useful card identity immediately, before large PNG finishes downloading. */
-.sector-image:not(.is-loaded):not(.is-error)::after{display:none!important}
-.sector-image:not(.is-loaded) .sector-card-fallback{opacity:1!important;visibility:visible!important}
-.sector-image.is-error .sector-card-fallback{opacity:1!important;visibility:visible!important}
-.sector-image img{content-visibility:auto;contain-intrinsic-size:220px 310px;}
-.sector-image{overflow:hidden;contain:layout paint;touch-action:manipulation}
-.sector-card-fallback{pointer-events:none}
-
-/* Ceremonial finishing scene: staged podium reveal, winner glow and festive lights. */
-.awards-celebration{
-  isolation:isolate;position:relative;overflow:hidden;
-  background:
-    radial-gradient(ellipse 44% 30% at 50% 13%,rgba(247,198,90,.19),transparent 75%),
-    radial-gradient(ellipse 70% 60% at 50% 110%,rgba(40,103,169,.25),transparent 80%),
-    linear-gradient(145deg,#142946,#0d1b33)!important;
-}
-.awards-celebration::before,.awards-celebration::after{
-  content:"";position:absolute;z-index:0;pointer-events:none;
-  width:10px;height:10px;border-radius:2px;
-  background:#ffd775;opacity:0;
-  box-shadow: 64px -18px #81c6e9,-82px 28px #fff2c3,145px 80px #ffd775,
-    -155px 100px #c2eafc,215px 19px #e6afc8,-217px 50px #fff2c3,
-    95px 175px #f8cb81,-112px 190px #9ed3fb;
-}
-.awards-celebration::before{top:12%;left:49%;animation:award-confetti 4.8s ease-out .15s both}
-.awards-celebration::after{top:14%;left:50%;transform:rotate(35deg);animation:award-confetti 4.5s ease-out .35s both}
-.awards-celebration > *{position:relative;z-index:1}
-.awards-celebration .final-awards-heading h2{
-  text-shadow:0 0 28px rgba(255,202,100,.3);
-  animation:award-title-in .85s cubic-bezier(.2,.8,.2,1) both;
-}
-.awards-celebration .final-podium-slot{
-  opacity:0;animation:award-rise .85s cubic-bezier(.2,.8,.2,1) both;
-}
-.awards-celebration .rank-3{animation-delay:.35s}
-.awards-celebration .rank-2{animation-delay:.55s}
-.awards-celebration .rank-1{animation-delay:.9s}
-.awards-celebration .rank-1 .podium-step{
-  box-shadow:inset 0 2px 3px #fff8,0 0 30px rgba(250,190,67,.4),0 12px 28px #0005;
-}
-.awards-celebration .rank-1 .podium-medal{
-  animation:winner-shine 2.6s ease-in-out 1.8s 2;
-}
-.awards-celebration .final-my-team{animation:award-title-in .8s ease-out 1.6s both}
-@keyframes award-rise{
-  from{opacity:0;transform:translateY(42px) scale(.95)}
-  to{opacity:1;transform:translateY(0) scale(1)}
-}
-@keyframes award-title-in{
-  from{opacity:0;transform:translateY(-12px)}
-  to{opacity:1;transform:translateY(0)}
-}
-@keyframes winner-shine{
-  0%,100%{filter:drop-shadow(0 3px 8px #0006);transform:scale(1)}
-  50%{filter:drop-shadow(0 0 24px #ffe89a);transform:scale(1.13)}
-}
-@keyframes award-confetti{
-  0%{opacity:0;transform:translateY(-65px) rotate(0deg)}
-  15%{opacity:.85}
-  75%{opacity:.65}
-  100%{opacity:0;transform:translateY(270px) rotate(110deg)}
-}
-@media(prefers-reduced-motion:reduce){
- .awards-celebration::before,.awards-celebration::after{display:none!important}
- .awards-celebration .final-awards-heading h2,
- .awards-celebration .final-podium-slot,
- .awards-celebration .rank-1 .podium-medal,
- .awards-celebration .final-my-team{animation:none!important;opacity:1!important;transform:none!important}
-}
-
-@media(max-width:420px){
- .collection-dropdown summary > span > small,
- .collection-section details summary > span > small {display:none!important}
- .collection-dropdown summary em,
- .collection-section details summary em {white-space:nowrap!important;overflow:visible!important}
-}
-
-
-/* V3.5.15/V9.5.15: narrow-screen collection controls — never split "펼쳐보기". */
 .collection-dropdown summary>em{
   display:inline-flex!important;align-items:center!important;
   white-space:nowrap!important;overflow-wrap:normal!important;
@@ -431,191 +331,191 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 .collection-dropdown summary>span{min-width:0}
 .collection-dropdown summary{gap:7px!important;flex-wrap:nowrap!important}
 @media(max-width:600px){
- .collection-dropdown summary{
+  .collection-dropdown summary{
     display:grid!important;
     grid-template-columns:24px minmax(0,1fr) auto!important;
     grid-template-rows:auto auto!important;align-items:center!important;
     gap:2px 7px!important;padding:13px 12px!important;
- }
- .collection-dropdown summary>svg:first-child{grid-column:1;grid-row:1/3;align-self:center}
- .collection-dropdown summary>span{grid-column:2;grid-row:1;min-width:0!important}
- .collection-dropdown summary>span>small{display:none!important}
- .collection-dropdown summary>em{grid-column:2/4;grid-row:2;justify-self:end!important;margin:3px 0 0!important}
- .collection-dropdown summary>svg:last-child{grid-column:3;grid-row:1;justify-self:end}
+  }
+  .collection-dropdown summary>svg:first-child{grid-column:1;grid-row:1/3;align-self:center}
+  .collection-dropdown summary>span{grid-column:2;grid-row:1;min-width:0!important}
+  .collection-dropdown summary>span>small{display:none!important}
+  .collection-dropdown summary>em{grid-column:2/4;grid-row:2;justify-self:end!important;margin:3px 0 0!important}
+  .collection-dropdown summary>svg:last-child{grid-column:3;grid-row:1;justify-self:end}
 }
 @media(max-width:340px){
- .collection-dropdown summary{padding:11px 9px!important;gap:3px 4px!important}
- .collection-dropdown summary>em{font-size:11px!important}
+  .collection-dropdown summary{padding:11px 9px!important;gap:3px 4px!important}
+  .collection-dropdown summary>em{font-size:11px!important}
 }
-/* Final ceremony: brighter first place, celebratory trophy, subtle motion */
-.final-awards-v355{
+@media(max-width:420px){
+  .collection-dropdown summary > span > small,
+  .collection-section details summary > span > small{display:none!important}
+  .collection-dropdown summary em,
+  .collection-section details summary em{white-space:nowrap!important;overflow:visible!important}
+}
+
+/* 축하 연출 (라이트) */
+.awards-celebration{
   isolation:isolate;position:relative;overflow:hidden;
   background:
-    radial-gradient(ellipse 60% 47% at 50% 25%,rgba(248,193,73,.22),transparent 78%),
-    radial-gradient(ellipse 40% 65% at 7% 65%,rgba(38,112,183,.24),transparent 77%),
-    linear-gradient(145deg,#20395d 0%,#111e37 62%,#0b152b 100%)!important;
-  border:1px solid rgba(236,194,99,.68)!important;
-  box-shadow:inset 0 1px rgba(255,247,198,.24),0 22px 46px rgba(0,0,0,.25)!important;
+    radial-gradient(ellipse 44% 30% at 50% 13%,rgba(255,206,120,.35),transparent 75%),
+    radial-gradient(ellipse 70% 60% at 50% 110%,rgba(160,205,250,.35),transparent 80%),
+    linear-gradient(150deg,#ffffff,#f6faff 60%,#fffaf1)!important;
 }
-.final-awards-v355::before,.final-awards-v355::after{
- content:"";pointer-events:none;position:absolute;z-index:-1;
- width:260px;height:260px;top:10%;opacity:.55;
- background:repeating-conic-gradient(from 10deg,
-    transparent 0 13deg,rgba(255,208,105,.72) 14deg 15deg,transparent 16deg 30deg);
- -webkit-mask:radial-gradient(circle,transparent 0 11%,#000 13% 49%,transparent 50%);
- mask:radial-gradient(circle,transparent 0 11%,#000 13% 49%,transparent 50%);
- animation:award-sparks 2.4s ease-out both;
+.awards-celebration::before,.awards-celebration::after{
+  content:"";position:absolute;z-index:0;pointer-events:none;
+  width:10px;height:10px;border-radius:2px;
+  background:#f7c86a;opacity:0;
+  box-shadow:64px -18px #7fbdf0,-82px 28px #ffd98a,145px 80px #f7c86a,
+    -155px 100px #a8d3f7,215px 19px #f0b6c8,-217px 50px #ffd98a,
+    95px 175px #f8cb81,-112px 190px #9ed3fb;
 }
-.final-awards-v355::before{left:-65px}
-.final-awards-v355::after{right:-65px;top:16%;animation-delay:.3s;transform:scale(.75)}
-.final-awards-v355 .final-awards-heading h2{
- text-shadow:0 3px 18px rgba(250,193,84,.4);color:#ffdfa0!important;
+.awards-celebration::before{top:12%;left:49%;animation:award-confetti 4.8s ease-out .15s both}
+.awards-celebration::after{top:14%;left:50%;transform:rotate(35deg);animation:award-confetti 4.5s ease-out .35s both}
+.awards-celebration > *{position:relative;z-index:1}
+.awards-celebration .final-awards-heading h2{text-shadow:none;animation:award-title-in .85s cubic-bezier(.2,.8,.2,1) both}
+.awards-celebration .final-podium-slot{opacity:0;animation:award-rise .85s cubic-bezier(.2,.8,.2,1) both}
+.awards-celebration .rank-3{animation-delay:.35s}
+.awards-celebration .rank-2{animation-delay:.55s}
+.awards-celebration .rank-1{animation-delay:.9s}
+.awards-celebration .rank-1 .podium-step{
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.9),0 0 28px rgba(245,180,60,.35),0 14px 26px -18px rgba(15,23,42,.4);
+}
+.awards-celebration .rank-1 .podium-medal{animation:winner-shine 2.6s ease-in-out 1.8s 2}
+.awards-celebration .final-my-team{animation:award-title-in .8s ease-out 1.6s both}
+@keyframes award-rise{from{opacity:0;transform:translateY(42px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes award-title-in{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes winner-shine{
+  0%,100%{filter:drop-shadow(0 4px 10px rgba(15,23,42,.18));transform:scale(1)}
+  50%{filter:drop-shadow(0 0 22px #ffd77a);transform:scale(1.13)}
+}
+@keyframes award-confetti{0%{opacity:0;transform:translateY(-65px) rotate(0deg)}15%{opacity:.8}75%{opacity:.55}100%{opacity:0;transform:translateY(270px) rotate(110deg)}}
+@media(prefers-reduced-motion:reduce){
+  .awards-celebration::before,.awards-celebration::after{display:none!important}
+  .awards-celebration .final-awards-heading h2,
+  .awards-celebration .final-podium-slot,
+  .awards-celebration .rank-1 .podium-medal,
+  .awards-celebration .final-my-team{animation:none!important;opacity:1!important;transform:none!important}
 }
 .final-awards-celebrate-title{
- display:flex;align-items:center;justify-content:center;gap:16px;
- margin:22px auto 13px;padding:12px 16px;
- width:fit-content;max-width:100%;border-radius:20px;
- border:1px solid rgba(245,200,104,.44);
- background:linear-gradient(130deg,rgba(255,220,138,.15),rgba(99,139,216,.1));
- box-shadow:0 0 28px rgba(242,176,53,.1);
- animation:award-appear .65s cubic-bezier(.2,.8,.3,1) both;
+  display:flex;align-items:center;justify-content:center;gap:16px;
+  margin:22px auto 13px;padding:12px 18px;width:fit-content;max-width:100%;
+  border-radius:20px;border:1px solid #f3d9a8;
+  background:linear-gradient(130deg,#fff8ea,#f7fbff);
+  box-shadow:0 12px 28px -22px rgba(15,23,42,.45);
+  animation:award-appear .65s cubic-bezier(.2,.8,.3,1) both;
 }
-.final-awards-celebrate-title .awards-spotlight-cup{
- font-size:clamp(36px,6vw,70px);line-height:1;
- filter:drop-shadow(0 0 13px rgba(255,212,94,.64));
- animation:award-cup-pop 1.25s ease-out .4s both;
-}
+.final-awards-celebrate-title .awards-spotlight-cup{font-size:clamp(36px,6vw,68px);line-height:1;filter:drop-shadow(0 6px 14px rgba(245,158,11,.35));animation:award-cup-pop 1.25s ease-out .4s both}
 .final-awards-celebrate-title>div{display:flex;flex-direction:column;gap:3px;text-align:left}
-.final-awards-celebrate-title strong{font-size:clamp(17px,2.7vw,30px);color:#fff0bf}
-.final-awards-celebrate-title div span{font-size:clamp(12px,1.5vw,17px);color:#d9e9ff;font-weight:700}
-.final-awards-v355 .rank-1 .podium-step{
- border:2px solid #fff1bd!important;box-shadow:0 0 22px #ffd56e66,0 20px 25px #0004!important;
+.final-awards-celebrate-title strong{font-size:clamp(17px,2.7vw,30px);color:#0f172a}
+.final-awards-celebrate-title div span{font-size:clamp(12px,1.5vw,17px);color:#5b7189;font-weight:700}
+@keyframes award-appear{from{opacity:0;transform:translateY(32px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes award-cup-pop{0%{opacity:0;transform:scale(.25) rotate(-16deg)}65%{opacity:1;transform:scale(1.17) rotate(6deg)}100%{transform:scale(1) rotate(0)}}
+
+/* ================================================================
+   EASY V4 · 학생 화면 / 강사 진행 (라이트)
+   ================================================================ */
+.student-trading-shell{max-width:1120px;margin:0 auto;min-width:0}
+.classroom-phase-status{
+  border:1px solid #e8eef6;background:#ffffff;
+  padding:clamp(17px,3vw,26px);border-radius:20px;
+  margin:12px 0 18px;display:grid;gap:10px;min-width:0;
+  box-shadow:0 14px 34px -28px rgba(15,23,42,.45);
 }
-.final-awards-v355 .rank-1 .podium-return{font-size:clamp(18px,3vw,32px)!important}
-.final-awards-v355 .final-podium-slot{animation:award-appear .72s cubic-bezier(.2,.8,.25,1) both}
-.final-awards-v355 .rank-2{animation-delay:.25s}
-.final-awards-v355 .rank-1{animation-delay:.65s}
-.final-awards-v355 .rank-3{animation-delay:.95s}
-@keyframes award-sparks{
-  from{opacity:0;transform:scale(.2) rotate(-30deg)}
-  55%{opacity:.72}
-  to{opacity:.25;transform:scale(1.35) rotate(10deg)}
+.classroom-phase-status h2{font-size:clamp(17px,3.7vw,24px);font-weight:800;line-height:1.48;color:#0f172a;margin:0}
+.classroom-phase-status p{margin:0;color:#b45309;font-size:1rem;font-weight:700}
+.classroom-phase-status small{color:#7c8ea6}
+.classroom-phase-status .pill{justify-self:start}
+.classroom-owned-cards{
+  border:1px solid #e8eef6;border-radius:20px;background:#ffffff;overflow:hidden;margin:18px 0;min-width:0;
+  box-shadow:0 14px 34px -30px rgba(15,23,42,.45);
 }
-@keyframes award-appear{
-  from{opacity:0;transform:translateY(32px) scale(.95)}
-  to{opacity:1;transform:translateY(0) scale(1)}
+.classroom-owned-cards>summary{
+  padding:17px 20px;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;cursor:pointer;list-style:none;min-width:0;
 }
-@keyframes award-cup-pop{
-  0%{opacity:0;transform:scale(.25) rotate(-16deg)}
-  65%{opacity:1;transform:scale(1.17) rotate(6deg)}
-  100%{transform:scale(1) rotate(0)}
+.classroom-owned-cards>summary::-webkit-details-marker{display:none}
+.classroom-owned-cards>summary span{display:flex;align-items:center;gap:9px;min-width:0}
+.classroom-owned-cards>summary strong{color:#0f172a;font-size:clamp(14px,2.8vw,18px);white-space:nowrap}
+.classroom-owned-cards>summary em{font-style:normal;color:#1f6fe0;font-size:clamp(12px,2.3vw,15px);white-space:nowrap;flex-shrink:0;word-break:keep-all}
+.classroom-owned-cards[open]>summary{border-bottom:1px solid #eef2f7;background:#f8fbff}
+.classroom-card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,225px),1fr));gap:12px;padding:16px;min-width:0}
+.class-card-item{
+  border:1px solid #e8eef6;border-radius:16px;padding:12px;background:#f8fbff;
+  display:flex;gap:12px;align-items:center;min-width:0;
+}
+.class-card-item img{width:96px;height:68px;flex:0 0 96px;object-fit:cover;object-position:center;border-radius:9px;background:#eef6ff;border:1px solid #e2ecf8}
+.class-card-item>div{display:flex;flex:1;flex-direction:column;align-items:flex-start;gap:7px;min-width:0}
+.class-card-item strong{font-size:15px;color:#0f172a;word-break:keep-all}
+.class-card-item span{color:#5b7189}
+.class-card-item .btn{width:100%;min-height:42px;padding:8px 10px;white-space:normal;word-break:keep-all}
+.student-trading-shell .listing-board{margin-top:14px}
+@media(max-width:400px){
+  .classroom-owned-cards>summary{padding:14px 11px;gap:6px}
+  .classroom-card-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px}
+  .class-card-item{display:flex;flex-direction:column;padding:9px;text-align:center}
+  .class-card-item img{width:min(100%,112px);height:141px;flex:auto}
+  .class-card-item>div{width:100%;align-items:center}
+  .class-card-item strong{font-size:13px}
+  .class-card-item span{font-size:12px}
+  .class-card-item .btn{font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){
- .final-awards-v355::before,.final-awards-v355::after,
- .final-awards-celebrate-title,.final-awards-celebrate-title .awards-spotlight-cup,
- .final-awards-v355 .final-podium-slot{animation:none!important}
+  .student-trading-shell *,.classroom-owned-cards *{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
+.student-room-heading{margin:16px 0 10px;display:grid;gap:8px}
+.student-room-heading h1{font-size:clamp(22px,5vw,32px);color:#0f172a;margin:0;line-height:1.3}
+.student-room-heading p{font-size:clamp(13px,2.8vw,16px);color:#5b7189;margin:0;line-height:1.6}
 
-
-/* V4.0 / V10.0: 강사 주도형 수업. 학생은 보유 카드와 교환 기능만 본다. */
-.student-trading-shell {max-width:1120px;margin:0 auto;min-width:0}
-.classroom-phase-status {
-  border:1px solid rgba(221,183,98,.35);
-  background:linear-gradient(135deg,#192746,#10213b 70%,#152b45);
-  padding:clamp(17px,3vw,28px);border-radius:20px;
-  margin:12px 0 18px;display:grid;gap:10px;min-width:0;
-}
-.classroom-phase-status h2 {font-size:clamp(17px,3.7vw,24px);font-weight:750;line-height:1.48;color:#f7f5ec;margin:0}
-.classroom-phase-status p {margin:0;color:#f4dca7;font-size:1rem}
-.classroom-phase-status small {color:#c0cee0}
-.classroom-phase-status .pill {justify-self:start}
-.classroom-owned-cards {border:1px solid rgba(188,207,233,.26);border-radius:20px;
- background:#13223a;overflow:hidden;margin:18px 0;min-width:0}
-.classroom-owned-cards>summary {padding:17px 20px;display:flex;align-items:center;justify-content:space-between;
-  gap:12px;cursor:pointer;list-style:none;min-width:0}
-.classroom-owned-cards>summary::-webkit-details-marker {display:none}
-.classroom-owned-cards>summary span {display:flex;align-items:center;gap:9px;min-width:0}
-.classroom-owned-cards>summary strong {color:#fff;font-size:clamp(14px,2.8vw,18px);white-space:nowrap}
-.classroom-owned-cards>summary em {font-style:normal;color:#f0d79b;font-size:clamp(12px,2.3vw,15px);
-  white-space:nowrap;flex-shrink:0;word-break:keep-all}
-.classroom-owned-cards[open]>summary {border-bottom:1px solid rgba(190,209,233,.2)}
-.classroom-card-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,225px),1fr));
- gap:12px;padding:16px;min-width:0}
-.class-card-item {border:1px solid rgba(193,206,227,.24);border-radius:15px;padding:12px;
- background:#1d2f4b;display:flex;gap:12px;align-items:center;min-width:0}
-.class-card-item img {width:78px;height:111px;flex:0 0 78px;object-fit:contain;border-radius:8px;background:#14213a}
-.class-card-item>div {display:flex;flex:1;flex-direction:column;align-items:flex-start;gap:7px;min-width:0}
-.class-card-item strong {font-size:15px;color:#f9f7ef;word-break:keep-all}
-.class-card-item span {color:#d1dfef}
-.class-card-item .btn {width:100%;min-height:42px;padding:8px 10px;white-space:normal;word-break:keep-all}
-.student-trading-shell .listing-board {margin-top:14px}
-@media(max-width:400px) {
-  .classroom-owned-cards>summary {padding:14px 11px;gap:6px}
-  .classroom-card-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px}
-  .class-card-item {display:flex;flex-direction:column;padding:9px;text-align:center}
-  .class-card-item img {width:min(100%,112px);height:141px;flex:auto}
-  .class-card-item>div {width:100%;align-items:center}
-  .class-card-item strong {font-size:13px}
-  .class-card-item span {font-size:12px}
-  .class-card-item .btn {font-size:12px}
-}
-@media(prefers-reduced-motion:reduce) {
- .student-trading-shell *, .classroom-owned-cards * {animation-duration:.01ms!important;transition-duration:.01ms!important}
-}
-
-.student-room-heading {margin:16px 0 10px;display:grid;gap:8px}
-.student-room-heading h1 {font-size:clamp(22px,5vw,32px);color:#faf7ef;margin:0;line-height:1.28}
-.student-room-heading p {font-size:clamp(13px,2.8vw,16px);color:#d1ddee;margin:0;line-height:1.6}
-
-
-/* V4.1/V10.1 순차 카드 교환 UI */
-.turn-mode-picker,.turn-teacher-status,.turn-board{
-  border-radius:18px;
-}
+/* 순차 카드 교환 UI */
+.turn-mode-picker,.turn-teacher-status,.turn-board{border-radius:18px}
 .turn-mode-picker{
   margin:16px 0;padding:16px;
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;
-  background:linear-gradient(145deg,#223656,#16243a);
-  border:1px solid #566b87;
+  background:#ffffff;border:1px solid #e8eef6;
+  box-shadow:0 14px 32px -28px rgba(15,23,42,.45);
 }
 .turn-mode-picker>strong,.turn-mode-picker>p{grid-column:1/-1;margin:0}
-.turn-mode-picker>strong{color:#faf1cf;font-size:16px}
-.turn-mode-picker>p{color:#cbd9ed;font-size:13px;line-height:1.5}
-.turn-mode-picker .btn{min-width:0;white-space:normal;min-height:49px;line-height:1.3;
-  font-size:clamp(12px,2.7vw,14px);padding:8px}
-.turn-mode-picker .btn[aria-pressed="true"]{outline:2px solid #f1d58a;outline-offset:1px}
-.turn-teacher-status{margin:10px 0;padding:14px;
-  background:rgba(15,37,68,.88);border:1px solid rgba(253,218,135,.36)}
-.turn-teacher-status strong{color:#f8df98}
-.turn-teacher-status p{margin:7px 0;color:#edf3ff}
+.turn-mode-picker>strong{color:#0f172a;font-size:16px}
+.turn-mode-picker>p{color:#7c8ea6;font-size:13px;line-height:1.5}
+.turn-mode-picker .btn{min-width:0;white-space:normal;min-height:49px;line-height:1.3;font-size:clamp(12px,2.7vw,14px);padding:8px}
+.turn-mode-picker .btn[aria-pressed="true"]{outline:2px solid rgba(49,130,246,.5);outline-offset:1px;background:#eaf3ff;border-color:#bfd8fb;color:#1f6fe0}
+.turn-teacher-status{margin:10px 0;padding:14px;background:#fffbf2;border:1px solid #f6dfae}
+.turn-teacher-status strong{color:#b45309}
+.turn-teacher-status p{margin:7px 0;color:#4b5563}
 .turn-teacher-status .btn{min-height:40px}
-.turn-board{max-width:100%;min-width:0;overflow-wrap:break-word;
-  background:linear-gradient(140deg,#243858,#12233c);border:1px solid #4d627e;
-  box-shadow:0 14px 30px rgba(0,0,0,.13);padding:clamp(15px,3vw,24px)}
+.turn-board{
+  max-width:100%;min-width:0;overflow-wrap:break-word;
+  background:#ffffff;border:1px solid #e8eef6;
+  box-shadow:0 16px 38px -30px rgba(15,23,42,.5);
+  padding:clamp(15px,3vw,24px);
+}
 .turn-board .section-title{gap:12px}
-.turn-board .section-title h2{color:#fff8e8}
-.turn-order-pill{display:inline-block;padding:7px 12px;background:#182f50;
-  border:1px solid #637b98;border-radius:999px;color:#f6e7be;
-  font-size:12px;font-weight:700;margin:5px 0 14px}
-.turn-current-teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:10px;margin-bottom:12px}
-.turn-current-teams>div{padding:12px;border-radius:12px;
-  border:1px solid rgba(218,232,255,.24);background:rgba(10,23,41,.56);
-  min-width:0;display:grid;gap:5px}
-.turn-current-teams small{color:#b1c7e5;font-size:12px}
-.turn-current-teams strong{color:#fff;line-height:1.35;word-break:keep-all;font-size:16px}
-.turn-clock{font-size:13px;color:#d6e7ff;margin:12px 0}
-.turn-clock b{font-variant-numeric:tabular-nums;color:#ffdf89;font-size:20px}
-.turn-offer-detail{margin:14px 0;padding:14px;display:grid;gap:9px;
-  background:#f5f0e3;border:1px solid #ded4bb;border-radius:14px;color:#15273c}
+.turn-board .section-title h2{color:#0f172a}
+.turn-order-pill{
+  display:inline-block;padding:7px 13px;background:#eef6ff;border:1px solid #d6e7fb;
+  border-radius:999px;color:#1f6fe0;font-size:12px;font-weight:750;margin:5px 0 14px;
+}
+.turn-current-teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.turn-current-teams>div{
+  padding:12px;border-radius:13px;border:1px solid #e8eef6;background:#f8fbff;
+  min-width:0;display:grid;gap:5px;
+}
+.turn-current-teams small{color:#7c8ea6;font-size:12px}
+.turn-current-teams strong{color:#0f172a;line-height:1.35;word-break:keep-all;font-size:16px}
+.turn-clock{font-size:13px;color:#475569;margin:12px 0}
+.turn-clock b{font-variant-numeric:tabular-nums;color:#b45309;font-size:20px}
+.turn-offer-detail{
+  margin:14px 0;padding:14px;display:grid;gap:9px;
+  background:#fffaf0;border:1px solid #f3e3c4;border-radius:14px;color:#0f172a;
+}
 .turn-offer-detail strong{font-size:clamp(15px,4vw,19px);line-height:1.55;word-break:keep-all}
-.turn-offer-detail small{color:#415368;line-height:1.55}
+.turn-offer-detail small{color:#6b7f95;line-height:1.55}
 .turn-buttons{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
-.turn-buttons .btn{flex:1 1 128px;min-width:0;min-height:48px;
-  white-space:nowrap;padding:10px 12px;font-size:clamp(13px,3.5vw,15px)}
-.turn-my-notice,.turn-wait-msg{font-size:14px;line-height:1.6;margin:11px 0;color:#f0f3fc}
-.turn-my-notice{padding:11px;background:#1c3b5e;border-left:3px solid #ecd18a;border-radius:8px}
-.turn-board .listing-unavailable{color:#ffd1c9}
+.turn-buttons .btn{flex:1 1 128px;min-width:0;min-height:48px;white-space:nowrap;padding:10px 12px;font-size:clamp(13px,3.5vw,15px)}
+.turn-my-notice,.turn-wait-msg{font-size:14px;line-height:1.6;margin:11px 0;color:#22364f}
+.turn-my-notice{padding:11px 13px;background:#eef6ff;border-left:3px solid #3182f6;border-radius:9px}
+.turn-board .listing-unavailable{color:#b45309}
 @media(max-width:360px){
   .turn-mode-picker{grid-template-columns:1fr}
   .turn-current-teams{gap:6px}
@@ -623,9 +523,56 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
   .turn-buttons .btn{flex-basis:100%}
 }
 
-/* EASY V4.2: instructor controls, clear turn waiting, responsive small screens */
+/* EASY V4.2 · 강사 조작 · 대기 안내 */
 .turn-board,.turn-teacher-status{min-width:0;overflow-wrap:anywhere}
-.turn-wait-msg{padding:18px 20px;border:2px solid #e8be6d;border-radius:14px;background:#544023;color:#fff3d0;font-weight:850;font-size:clamp(16px,2.5vw,21px);line-height:1.55;box-shadow:0 0 0 3px #e8be6d20}
+.turn-wait-msg{
+  padding:18px 20px;border:2px solid #f6d9a6;border-radius:14px;
+  background:#fff8ea;color:#8a4b06;font-weight:850;
+  font-size:clamp(16px,2.5vw,21px);line-height:1.55;
+  box-shadow:0 0 0 3px rgba(246,217,166,.2);
+}
 .turn-clock{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-@media(min-width:900px){.control-panel .button-area{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch}.control-panel .button-area>.btn{min-height:55px;white-space:normal;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px 16px}.turn-teacher-status .btn{min-height:44px}}
-@media(max-width:760px){html,body,.shell,#app{max-width:100%;overflow-x:hidden!important}.shell,#app,.panel,.turn-board,.two-col-main,.instructor-command-layout,.instructor-sidebar{min-width:0}.instructor-command-layout,.instructor-sidebar{grid-template-columns:minmax(0,1fr)!important}.turn-current-teams{min-width:0;flex-wrap:wrap}.turn-current-teams>*{min-width:0;overflow-wrap:anywhere}.turn-buttons{flex-wrap:wrap}.turn-buttons>.btn{max-width:100%;min-width:0}.table-wrap{max-width:100%;overflow-x:auto!important}}
+@media(min-width:900px){
+  .control-panel .button-area{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch}
+  .control-panel .button-area>.btn{min-height:55px;white-space:normal;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px 16px}
+  .turn-teacher-status .btn{min-height:44px}
+}
+@media(max-width:760px){
+  html,body,.shell,#app{max-width:100%;overflow-x:hidden!important}
+  .shell,#app,.panel,.turn-board,.two-col-main,.instructor-command-layout,.instructor-sidebar{min-width:0}
+  .instructor-command-layout,.instructor-sidebar{grid-template-columns:minmax(0,1fr)!important}
+  .turn-current-teams{min-width:0;flex-wrap:wrap}
+  .turn-current-teams>*{min-width:0;overflow-wrap:anywhere}
+  .turn-buttons{flex-wrap:wrap}
+  .turn-buttons>.btn{max-width:100%;min-width:0}
+  .table-wrap{max-width:100%;overflow-x:auto!important}
+}
+
+
+/* EASY V5.0 · 히어로 미리보기 카드는 살짝 잘라 티저로, 갤러리는 카드 전체 */
+.preview-card .sector-image,
+.preview-card .sector-image.mini{
+  height:auto!important;min-height:0!important;aspect-ratio:16/10;
+}
+.preview-card .sector-image img{
+  height:100%!important;width:100%!important;aspect-ratio:auto!important;
+  object-fit:cover;object-position:center;
+}
+.preview-card .sector-image{background:linear-gradient(140deg,#e6f0fd,#f7fbff)}
+
+/* EASY V5.0 · 모바일 상단바/카드 썸네일 정돈 */
+@media(max-width:620px){
+  .brand small{white-space:nowrap;letter-spacing:.1em!important;font-size:8px!important}
+  .brand{gap:10px;max-width:58%}
+  .brand strong{white-space:nowrap}
+  .top-status{max-width:58%;font-size:10px!important;line-height:1.35;padding:6px 10px;text-align:center}
+  .footer{font-size:11px;line-height:1.75;color:#8798ad}
+}
+@media(max-width:400px){
+  .class-card-item{display:flex;flex-direction:column;padding:9px;text-align:center;gap:8px}
+  .class-card-item img{
+    width:100%!important;height:auto!important;aspect-ratio:16/10;
+    flex:auto;object-fit:cover;object-position:center;border-radius:9px;
+  }
+  .class-card-item>div{width:100%;align-items:center}
+}

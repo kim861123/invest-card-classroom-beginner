@@ -21,6 +21,6 @@ test("trade image is high-resolution, distinct and cache-busted",()=>{
   assert.ok(asset.subarray(0,4).toString()==="RIFF");
 });
 test("new app and service worker cache versions are deployed",()=>{
-  assert.match(html,/EASY V4\.2/);
-  assert.match(sw,/easy-v420-classroom-review/);
+  assert.match(html,/EASY V5\.0/);
+  assert.match(sw,/easy-v500-softlight/);
 });

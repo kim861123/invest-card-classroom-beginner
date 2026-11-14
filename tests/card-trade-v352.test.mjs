@@ -53,6 +53,6 @@ test("card assets are cacheable and Safari collection requests become eager",()=
   assert.match(CSS,/sector-image\.is-loaded::after/);
 });
 test("new version is used for script, css, and service worker",()=>{
-  assert.match(html,/EASY V4\.2/);
-  assert.match(sw,/easy-v420-classroom-review/);
+  assert.match(html,/EASY V5\.0/);
+  assert.match(sw,/easy-v500-softlight/);
 });
