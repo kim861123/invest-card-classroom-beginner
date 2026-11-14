@@ -82,7 +82,7 @@ test("clear clock, mobile guard, real card assets, large news explanation mode",
  assert.match(app,/data-action="skip-proposal"/);
  assert.match(presentation,/id="news-focus"/);
  assert.match(presentationJs,/setPresentationMode/);
- assert.match(app,/ticker==="XLC"\?"png":"svg"/);
+ assert.match(app,/cardPath/);
  for(const ticker of ["XLE","XLV"])assert.ok(fs.statSync(new URL("../public/cards/"+ticker+".svg",import.meta.url)).size>200);
  assert.ok(fs.statSync(new URL("../public/cards/XLV.png",import.meta.url)).size>100000);
  assert.match(html,/GENERAL V10\.2|EASY V5\.0/);

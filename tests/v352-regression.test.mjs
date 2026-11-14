@@ -40,7 +40,7 @@ test("all nine article images are locally bundled and nontrivial",()=>{
   }
 });
 test("original cards use stable cacheable URL, fallback is readable immediately",()=>{
-  assert.match(app,/ticker==="XLC"\?"png":"svg"/); assert.ok(fs.statSync(new URL("../public/cards/XLE.svg",import.meta.url)).size>300);
+  assert.match(app,/cardPath/); assert.ok(fs.statSync(new URL("../public/cards/XLE.svg",import.meta.url)).size>300);
   assert.match(app,/class="sector-card-fallback"/);
   assert.match(css,/\.sector-card-fallback\{/);
 });

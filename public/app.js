@@ -312,7 +312,7 @@ function stat(label,num,hint="",cls=""){
 }
 // Optimized original card artwork: 480px previews (~50 KB each) and full-size WebP for zoom.
 const CARD_ASSET_VERSION="v3.5.13-card-webp";
-const cardPath = ticker => `/cards/${encodeURIComponent(ticker)}.${ticker==="XLC"?"png":"svg"}?v=${CARD_ASSET_VERSION}`;
+const cardPath = ticker => `/cards/${encodeURIComponent(ticker)}.png?v=${CARD_ASSET_VERSION}`;
 const cardFullPath = ticker => `/cards/${encodeURIComponent(ticker)}.png?v=${CARD_ASSET_VERSION}`;
 const DRAW_TOTAL=110;
 // 초급 전용: 경제 경험이 없는 학습자를 위한 단순한 4단계 안내
